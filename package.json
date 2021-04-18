@@ -1,0 +1,30 @@
+{
+  "name": "esnext-cctalk",
+  "version": "0.0.1",
+  "description": "A Collection of Methods to Work with Serial Devices that do use the CCTalk Protocol like the EMP800 and Taiko Pub 7",
+  "main": "src/cctalk.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frank-dspeed/esnext-cctalk.git"
+  },
+  "keywords": [
+    "CCTalk",
+    "Taiko",
+    "Pub7",
+    "EMP800",
+    "serialport",
+    "Web",
+    "Serial",
+    "Api"
+  ],
+  "author": "Frank Lemanschik",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/frank-dspeed/esnext-cctalk/issues"
+  },
+  "homepage": "https://github.com/frank-dspeed/esnext-cctalk#readme"
+}
