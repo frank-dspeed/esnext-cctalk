@@ -411,3 +411,28 @@ const CCTalkMessageCompat = (
     return CompatMessage;
 
 };
+
+function write(stream,data) {
+  if (!stream.write(data, encoding)) {
+    let deferedPromise = { resolve: ()=>{/**NOOP */}}
+    stream.once('drain', () => {
+      stream.write(data, encoding);
+      deferedPromise.resolve(read(stream));
+    });
+    return new Promise(resolve=>deferedPromise.resolve = resolve);
+  } else {
+    return Promise.resolve(read(stream));
+  }
+}
+// Should try to read until Timeout
+function read(stream) {
+  if (!stream.readable) {
+    let deferedPromise = { resolve: () => {/**NOOP */}}
+    stream.once('readable', () => 
+      deferedPromise.resolve(stream.read())
+    );
+    return new Promise(resolve=>deferedPromise.resolve = resolve)
+  } else {
+    return Promise.resolve(stream.read())
+  }
+}
