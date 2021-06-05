@@ -1,79 +1,121 @@
-export const CCTalkParser = ({ preservedDataBuffer = [], lastByteFetchTime = 0, maxDelayBetweenBytesMs = 50 } = {}) => {
-    const parser = { preservedDataBuffer, lastByteFetchTime, maxDelayBetweenBytesMs, 
-    //    buffers: [] 
+/**
+ * 
+ * @param {*} message 
+ * @returns 
+ */
+const debug = message => 
+    /**
+     * 
+     * @param  {...any} msg 
+     * @returns 
+     */
+    (...msg) => console.log(message,...msg)
+/** @typedef { Uint8Array | Uint8ClampedArray } Uint8ArrayType */
+/** @typedef { Buffer | Uint8ArrayType } BufferOrUnit8 */
+/**
+ * @callback CCTalkParserTransformFn
+ * @param { BufferOrUnit8 } buffer 
+ * @param {*} destination 
+ */
+
+/**
+ * Empty Inital state byte buffers
+ * @typedef {object} CCTalkParserInitalState
+ * @property { Uint8ArrayType } preservedDataBuffer
+ * @property {number} lastByteFetchTime Tracks Delay between bytes recived
+ */
+const CCTalkParserInitalState = {
+    preservedDataBuffer: new Uint8ClampedArray([]), 
+    lastByteFetchTime: 0, 
+}
+
+
+/**
+ * @typedef CCTalkParserInstance
+ * @property { Uint8ArrayType } preservedDataBuffer
+ * @property {number} lastByteFetchTime
+ * @property {number} maxDelayBetweenBytesMs
+ * @property {CCTalkParserTransformFn} _transform
+ */
+
+/**
+ * 
+ * @param {number} maxDelayBetweenBytesMs
+ * @returns {CCTalkParserInstance}
+ */
+export const CCTalkParser = (maxDelayBetweenBytesMs=50) => {
+
+    /** @type {CCTalkParserInstance} */
+    const parser = { 
+        ...CCTalkParserInitalState,
+        maxDelayBetweenBytesMs,
+        _transform: (buffer , destination ) =>  { destination(buffer); }
     }
+
+    /** @type {CCTalkParserTransformFn} */    
     parser._transform = (buffer , destination )=> {
-       
+       console.log(buffer, parser.preservedDataBuffer)
         if (parser.maxDelayBetweenBytesMs > 0) {
           const now = Date.now();
           if (now - parser.lastByteFetchTime > parser.maxDelayBetweenBytesMs) {
-            parser.preservedDataBuffer = [];
+            parser.preservedDataBuffer = new Uint8ClampedArray([]);
+            console.log('reset parser',maxDelayBetweenBytesMs)
           }
           parser.lastByteFetchTime = now;
         }
-        
+        /**
+         * The spread operator ... uses a for const of loop and so converts 
+         * even NodeJS Buffer Objects Into Unit8Arrays without any tools
+         * browser nativ buffer implementations are UInt8 Arrays
+         */
         const Uint8ArrayView = new Uint8ClampedArray([
             ...parser.preservedDataBuffer,
             ...buffer
         ]);
-            
+        console.log({ Uint8ArrayView })    
         const dataLength = Uint8ArrayView[1];
         const endOfChunk = 5 + dataLength;
         const moreThen2bytes = Uint8ArrayView.length > 1;
         const completePayload = Uint8ArrayView.length >= endOfChunk;
+        const length = Uint8ArrayView.length;
+        console.log({ Uint8ArrayView, length, endOfChunk, moreThen2bytes, completePayload })  
         // CCTalk is a serial protocol it will never send 2 full packets
         // so we need no while loop!
         if (moreThen2bytes && completePayload) {
           // full CCTalk Payload accumulated
           const CCTalkPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
+
           //parser.buffers.push(CCTalkPayload)
           destination(CCTalkPayload);
           const perserveData = Uint8ArrayView.slice(endOfChunk, Uint8ArrayView.length);
-          parser._transform( perserveData, destination)
+          console.log({CCTalkPayload, perserveData, Uint8ArrayView })
+          if (parser._transform) {
+            parser.preservedDataBuffer = new Uint8ClampedArray([])
+            parser._transform( perserveData, destination)
+            
+          }
+          return
           //parser.preservedDataBuffer = preserveData;  
         }
         parser.preservedDataBuffer = Uint8ArrayView;
         
     }
+    
     // Instance of parser
     return parser;
 }
 
+
+
+
 /**
- * Parse the CCTalk protocol
- * @extends Transform
- * @summary A transform stream that emits CCTalk packets as they are received.
- * @example
-const SerialPort = require('serialport')
-const CCTalk = require('@serialport/parser-cctalk')
-const port = new SerialPort('/dev/ttyUSB0')
-const parser = port.pipe(new CCtalk())
-parser.on('data', console.log)
+ * 
+ * @param {number} maxDelayBetweenBytesMs 
+ * @returns 
  */
-export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
-    const parser = CCTalkParser({ maxDelayBetweenBytesMs });
-            /*
-            const CCTalkPayload = parser.buffers.pop();
-            if (CCTalkPayload) {
-                this.push(parser.buffers)
-            }
-            */
-            //require('stream/promises')
-    return import('stream')
-        .then( ({Transform}) =>
-            class NodeTransformStream extends Transform {
-                _transform(buffer, _, cb) {
-                    parser._transform(buffer , this.push);
-                    cb();
-                }
-            }
-        )
-        .then( () => new NodeTransformStream() );
-}
-
 export const WebStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
-    const parser = CCTalkParser({ maxDelayBetweenBytesMs });
-
+    const parser = CCTalkParser(maxDelayBetweenBytesMs);
+    /** @type {TransformerTransformCallback<Uint8ArrayType,TransformStreamDefaultController>}  */
     const transform = async (chunk, controller) => {
         parser._transform(chunk, controller.enqueue);
         /*
@@ -86,22 +128,31 @@ export const WebStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
     
     return transform;    
 }
-//new TransformStream({ start() {/* required. */ }, transform: CCTalkTransformStreamParser() })
+const getCCTalkParserTransformStream = () => 
+    new TransformStream({ 
+        start() { /** required. */ }, 
+        transform: WebStreamParser() 
+    });
 
-const errorUint8Array = chunk => {
-    if (!(chunk instanceof Uint8Array)) {
-        //We need to work with int8 while nodeJS Works with int16
-        throw new Error('_buffer is not Uint8Array')
-    }
+
+/**
+ * errorUint8 Errors if its not a Uint8*
+ * @param { Uint8ArrayType } chunk 
+ */
+const errorUint8 = chunk => {
+    const isUint8 = chunk.constructor.name.indexOf('Uint8') === 0;
+    if (isUint8) { return; };
+    //We need to work with Uint8 while ECMAScript uses Uint16 by default
+    throw new Error('_buffer is not Uint8Array')
 }
 
 /**
  * 
- * @param { number[] | Uint8Array | Uint8ClampedArray } chunk 
+ * @param {Uint8ArrayType} chunk 
  * @returns 
  */
-const getChunkPositions = chunk => {
-    errorUint8Array(chunk);
+const getPayloadPositionData = chunk => {
+    errorUint8(chunk);
     const destPosition = 0;
     const dataLengthPosition = 1;
     const srcPosition = 2;
@@ -118,9 +169,14 @@ const getChunkPositions = chunk => {
     }
 }
 
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns 
+ */
 const getDataFromChunk = chunk => {
-    errorUint8Array(chunk);
-    const { dataStartPosition , dataEndPosition} = getChunkPositions(chunk);
+    errorUint8(chunk);
+    const { dataStartPosition , dataEndPosition} = getPayloadPositionData(chunk);
     return new Uint8Array(chunk.slice(dataStartPosition , dataEndPosition));
 }
 
@@ -128,7 +184,8 @@ const getDataFromChunk = chunk => {
 /**
  * CRC
  * @param { Uint8Array } buf  
- * @returns 
+ * @param { number } [previous] Uint8
+ * @returns {number} crc16checksums as byteOffsets use toString(16)
  */
 const crc16xmodem = (buf, previous) => {
     if (!(buf instanceof Uint8Array)) {
@@ -155,46 +212,70 @@ const crc16xmodem = (buf, previous) => {
 }
 /** End https://unpkg.com/browse/crc@3.8.0/crc16xmodem.js */
 
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {number} Uint8 CRC Checksum as number
+ */
 const calcCrc8 = chunk => {
-    errorUint8Array(chunk);
-    const { checksumPosition } = getChunkPositions(chunk);
+    errorUint8(chunk);
+    const { checksumPosition } = getPayloadPositionData(chunk);
 
     let sum = 0;
-    // Allows us to use a already signed chunk for verification
-    chunk.forEach((byte, index) => {
-        if (index === checksumPosition) { return };
-        sum += (byte);
-    })
+    
+    chunk.forEach(
+        /**
+         * 
+         * @param {*} byte 
+         * @param {*} index 
+         * @returns 
+         */
+        (byte, index) => {
+            // Allows us to use a already signed chunk for verification
+            if (index === checksumPosition) { return };
+            sum += (byte);
+        }
+    )
     
     return 0x100 - sum % 0x100; //256 - sum % 256
 }
 
-const signCrc8 = chunk => {
-    errorUint8Array(chunk);
-    const checksum = Methods.calcSum(chunk)
-    const { checksumPosition } = getChunkPositions(chunk);
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {Uint8ArrayType} chunk with inserted checksum on the right position
+ */
+const calculateAndInsertCrc8ChecksumForThePayload = chunk => {
+    errorUint8(chunk);
+    const checksum = calcCrc8(chunk)
+    const { checksumPosition } = getPayloadPositionData(chunk);
     chunk[checksumPosition] = checksum;
     return chunk
 }
 
-const verifyCrc8 = chunk => {
-    errorUint8Array(chunk);
-    const { checksumPosition } = getChunkPositions(chunk);
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {boolean}
+ */
+const crc8verify = chunk => {
+    errorUint8(chunk);
+    const { checksumPosition } = getPayloadPositionData(chunk);
 
     const checksum = chunk[checksumPosition];
     // We use != and not !== because we are not sure if we work with Uint8Arrays or not
-    return (checksum != Methods.calcSum(chunk));
+    return (checksum != calcCrc8(chunk));
 }
 
 /**
  * Turns a CCTalk parser chunk and returns crc16 verfiyable Uint8Array
  * that contains only the relevant parts.
  * Allows us to use a already signed chunk for verification
- * @param {*} chunk already signed or unsigned 
+ * @param {Uint8ArrayType} chunk already signed or unsigned 
  * @returns 
  */
 const getCrc16Unit8Array = chunk => {
-    errorUint8Array(chunk);
+    errorUint8(chunk);
     /** Historical */
     /*
     const _dest = _buffer[0];
@@ -211,44 +292,63 @@ const getCrc16Unit8Array = chunk => {
     return new Uint8Array([chunk[0],chunk[1],chunk[3],..._data])
 }
 
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {Array<number> | undefined}
+ */
 const calcCrc16 = chunk => {
 
     const checksums = crc16xmodem(getCrc16Unit8Array(chunk));
-    const checksumsArray = checksums
-        .toString(16)
-        .match(/.{1,2}/g)
-        .map((val)=> parseInt(val, 16))
+    const checksumsArray = checksums.toString(16).match(/.{1,2}/g)
+        ?.map((val)=> parseInt(val, 16))
         .reverse(); 
     return checksumsArray;
 }
 
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {Uint8ArrayType}
+ */
 const signCrc16 = chunk => {
-    const { srcPosition, checksumPosition} = getChunkPositions(chunk);
+    const { srcPosition, checksumPosition} = getPayloadPositionData(chunk);
     const CRCArray = calcCrc16(chunk) 
-    
+    if (!CRCArray) {
+        console.log(chunk)
+        throw new Error('Could not Sign CRC16');
+    }
     chunk[srcPosition] = CRCArray[0];
     chunk[checksumPosition] = CRCArray[1];
     
     return chunk;
 }
 
+/**
+ * 
+ * @param {Uint8ArrayType} chunk 
+ * @returns {boolean}
+ */
 const crc16verify = chunk => {
-    const { srcPosition, checksumPosition} = getChunkPositions(chunk);
+    const { srcPosition, checksumPosition} = getPayloadPositionData(chunk);
     // NOTE: was dataEndPosition historicaly
     
     const currentCRC = [chunk[srcPosition], chunk[checksumPosition]];
     const CRCArray = calcCrc16(chunk);
-
-    debug('ccMessage:crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
-    return ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1]));
+    
+    //debug('ccMessage:crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
+    return CRCArray ? ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1])) : false;
 }
 
 
 //new 254
+/**
+ * 
+ * @param {Uint8ArrayType} _buffer 
+ * @returns 
+ */
 const fromUint8Array = _buffer => {
-    if (_buffer instanceof Uint8Array) {
-        throw new Error('_buffer is not Uint8Array')
-    }
+    errorUint8(_buffer);
     // parse command
     //this._buffer = src;
     const CCTalkMessage = {
@@ -258,6 +358,7 @@ const fromUint8Array = _buffer => {
         _command: _buffer[3],
         _data: _buffer.slice(4, _buffer[1]+4),
         _checksum: _buffer[_buffer[1] + 4],
+        _crcType: 0
     }
     
     if (!CCTalkMessage._checksum) {
@@ -266,28 +367,32 @@ const fromUint8Array = _buffer => {
     }
     
     // Check for CRC8
-    if (crc8verify()) {
+    if (crc8verify(_buffer)) {
         CCTalkMessage._crcType = 8;
-        debug('ccMessage:crc')('CRC8_CHECKSUM');
+        //debug('ccMessage:crc')('CRC8_CHECKSUM');
         return CCTalkMessage;
     } 
     
-    if (crc16verify()) {
+    if (crc16verify(_buffer)) {
         CCTalkMessage._crcType = 16;
-        debug('ccMessage:crc')('CRC16_CHECKSUM');
+        //debug('ccMessage:crc')('CRC16_CHECKSUM');
         return CCTalkMessage;
     } 
     
-    debug('ccMessage:crc::warning')(this._buffer);
+    //debug('ccMessage:crc::warning')(this._buffer);
     return CCTalkMessage;
     //throw new Error('WRONG_CHECKSUM');
 }
 
-
+/**
+ * 
+ * @param {*} arr 
+ * @returns 
+ */
 const array2Object = arr => {
     const [ dest, dataLength, srcOrCrc16, command ] = arr;
     
-    const { checksumPosition } = getChunkPositions(arr);
+    const { checksumPosition } = getPayloadPositionData(arr);
     const data = getDataFromChunk(arr);
     const crc = arr[checksumPosition];
     
@@ -300,10 +405,10 @@ const array2Object = arr => {
         data,
         crc,
         get crcType() {
-            if (crc8verify()) {
+            if (crc8verify(arr)) {
                 return 8
             } 
-            if (crc16verify()) {
+            if (crc16verify(arr)) {
                 return 16
             }
             return
@@ -329,11 +434,11 @@ const object2Array = messageObj => {
         crcType = 8
     } = messageObj;
 
-    const _buffer = [ dest, data.length , src, command, ...data, crc ]
+    const _buffer = new Uint8Array([ dest, data.length , src, command, ...data, crc ]);
     
     // Sign the resulting _buffer if needed
     if (!crc && crcType) {
-        const signingMethod = ( crcType === 8 ) ? signCrc8 : ( crcType === 16 ) ? signCrc16 : ()=>{/* NoOp */};
+        const signingMethod = ( crcType === 8 ) ? calculateAndInsertCrc8ChecksumForThePayload : ( crcType === 16 ) ? signCrc16 : ()=>{/* NoOp */};
         signingMethod(_buffer);
     }
 
@@ -345,7 +450,6 @@ const object2Array = messageObj => {
  * @param {*} src 
  * @param {*} dest 
  * @param {*} crcType 
- * @param {*} data 
  * @returns 
  */
 const getSendCommand = (
@@ -355,21 +459,32 @@ const getSendCommand = (
 ) => {
     const signingMethod = 
         ( crcType === 8 ) 
-            ? signCrc8 
+            ? calculateAndInsertCrc8ChecksumForThePayload 
             : ( crcType === 16 ) 
                 ? signCrc16 
                 : ()=>{/* NoOp */};
-            
-    return ( command, data = new Uint8Array(0) ) => {
+    
+    /**
+     * 
+     * @param {*} command 
+     * @param {*} data 
+     * @returns 
+     */
+    const sendCommand = ( command, data = new Uint8Array(0) ) => {
         const CCTalkPayload = new Uint8Array(
-            dest, data.length, src, command, ...data
+            [dest, data.length, src, command, ...data]
         );
         signingMethod(CCTalkPayload);
         return CCTalkPayload;
     }
+    return sendCommand
     
 }
-
+/**
+ * 
+ * @param {*} message 
+ * @returns 
+ */
 const verifyCCTalkMessage = message => {
             
     if (crc8verify(message)) {       
@@ -382,11 +497,20 @@ const verifyCCTalkMessage = message => {
         return message;
     } 
     
-    debug('ccMessage:crc::warning')(this._buffer);
+    debug('ccMessage:crc::warning')(message);
     throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }
 
+/**
+ * 
+ * @param {*} src 
+ * @param {*} dest 
+ * @param {*} command 
+ * @param {*} data 
+ * @param {*} crcType 
+ * @returns 
+ */
 const CCTalkMessageCompat = (
     src = 1, dest = 2, command, 
     data = new Uint8Array(0), 
@@ -412,9 +536,20 @@ const CCTalkMessageCompat = (
 
 };
 
-function write(stream,data) {
+/**
+ * 
+ * @param {*} stream 
+ * @param {*} data 
+ * @returns 
+ */
+function write(stream,data,encoding = 'utf8') {
   if (!stream.write(data, encoding)) {
-    let deferedPromise = { resolve: ()=>{/**NOOP */}}
+    let deferedPromise = { resolve: 
+        /**
+         * 
+         * @param {*} value 
+         */
+        value => {/**NOOP */}}
     stream.once('drain', () => {
       stream.write(data, encoding);
       deferedPromise.resolve(read(stream));
@@ -425,9 +560,19 @@ function write(stream,data) {
   }
 }
 // Should try to read until Timeout
+/**
+ * 
+ * @param {*} stream 
+ * @returns 
+ */
 function read(stream) {
   if (!stream.readable) {
-    let deferedPromise = { resolve: () => {/**NOOP */}}
+    let deferedPromise = { resolve: 
+        /**
+         * 
+         * @param {*} val 
+         */
+        (val) => {/**NOOP */}}
     stream.once('readable', () => 
       deferedPromise.resolve(stream.read())
     );
