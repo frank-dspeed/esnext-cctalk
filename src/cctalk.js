@@ -43,8 +43,9 @@ const CCTalkParserInitalState = {
  * @param {number} maxDelayBetweenBytesMs
  * @returns {CCTalkParserInstance}
  */
-export const CCTalkParser = (maxDelayBetweenBytesMs=50) => {
-
+export const CCTalkParser = ( 
+    maxDelayBetweenBytesMs = 50 
+) => {
     /** @type {CCTalkParserInstance} */
     const parser = { 
         ...CCTalkParserInitalState,
@@ -52,17 +53,20 @@ export const CCTalkParser = (maxDelayBetweenBytesMs=50) => {
         _transform: (buffer , destination ) =>  { destination(buffer); }
     }
 
-    /** @type {CCTalkParserTransformFn} */    
-    parser._transform = (buffer , destination )=> {
-       console.log(buffer, parser.preservedDataBuffer)
+    const checkDelayAndResetPreservedDataBufferIfneeded = () => {
         if (parser.maxDelayBetweenBytesMs > 0) {
-          const now = Date.now();
-          if (now - parser.lastByteFetchTime > parser.maxDelayBetweenBytesMs) {
-            parser.preservedDataBuffer = new Uint8ClampedArray([]);
-            console.log('reset parser',maxDelayBetweenBytesMs)
-          }
-          parser.lastByteFetchTime = now;
+            const now = Date.now();
+            if (now - parser.lastByteFetchTime > parser.maxDelayBetweenBytesMs) {
+              parser.preservedDataBuffer = new Uint8ClampedArray([]);
+            }
+            parser.lastByteFetchTime = now;
         }
+    }
+
+    /** @type {CCTalkParserTransformFn} */    
+    parser._transform = ( buffer, destination ) => {
+       
+       checkDelayAndResetPreservedDataBufferIfneeded()
         /**
          * The spread operator ... uses a for const of loop and so converts 
          * even NodeJS Buffer Objects Into Unit8Arrays without any tools
@@ -72,32 +76,29 @@ export const CCTalkParser = (maxDelayBetweenBytesMs=50) => {
             ...parser.preservedDataBuffer,
             ...buffer
         ]);
-        console.log({ Uint8ArrayView })    
+        
         const dataLength = Uint8ArrayView[1];
         const endOfChunk = 5 + dataLength;
+        
         const moreThen2bytes = Uint8ArrayView.length > 1;
         const completePayload = Uint8ArrayView.length >= endOfChunk;
-        const length = Uint8ArrayView.length;
-        console.log({ Uint8ArrayView, length, endOfChunk, moreThen2bytes, completePayload })  
-        // CCTalk is a serial protocol it will never send 2 full packets
-        // so we need no while loop!
-        if (moreThen2bytes && completePayload) {
-          // full CCTalk Payload accumulated
-          const CCTalkPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
-
-          //parser.buffers.push(CCTalkPayload)
-          destination(CCTalkPayload);
-          const perserveData = Uint8ArrayView.slice(endOfChunk, Uint8ArrayView.length);
-          console.log({CCTalkPayload, perserveData, Uint8ArrayView })
-          if (parser._transform) {
-            parser.preservedDataBuffer = new Uint8ClampedArray([])
-            parser._transform( perserveData, destination)
-            
-          }
-          return
-          //parser.preservedDataBuffer = preserveData;  
+        
+        const processPayload = (moreThen2bytes && completePayload)
+        
+        if (!processPayload) {
+            // Keep the Data Buffer Until there is more data or a Timeout
+            parser.preservedDataBuffer = Uint8ArrayView;
+            return
         }
-        parser.preservedDataBuffer = Uint8ArrayView;
+        
+        const CCTalkPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
+        destination(CCTalkPayload);
+        
+        parser.preservedDataBuffer = Uint8ArrayView.slice(endOfChunk, Uint8ArrayView.length);
+
+        if (parser.preservedDataBuffer.length > 0) {
+            parser._transform( new Uint8ClampedArray([]), destination)
+        }
         
     }
     
@@ -581,3 +582,4 @@ function read(stream) {
     return Promise.resolve(stream.read())
   }
 }
+
