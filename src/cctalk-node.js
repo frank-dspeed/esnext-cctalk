@@ -1,4 +1,5 @@
-import { CCTalkParser } from './cctalk.js';
+import 'types'; //Do not treeshake that if you want a dev build for production also strip comments
+import { CCTalkParser } from './cctalk-parser.js';
 import { Transform } from 'stream';
 export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
     const parser = CCTalkParser(maxDelayBetweenBytesMs);
@@ -21,7 +22,7 @@ export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
         * @param {*} cb 
         */
        _transform(chunk, encoding, cb) {
-           parser._transform(chunk, (/** @type {import('./cctalk.js').Uint8ArrayType} */ payload) => this.push(payload));
+           parser._transform(chunk, (/** @type {Uint8ArrayType} */ payload) => this.push(payload));
            cb();
        }
    }
