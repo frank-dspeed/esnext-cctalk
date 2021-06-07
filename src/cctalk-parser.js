@@ -159,7 +159,9 @@ export const PollResponseEventsParser = () => {
       }
       
       /** @type {Uint8ArrayType[]} */
-      const events = eventData.reduce(reducer, []);
+      const events = eventData
+        .reduce(reducer, [])
+        .reverse(); // Returns [eventCode,channel]
   
       if (!lastEventCounter) {
         // if we got no lastEventCounter this is the first event we see
@@ -167,7 +169,7 @@ export const PollResponseEventsParser = () => {
       }
       const eventsCount =  eventBuffer[0];
       return { eventsCount, events };
-      // return [[channel, type]]  
+      
     }
     
     return pollResponseEventsParser
