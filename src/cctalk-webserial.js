@@ -1,6 +1,6 @@
 // https://googlechromelabs.github.io/serial-terminal/
 // https://github.com/GoogleChromeLabs/serial-terminal/tree/gh-pages
-import 'types'; //Do not treeshake tthat if you want a dev build for production also strip comments
+import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
 import { CCTalkParser } from './cctalk-parser.js';
 /**
  * 

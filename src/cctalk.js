@@ -1,4 +1,4 @@
-import 'types'; //Do not treeshake tthat if you want a dev build for production also strip comments
+import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
 import { CCTalkParser } from './cctalk-parser.js';
 
 /** @param {*} message */

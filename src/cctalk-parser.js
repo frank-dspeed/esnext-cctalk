@@ -1,4 +1,4 @@
-import 'types'; //Do not treeshake that if you want a dev build for production also strip comments
+import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
 
 const NoOp = () => { /** */ };
@@ -7,7 +7,7 @@ const debug = message =>
     /** @param {*} msg */
     (...msg) => console.log(message,...msg)
 
-/** @type {cctalkPortParserInitalState} */
+
 const cctalkPortParserInitalState = {
     preservedDataBuffer: new Uint8ClampedArray([]), 
     lastByteFetchTime: 0, 
