@@ -113,10 +113,8 @@ export const PollResponseEventsParser = () => {
       const currentEventCounter =  eventBuffer[0];
       
       if (lastEventCounter) {
-        // It turns out that events could be fired multiple times 
-        // maybe debouncing is needed maybe not needs testing.
         // Debug only Once !! if (preserved.eventBuffer && currentEventCounter != lastEventCounter) {
-        debug('cctalk::device::events')({ eventBuffer },{ lastEventCounter});
+        
         const EventCounter = currentEventCounter - lastEventCounter;        
         if(EventCounter > 5){
           // We are in a deSynced State
