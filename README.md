@@ -28,4 +28,54 @@ In Some Years when the support is better we should switch to Uint8ClampedArray w
 ## Understanding bytes and bitshifts in ECMAScript
 a bit shift is equal to multiplying by 2^(# of bits+1), so instead of shifting the bits ```val = val << 8```,  just do ```val = val * 256 ```.
 
-in CCTalk we work with 0x10 === 256 === val << 8. As the Protocol works with Integers 0 till 255 Unsigned bytes. And JS Works with int16 0x100 int8 is 0x10
+in CCTalk we work with 0x10 === 256 === val << 8. As the Protocol works with Integers 0 till 255 Unsigned bytes. And JS Works with int16 0x1000 int8 is 0x10 the data type is also called unsigned short
+
+
+
+
+## Device Specification
+Bus 001 Device 006: ID 10c4:ea60 Silicon Labs CP210x UART Bridge
+{usbProductId: 60000, usbVendorId: 4292}
+
+```js
+const ExampleDeviceType = () => ({
+  eventCodes, // used to map eventCodes to eventName
+  handlers // used to handle events eventName(channel)
+  commands, // used to map named commands to header/command codes
+  channels, // used to map channel codes to currency Codes.
+});
+
+const exampleDevice = deviceType => {
+  return {
+    ...deviceType,
+    dest, // The id of the device
+    crcType, // 8 or 16 
+    usbVendorId, // unsigned short usbVendorId; 0x2341
+    usbProductId, // unsigned short usbProductId; 0x2341
+  }
+}
+
+const connection = () => {
+    // gets called when the device gets connected
+    const myDevice = exampleDevice(ExampleDeviceType);
+    let done = false
+    const read = () => {
+      const event = myDevice.next();
+      // => do someting with event.value or event.done
+      if (event.done || done) {
+        //teardown
+        return true
+      }
+      setTimeout(read,200);
+    }
+    
+    // contains a function that returns a series of commands that should get executed
+    // This handels the complet device life cycle
+}
+
+```
+
+## Credits
+This Site helped me a lot https://cctalktutorial.wordpress.com/
+
+let port = await navigator.serial.requestPort();

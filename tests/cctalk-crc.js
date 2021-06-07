@@ -22,5 +22,24 @@ console.log(object2Array({
     dest: 40,
     data: new Uint8Array([]),
     command: 254,
+    crcType: 16
+}))
+
+console.log('##########')
+
+console.log(object2Array({
+    src: 1,
+    dest: 0,
+    data: new Uint8Array([]),
+    command: 254,
+    crcType: 8
+}))
+
+
+console.log(object2Array({
+    src: 1,
+    dest: 2,
+    data: new Uint8Array([]),
+    command: 254,
     crcType: 8
 }))

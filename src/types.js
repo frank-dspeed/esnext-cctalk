@@ -5,12 +5,7 @@
  * @param { BufferOrUnit8 } buffer 
  * @param {*} destination 
  */
-/**
- * Empty Inital state byte buffers
- * @typedef {object} CCTalkParserInitalState
- * @property { Uint8ArrayType } preservedDataBuffer
- * @property {number} lastByteFetchTime Tracks Delay between bytes recived
- */
+
 /**
  * @typedef CCTalkParserInstance
  * @property { Uint8ArrayType } preservedDataBuffer

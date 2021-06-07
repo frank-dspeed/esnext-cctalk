@@ -1,4 +1,4 @@
-import 'types'; //Do not treeshake that if you want a dev build for production also strip comments
+import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { CCTalkParser } from './cctalk-parser.js';
 import { Transform } from 'stream';
 export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {

@@ -52,8 +52,16 @@ function read(stream) {
   }
 }
 
-
-export const CCTalkSession = () => {
+/**
+ * This is the Process to Start a Fresh CCTalkSession
+ * on a fresh opened Connection Port
+ * The session is stateless and can not be resumed!
+ * close and open the port again to get a new session
+ * port needs to have a implementation of write that returns the answer
+ * or it needs to supply read.
+ * @returns 
+ */
+export const CCTalkSession = (port) => {
     const timeout = 120 * 1000; //2min
     /** @property {Promise.reject} reject */
     const deffredPromise = {};
