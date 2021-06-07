@@ -397,7 +397,7 @@ export const getSendCommand = (
      */
     const sendCommand = ( command, data = new Uint8Array(0) ) => {
         const CCTalkPayload = new Uint8Array(
-            [dest, data.length, src, command, ...data]
+            [dest, data.length, src, command, ...data,0]
         );
         signingMethod(CCTalkPayload);
         return CCTalkPayload;
