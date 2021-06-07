@@ -1,41 +1,49 @@
-
+import { getSendCommand, getMessage } from './cctalk-crc.js';
 const NoOp = () => { /** */ };
 /** @param {*} message */
 const debug = message => 
     /** @param {*} msg */
     (...msg) => console.log(message,...msg)
+// Talk from the BUS to the billAcceptor for example
+const sendCommand = getSendCommand(0,40,16)
+// in general you will configure sendCommand per target to talk to
 
 //Device Logic
 /* Moved to CCTalkSession Logic
 const onBusOpen = () => {
     debug('device::onBusOpen')(this.ready)
     if (!this.ready) {
-      this.exec('simplePoll')
+      sendCommand('simplePoll')
         .then(() => {
           this.ready = true;
           this.emit('ready');
         }, (error) => {
           this.emit('error', error);
         });
-      //this.exec('performSelfCheck')
+      //sendCommand('performSelfCheck')
     }
   }
   */
 
-const parsePollResponse = () => {
+const PollResponseEventsParser = () => {
   const preserved = { eventBuffer: new Uint8Array() };
-
-  const handler = pollResponse => {
-    // getData out of the pollResponse Payload
-    const data = new Uint8Array([])
+  
+  /**
+   * 
+   * @param {Uint8ArrayType} eventBufffer 
+   * @param {number} lastEventCounter 
+   */
+  const checkIfEventsAreInSync = (eventBufffer,lastEventCounter) => {
+    const currentEventCounter =  eventBufffer[0];
     
-    const currentEventCounter =  data[0]
-    const lastEventCounter = preserved.eventBuffer[0];
     if (lastEventCounter) {
+      // It turns out that events could be fired multiple times 
+      // maybe debouncing is needed maybe not needs testing.
       // Debug only Once !! if (preserved.eventBuffer && currentEventCounter != lastEventCounter) {
-      debug('cctalk::device::events')(data);
+      debug('cctalk::device::events')({ eventBufffer },{ lastEventCounter});
       const EventCounter = currentEventCounter - lastEventCounter;        
       if(EventCounter > 5){
+        // We are in a deSynced State
         // We got more then 5 new events in this run
         // We got more events in Buffer then we Could Process should not Happen if device works
         // Leads to the conclusion that we did not poll as fast as needed.
@@ -44,25 +52,52 @@ const parsePollResponse = () => {
           Leads to the conclusion that we did not poll as fast as needed.
         `));
       }
-
+    }
+  }
+  
+  /** @param {Uint8ArrayType} pollResponse */
+  const pollResponseEventsParser = pollResponse => {
+    // getData out of the pollResponse Payload
+    const eventBuffer = getMessage(pollResponse).data
+    const lastEventCounter = preserved.eventBuffer[0];
+    checkIfEventsAreInSync(eventBuffer,lastEventCounter)
+    
+    preserved.eventBuffer = eventBuffer;
+    const eventData = eventBuffer.slice(1)
+    if (!lastEventCounter) {
+      // if we got no lastEventCounter this is the first event we see
+      // currentEventCounter === eventData.length / 2
     }
     
-    preserved.eventBuffer = data;
-    const eventData = 
-    /** @type {[]} */
-    const events = data.slice(1).reduce(function(result, value, index, array) {
+    
+    /**
+     * This produces events[event] definition of event event[channel,type] 
+     * @param {Uint8ArrayType[]} result 
+     * @param {number} value
+     * @param {number} index 
+     * @param {Uint8ArrayType} array 
+     */
+    const reducer = function(result, value, index, array) {
       if (index % 2 === 0) { result.push(array.slice(index, index + 2)); }
       return result;
-    }, []);
-    // Here we could also count the events without the idea via checking events.length
-    // it should be equal to EventCount
+    }
     
+    /** @type {Uint8ArrayType[]} */
+    const events = eventData.reduce(reducer, []);
+
+    if (!lastEventCounter) {
+      // if we got no lastEventCounter this is the first event we see
+      // currentEventCounter === events.length
+    }
+
     return events;
-    
+    // return [[channel, type]]  
   }
-  // return [[channel, type]]
+  
+  return pollResponseEventsParser
 }
 
+/* KEEP This until the new Implementation is verifyed and 100% Complet
 //Gets event data passed 
 const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
     const emit = (...x) => console.log(...x)
@@ -103,11 +138,11 @@ const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
                 emit('rejected');
             } else if (channel > 3) {
                 debug('cctalk::device::events::type::return')(coin,'return');
-                this.exec('routeBill',new Uint8Array([0])).catch((e)=>console.log(e))
+                sendCommand('routeBill',new Uint8Array([0])).catch((e)=>console.log(e))
             } else {
                 debug('cctalk::device::events::type::routeBill')(coin,'routeBill');
                 //emit(impl.eventCodes[type], channel);
-                this.exec('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
+                sendCommand('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
             }
             break;
           case impl.eventCodes.inhibited:
@@ -131,7 +166,7 @@ const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
     eventBuffer = events._data;
   }
 
-
+*/
 
 /*
 1 - Core commands
@@ -405,12 +440,6 @@ const emp800Mappings = {
       }
   }
 
-  const messageHandler = {
-      accepted(channel) {
-
-      }
-  }
-  
   const EMP800Methods = {
     // 0xFFFF === All 0x0000 === none  
     setAcceptanceMask(acceptanceMask = 0xFF ) {
@@ -463,24 +492,24 @@ const emp800Mappings = {
     poll() {
         return EMP800Methods.readBufferedCredit();
         /*
-            this.exec(emp800Mappings.commands.readBufferedCredit).then((buffer)=>{
+            sendCommand(emp800Mappings.commands.readBufferedCredit).then((buffer)=>{
                 this.parseEventBuffer(buffer)
             });
     
             debug('CoinAcceptor::poll()')(this.ready)
             */
     },
+    /** @param {number} channel*/
     channelToCoin(channel) {
         const channelsMap = ['0.10','0.20','0.50','1.00','2.00']
         const coin = channelsMap[channel-1]
         debug('cctalk::NOTICE::')('Channel=>', channel ,coin);
         return coin;
     },
+    /** @param {number} channel */
     getCoinName(channel){
-        this.exec(emp800Mappings.commands.requestCoinId, Uint8Array.from([ channel ]))
-        .then((reply) => {
-            return String.fromCharCode.apply(null, reply.data);
-        });
+        sendCommand(emp800Mappings.commands.requestCoinId, Uint8Array.from([ channel ]))
+        //.then((reply) => { return String.fromCharCode.apply(null, reply.data); });
     },
     
   }
@@ -625,33 +654,38 @@ const taikoPub7 = () => {
             debug('CCTALK')('jmcReady-ready');
             //br.selfTest();
             var EU_AS_HEX = new Uint8Array([69,85])
-            this.exec('requestBillId', new Uint8Array([1]))
-              .then(()=>this.exec('requestBillId', new Uint8Array([1])))
-              .then(()=>this.exec('requestBillId', new Uint8Array([2])))
-              .then(()=>this.exec('requestBillId', new Uint8Array([3])))
-              .then(()=>this.exec('requestCountryScalingFactor', EU_AS_HEX))
-              .then(()=>this.exec('requestCurrencyRevision', EU_AS_HEX))
-              .then(()=>this.exec('modifyBillOperatingMode', new Uint8Array([3]))) // NO ESCROW NO STACKER 3 = both enabled 2 = only stacker
+            sendCommand('requestBillId', new Uint8Array([1]))  
+            sendCommand('requestBillId', new Uint8Array([1]))
+            sendCommand('requestBillId', new Uint8Array([2]))
+            sendCommand('requestBillId', new Uint8Array([3]))
+            sendCommand('requestCountryScalingFactor', EU_AS_HEX)
+            sendCommand('requestCurrencyRevision', EU_AS_HEX)
+            sendCommand('modifyBillOperatingMode', new Uint8Array([3])) // NO ESCROW NO STACKER 3 = both enabled 2 = only stacker
             //this.setAcceptanceMask(); // 0xFFFF modifyInhibitStatus 255,255 // 255 1 0 0 0 0 0 0 //TODO: Needs Check  this.setAcceptanceMask(0xFFFF);
-              .then(()=>this.exec('modifyInhibitStatus', new Uint8Array([255,255,255]))) // [255,1] ==== alll [255,255,255]
+            sendCommand('modifyInhibitStatus', new Uint8Array([255,255,255])) // [255,1] ==== alll [255,255,255]
             //this.enableAcceptance(); // modifyMasterInhibit 1
-              .then(()=>
-                this.exec('modifyMasterInhibit', Buffer
-                  .from( [[1]]) //Array[Array] lloks wrong but maybe produced right results? Should be 0xFF to accept
-                )
-              )
+              
+            sendCommand('modifyMasterInhibit', 
+            /*
+            Buffer.from( 
+              //Array[Array] looks wrong but maybe produced right results? Should be 0xFF to accept
+              [[1]] 
+            )
+            */ new Uint8Array([0xFF])
+            );
+            /*
               .then(()=> {
                 this.pollInterval = setInterval(()=>{this.poll();}, 900)
-                //this.exec('requestBillOperatingMode').then(console.log).then(process.exit(1))
+                //sendCommand('requestBillOperatingMode').then(console.log).then(process.exit(1))
                 return true
               });
-        
+            */
         
           },
           poll() {
-            if (this.ready) {
-              this.exec('readBufferedBill').then((buffer)=> this.parseEventBuffer(buffer));
-            }
+            //if (this.ready) {
+           //   sendCommand('readBufferedBill').then(buffer => this.parseEventBuffer(buffer));
+            //}
           },
           // @ts-ignore
           modifyBillOperatingMode(operatingMode){
@@ -659,9 +693,10 @@ const taikoPub7 = () => {
             //return this.sendCommand( this.commands.modifyBillOperatingMode,
             //Uint8Array.from([ operatingMode & 0xFF, (operatingMode >> 8) & 0xFF ]))
             //153
-            return this.exec('modifyBillOperatingMode', new Uint8Array([1]))
+            return sendCommand('modifyBillOperatingMode', new Uint8Array([1]))
               //.then(console.log)
           },
+          /** @param {number} acceptanceMask*/
           setAcceptanceMask(acceptanceMask){
             // example:   231  255  255
             //all-> 231 255 1 0 0 0 0 0 0
@@ -671,27 +706,36 @@ const taikoPub7 = () => {
               acceptanceMask = 0xFFFF;
             }
             // Experiment replaced 255 255 with 255 1 === all?
-            return this.exec('modifyInhibitStatus', new Uint8Array([255,1]))
+            return sendCommand('modifyInhibitStatus', new Uint8Array([255,1]))
           },
           enableAcceptance(){
             //228  001
             //_> new Uint8Array(1).fill(0xFF) == Uint8Array [ 255 ] new Buffer(1).from([255]) new Buffer.from([255,255]).readUInt8()
-            return this.exec('modifyMasterInhibit', Buffer.from([[1]]))
+            return sendCommand('modifyMasterInhibit', 
+                        /*
+            Buffer.from( 
+              //Array[Array] looks wrong but maybe produced right results? Should be 0xFF to accept
+              [[1]] 
+            )
+            */ new Uint8Array([0xFF])
+            )
           },
           selfTest() {
-            return this.exec('performSelfCheck')
+            return sendCommand('performSelfCheck')
           },
           disableAcceptance() {
-            return this.exec('modifyMasterInhibit', new Uint8Array(1).fill(0x00))
+            return sendCommand('modifyMasterInhibit', new Uint8Array(1).fill(0x00))
           },
+          /** @param {number} channel */
           channelToCoin(channel) {
             var channelToCoin = ['rejected', '5', '10', '20', '50']
             return channelToCoin[channel-1]
           },
+          /** @param {number} channel */
           getBillName(channel) {
             return this.channelToCoin(channel)
             /*
-            return this.exec('requestBillId', Uint8Array.from([ channel ]))
+            return sendCommand('requestBillId', Uint8Array.from([ channel ]))
               //TODO: here is a good place to verify that the Reply wich is a command has a valid crc :)
               .then((reply) => {
                 console.log(reply)
@@ -699,8 +743,9 @@ const taikoPub7 = () => {
               });
             */
           },
+          /** @param {number} channel */
           getBillPosition(channel) {
-            return this.exec('requestBillPosition', Uint8Array.from([ channel ]));
+            return sendCommand('requestBillPosition', Uint8Array.from([ channel ]));
           }
     }
 }

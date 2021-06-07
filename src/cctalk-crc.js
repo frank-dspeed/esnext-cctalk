@@ -3,7 +3,10 @@ import './types.js'
 // Create signed Payload from Object
 // Verify Payload
 // tryGetPayload CRC Type.
-
+/** @param {*} message */
+const debug = message => 
+    /** @param {*} msg */
+    (...msg) => console.log(message,...msg)
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -106,7 +109,7 @@ const calcCrc8 = chunk => {
             sum += (byte);
         }
     )
-    
+
     return 0x100 - sum % 0x100; //256 - sum % 256
 }
 
@@ -133,8 +136,10 @@ const crc8verify = chunk => {
     const { checksumPosition } = getPayloadPositionData(chunk);
 
     const checksum = chunk[checksumPosition];
+    const expectedChecksum = calcCrc8(chunk);
     // We use != and not !== because we are not sure if we work with Uint8Arrays or not
-    return (checksum != calcCrc8(chunk));
+
+    return (checksum === expectedChecksum);
 }
 
 /**
@@ -213,7 +218,7 @@ const crc16verify = chunk => {
 
 //new 254
 /**
- * 
+ * maybe deprecated look into array2Object
  * @param {Uint8ArrayType} _buffer 
  * @returns 
  */
@@ -259,7 +264,53 @@ const fromUint8Array = _buffer => {
  * @param {*} arr 
  * @returns 
  */
+ export const getMessage = arr => {
+    errorUint8(arr);
+    
+    const { destPosition, commandPosition } = getPayloadPositionData(arr);
+    const command = arr[commandPosition]
+    const data = getDataFromChunk(arr);
+    const dest = arr[destPosition];
+    
+    //object2Array(messageObj)
+    const Message = { 
+        dest,
+        command,
+        data,
+    }
+    return Message
+}
+
+/**
+ * 
+ * @param {*} arr 
+ * @returns 
+ */
 const array2Object = arr => {
+    const [ dest, dataLength, srcOrCrc16, command ] = arr;
+    
+    const { checksumPosition } = getPayloadPositionData(arr);
+    const data = getDataFromChunk(arr);
+    const crc = arr[checksumPosition];
+    
+    //object2Array(messageObj)
+    const Message = { 
+        dest,
+        dataLength,
+        src: srcOrCrc16,
+        command,
+        data,
+        crc,
+    }
+    return Message
+}
+
+/**
+ * 
+ * @param {*} arr 
+ * @returns 
+ */
+ const array2ObjectWithVerify = arr => {
     const [ dest, dataLength, srcOrCrc16, command ] = arr;
     
     const { checksumPosition } = getPayloadPositionData(arr);
@@ -289,12 +340,13 @@ const array2Object = arr => {
     }
     return Message
 }
+
 /**
  * object2Array({ command , ?dataUint8Array, })
  * @param {*} messageObj 
  * @returns 
  */
-const object2Array = messageObj => {
+export const object2Array = messageObj => {
     const { 
         dest = 2, 
         src = 1, /* This can also be checksum_1 of a crc16 signed package */
@@ -311,18 +363,21 @@ const object2Array = messageObj => {
         const signingMethod = ( crcType === 8 ) ? calculateAndInsertCrc8ChecksumForThePayload : ( crcType === 16 ) ? signCrc16 : ()=>{/* NoOp */};
         signingMethod(_buffer);
     }
-
+    verifyCCTalkMessage(_buffer)
     return _buffer
 }
 
+
+
+
 /**
  * 
- * @param {*} src 
- * @param {*} dest 
- * @param {*} crcType 
+ * @param {*} src number 0 = bus 1 = master
+ * @param {*} dest number 40 is most time a billAcceptor
+ * @param {number} crcType 16 or 8
  * @returns 
  */
-const getSendCommand = (
+export const getSendCommand = (
     src = 1, 
     dest = 2,  
     crcType = 8,
@@ -355,7 +410,7 @@ const getSendCommand = (
  * @param {*} message 
  * @returns 
  */
-const verifyCCTalkMessage = message => {
+export const verifyCCTalkMessage = message => {
             
     if (crc8verify(message)) {       
         debug('ccMessage:crc')('CRC8_CHECKSUM');
@@ -374,15 +429,17 @@ const verifyCCTalkMessage = message => {
 
 /**
  * 
- * @param {*} src 
- * @param {*} dest 
- * @param {*} command 
- * @param {*} data 
- * @param {*} crcType 
+ * @param {number} src / crc16 verifyer
+ * @param {number} dest 
+ * @param {number} command 
+ * @param {Uint8ArrayType} data 
+ * @param {number} crcType 
  * @returns 
  */
-const CCTalkMessageCompat = (
-    src = 1, dest = 2, command, 
+export const CCTalkMessageCompat = (
+    src = 0, // CCTalkBus default 0
+    dest = 1, 
+    command=254, // simplePoll
     data = new Uint8Array(0), 
     crcType = 8
 ) => {
@@ -400,7 +457,7 @@ const CCTalkMessageCompat = (
         _buffer: object2Array(messageObj),
     }
     
-    verifyCCTalkMessage(CompatMessage._buffer)
+
 
     return CompatMessage;
 

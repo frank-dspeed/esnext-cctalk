@@ -6,9 +6,6 @@ const debug = message =>
     /** @param {*} msg */
     (...msg) => console.log(message,...msg)
 
-
-
-
 /**
  * 
  * @param {*} stream 
@@ -58,9 +55,16 @@ function read(stream) {
 
 export const CCTalkSession = () => {
     const timeout = 120 * 1000; //2min
+    /** @property {Promise.reject} reject */
     const deffredPromise = {};
-    const timeoutPromise = new Promise((resolve,reject) => Object.assign(deffredPromise, { resolve, reject }));
-    const timeoutPointer = setTimeout(() => timeoutPromise.reject(new Error('timeout')),timeout)
+    const timeoutPromise = new Promise(
+      (resolve, reject) => 
+        Object.assign(deffredPromise, { resolve, reject })
+    );
+    
+    // @ts-ignore
+    const timeoutPointer = setTimeout( () => deffredPromise.reject(new Error('timeout')), timeout )
+    
     clearTimeout(timeoutPointer);
     const simplePoll = 254
     const connect = async () => {

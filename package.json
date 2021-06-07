@@ -1,11 +1,11 @@
 {
   "name": "esnext-cctalk",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "A Collection of Methods to Work with Serial Devices that do use the CCTalk Protocol like the EMP800 and Taiko Pub 7",
   "main": "src/cctalk.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/cctalk.node.assert.js && node tests/cctalk-node.js"
   },
   "repository": {
     "type": "git",

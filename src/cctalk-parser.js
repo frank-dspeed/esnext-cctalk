@@ -1,4 +1,5 @@
 import 'types'; //Do not treeshake that if you want a dev build for production also strip comments
+import { verifyCCTalkMessage } from './cctalk-crc.js'
 
 /** @type {CCTalkParserInitalState} */
 const CCTalkParserInitalState = {
@@ -60,9 +61,15 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
         }
         
         const CCTalkPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
-        destination(CCTalkPayload);
         
         CCTalkParserInstance.preservedDataBuffer = Uint8ArrayView.slice(endOfChunk, Uint8ArrayView.length);
+        
+        try {
+            verifyCCTalkMessage(CCTalkPayload)
+            destination(CCTalkPayload);
+        } catch(checksumError) {
+            console.error(checksumError)
+        }
 
         if (CCTalkParserInstance.preservedDataBuffer.length > 0) {
             CCTalkParserInstance._transform( new Uint8ClampedArray([]), destination)
