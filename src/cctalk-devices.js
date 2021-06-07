@@ -364,7 +364,8 @@ const emp800Mappings = {
           requestCommsRevision: 4,
           clearCommsStatusVariables: 3,
           requestCommsStatusVariables: 2,
-          resetDevice: 1
+          resetDevice: 1,
+          return: 0,
         }
       }
   }
@@ -544,6 +545,7 @@ const taikoPub7 = () => {
           clearCommsStatusVariables: 3,
           requestCommsStatusVariables: 2,
           resetDevice: 1,
+          return: 0,
           ...{
             simplePoll: 254,
             addressPoll: 253,
