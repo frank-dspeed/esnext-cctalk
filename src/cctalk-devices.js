@@ -297,7 +297,7 @@ const reverseMapCommandsAndEventCodes = impl => {
   return reversed;
 }
 
-const emp800 = ()=> {
+export const emp800 = ()=> {
 
 
 /** @type {{ eventCodes: Object.<string, number>, commands: Object.<string, number> }} */
@@ -450,6 +450,11 @@ const emp800Mappings = {
     }
 
     // run poll yild
+  }
+  return {
+    methods: EMP800Methods,
+    commands: emp800Mappings.commands,
+    eventCodes: emp800Mappings.eventCodes
   }
 }
 
@@ -678,3 +683,4 @@ const taikoPub7 = () => {
           }
     }
 }
+
