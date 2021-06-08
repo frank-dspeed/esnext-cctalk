@@ -37,9 +37,12 @@ for (const adr of standardAddresses) {
         timeoutPromise(),
     ]).then(async writer=>{
       Debug('got Writer')({writer})
+       const foundDevice = [];
        for (const method of detectedDevice) {
-          Debug('WINNER')(await writer(method))
+          foundDevice.push(await writer(method));
        }
+       const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
+       Debug('foundDevice',humandReadable)
     })
 }
 /*
