@@ -1,9 +1,9 @@
-import Debug from 'esnext-cctalk/src/debug.js'
-import { getConnection, getDeviceWriter } from 'esnext-cctalk/src/cctalk-node.js'
-import { getSendCommand, getMessage  } from 'esnext-cctalk/src/cctalk-crc.js';
-//const { emp800 } = await import('esnext-cctalk/src/cctalk-devices.js');
+import Debug from './debug.js'
+import { getConnection, getDeviceWriter } from './cctalk-node.js'
+import { getSendCommand, getMessage  } from './cctalk-crc.js';
+//const { emp800 } = await import('./cctalk-devices.js');
 //const coinAcceptor = emp800();
-import { al66v } from 'esnext-cctalk/src/device-al66v.js';
+import { al66v } from './device-al66v.js';
 const coindDetectorType = al66v();
 
 const debug = Debug('test')
@@ -46,6 +46,7 @@ const detectedDevice = [
 const standardAddresses = [2,40];
 
 standardAddresses.forEach(async adr=>{
+    
     await getDeviceWriter(connection,adr,8)(254).then(()=>{
         // found
         detectedDevice.forEach(async (cmd)=>{
@@ -53,7 +54,7 @@ standardAddresses.forEach(async adr=>{
         })
     })
 
-    await getDeviceWriter(connection,adr,16).then(()=>{
+    await getDeviceWriter(connection,adr,16)(254).then(()=>{
         // found
         detectedDevice.forEach(async (cmd)=>{
             await getDeviceWriter(connection,adr,16)(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
