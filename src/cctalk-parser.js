@@ -147,7 +147,7 @@ newest event is first
       
       preserved.eventBuffer = eventBuffer;
       const eventData = eventBuffer.slice(1)
-      Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ eventData })
+      Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ eventData,eventBuffer })
       if (!lastEventCounter) {
         // if we got no lastEventCounter this is the first event we see
         // currentEventCounter === eventData.length / 2
