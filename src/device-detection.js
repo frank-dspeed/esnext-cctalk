@@ -30,6 +30,8 @@ const detectedDevice = [
 
 const standardAddresses = [2,40];
 
+standardAddresses.map
+
 for (const adr of standardAddresses) {
     await Promise.race([
         getDeviceWriter(connection,adr,8),
@@ -39,9 +41,10 @@ for (const adr of standardAddresses) {
       Debug('found')({writer})
        const foundDevice = [];
        for (const method of detectedDevice) {
-          foundDevice.push(await writer(method));
+         console.log('apply')
+         foundDevice.push(await writer(method));
        }
-       console.log('don')
+       
        const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
        Debug('foundDevice')(humandReadable)
     })
