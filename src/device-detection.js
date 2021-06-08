@@ -31,7 +31,7 @@ const detectedDevice = [
 const standardAddresses = [2,40];
 
 standardAddresses.map
-
+let timeOut = 50;
 for (const adr of standardAddresses) {
     await Promise.race([
         getDeviceWriter(connection,adr,8),
@@ -39,13 +39,16 @@ for (const adr of standardAddresses) {
         timeoutPromise(),
     ]).then(async writer=>{
       Debug('found')({writer})
-       const foundDevice = Promise.allSettled(detectedDevice.map(method=>{
+      setTimeout(async ()=>{
+        const foundDevice = await Promise.allSettled(detectedDevice.map(method=>{
             return Promise.race([
                 writer(method),
                 timeoutPromise()
             ]);
        }))
        console.log('apply',foundDevice)
+      },timeout++) 
+      
          //foundDevice.push(value);
        
        //const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
