@@ -157,8 +157,9 @@ export const al66v = ()=> {
         readBufferedCreditEvents(CCTalkMessage) {
             const parsedMessage = eventsParser(CCTalkMessage);
             if (parsedMessage) {
+                const { events, eventsCounter } = parsedMessage;
                 const getEvents = event => {
-                    const [ channel, sorterPathOrEventCode ] = parsedMessage.events[0];
+                    const [ channel, sorterPathOrEventCode ] = event;
                     const isAccepted = channel;
                     if (isAccepted) {
                          const sorterPath = sorterPathOrEventCode;
@@ -171,14 +172,14 @@ export const al66v = ()=> {
                         return    
                     }
                     
-                    Debug('readBufferedCreditEvents')('rejected',eventCode)
+                    Debug('readBufferedCreditEvents')({eventsCounter, eventCode})
                 }
                                 
                 /*
                     return parsedMessage.events.map(getEvents)
                 */
-                lastEventCounter = parsedMessage.eventsCounter;
-                return { eventId: lastEventCounter,  value: getEvents(parsedMessage.events[0]); }
+                lastEventCounter = eventsCounter;
+                return { eventsCounter,  channel: getEvents(parsedMessage.events[0]) }
             }
         }      
     }
