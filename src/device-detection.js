@@ -5,7 +5,7 @@ import { getSendCommand, getMessage  } from './cctalk-crc.js';
 //const coinAcceptor = emp800();
 import { al66v } from './device-al66v.js';
 const coindDetectorType = al66v();
-
+const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
 const debug = Debug('test')
 
 
@@ -13,21 +13,6 @@ import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0');
 
 const connection = getConnection(port);
-const coindDetector = getDeviceWriter(connection,2,8);
-const billReader = getDeviceWriter(connection,40,16);
-
-// Can send raw Commands
-const simplePollCoinDetectorCrc8 = [ 2, 0, 1, 254, 255 ];
-const simplePollBillAcceptor = [ 40, 0, 182, 254, 33 ];
-
-// Can send Array Commands
-//await coindDetector(254).then(console.log);
-//await billReader(254).then(debug);
-
-  //  const { readBufferedCredit, readBufferedCreditEvents } = coindDetectorType.methods;
-    //coindDetector(...readBufferedCredit()).then(readBufferedCreditEvents).then( coin => {
-
-    //coindDetector()
 
 const detectedDevice = [
        246, //Request manufacturer id //Core commands
@@ -45,14 +30,27 @@ const detectedDevice = [
 
 const standardAddresses = [2,40];
 
+for (const adr of standardAddresses) {
+    await Promise.race([
+        getDeviceWriter(connection,adr,8),
+        getDeviceWriter(connection,adr,16),
+        timeoutPromise(),
+    ])
+}
+/*
 standardAddresses.forEach(async adr=>{
     const deviceWriter = [
         getDeviceWriter(connection,adr,8),
         getDeviceWriter(connection,adr,16)
     ].forEach( async (writer, i) => {
+        Promise.race()
         await writer(254)
-        detectedDevice.forEach(async (cmd)=>{
-            await writer(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
-        })
+       
     })
+ /*
+    detectedDevice.forEach(async (cmd)=>{
+        await writer(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
+    })
+
 })
+    */

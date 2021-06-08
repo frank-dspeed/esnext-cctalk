@@ -2,7 +2,8 @@ import './types.js'; //Do not treeshake that if you want a dev build for product
 import { CCTalkParser } from './cctalk-parser.js';
 import { getSendCommand, getMessage } from './cctalk-crc.js';
 import { Transform } from 'stream';
-import Debug from './debug.js'
+import Debug from './debug.js';
+export const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
 /**
  * 
  * Serial communication was derivated from RS232 standard.
