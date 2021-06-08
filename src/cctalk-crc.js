@@ -1,5 +1,6 @@
 import './types.js'
 import Debug from './debug.js';
+import crc, { crc16 } from 'node-crc';
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -167,10 +168,19 @@ const getCrc16Unit8Array = chunk => {
  */
 const calcCrc16 = chunk => {
 
-    const checksums = crc16xmodem(getCrc16Unit8Array(chunk));
+    const raw = getCrc16Unit8Array(chunk);
+    
+    console.log(crc.crc16(raw))
+    process.exit()
+
+    // our
+    const checksums = crc16xmodem(raw);
     const checksumsArray = checksums.toString(16).match(/.{1,2}/g)
         ?.map((val)=> parseInt(val, 16))
         .reverse(); 
+    
+    
+    
     return checksumsArray;
 }
 
