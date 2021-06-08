@@ -89,7 +89,7 @@ export const getConnection = port => {
 
     const CCTalk = NodeStreamParser();
     const parser = port.pipe(new CCTalk())
-    let debug = Debug('NODE::CCTALK')
+    let debug = Debug('esnext-cctalk::node::getConnection')
     /**
      * Async Promise Chain only for demo in production you will want to use a 
      * welll defined generator
