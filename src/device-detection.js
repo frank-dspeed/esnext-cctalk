@@ -36,5 +36,5 @@ const detedDevice = [
         242, //Request serial number //Core Plus commands
         241, //Request software revision //Core Plus commands
 ].forEach(async (cmd)=>{
-    coindDetector(cmd).then(getMessage).then(Debug('DETECTED'))
+    coindDetector(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
 })
