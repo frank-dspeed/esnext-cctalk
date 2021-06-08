@@ -39,28 +39,17 @@ for (const adr of standardAddresses) {
         timeoutPromise(),
     ]).then(async writer=>{
       Debug('found')({writer})
-       const foundDevice = [];
-       for (const method of detectedDevice) {
-        console.log('apply','before') 
-        let value;
-        try {
-            value = await Promise.race([
+       const foundDevice = Promise.allSettled(detectedDevice.map(method=>{
+            return Promise.race([
                 writer(method),
                 timeoutPromise()
             ]);
-        } catch (e) {
-            value = await Promise.race([
-                writer(method),
-                timeoutPromise()
-            ]);
-        }
-        
-         console.log('apply',value)
-         foundDevice.push(value);
-       }
+       }))
+       console.log('apply',foundDevice)
+         //foundDevice.push(value);
        
-       const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
-       Debug('foundDevice')(humandReadable)
+       //const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
+       //Debug('foundDevice')(humandReadable)
     })
 }
 /*
