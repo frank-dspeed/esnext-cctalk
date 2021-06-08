@@ -41,8 +41,10 @@ for (const adr of standardAddresses) {
       Debug('found')({writer})
        const foundDevice = [];
        for (const method of detectedDevice) {
-         console.log('apply')
-         foundDevice.push(await writer(method));
+        console.log('apply','before') 
+        const value = await writer(method);
+         console.log('apply',value)
+         foundDevice.push(value);
        }
        
        const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
