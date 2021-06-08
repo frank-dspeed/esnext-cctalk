@@ -163,7 +163,7 @@ export const al66v = ()=> {
                     const isAccepted = channel;
                     if (isAccepted) {
                          const sorterPath = sorterPathOrEventCode;
-                         return channel;
+                         return methods.channelToCoin(channel);
                          //console.log('Accepted',{ channel,sorterPath })
                     }
                     
