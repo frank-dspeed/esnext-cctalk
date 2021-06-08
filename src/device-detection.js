@@ -39,7 +39,7 @@ const detectDevice = async (adr) => {
     ])
 }
 console.log('D',await detectDevice(2))
-console.log('D',await detectDevice(30))
+console.log('D',await detectDevice(40))
 
 
 const simpleButWorking = () => {
