@@ -7,7 +7,7 @@ import { al66v } from './device-al66v.js';
 const coindDetectorType = al66v();
 const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
 const debug = Debug('test')
-
+import { mapSeries } from 'bluebird';
 
 import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0');
@@ -29,17 +29,15 @@ const detectedDevice = [
 
 
 const standardAddresses = [2,40];
-
-standardAddresses.map
 let timeOut = 50;
-for (const adr of standardAddresses) {
-    await Promise.race([
+mapSeries(standardAddresses,adr=>{
+    return Promise.race([
         getDeviceWriter(connection,adr,8),
         getDeviceWriter(connection,adr,16),
         timeoutPromise(),
     ]).then(async writer=>{
       Debug('found')({writer})
-      setTimeout(async ()=>{
+      //setTimeout(async ()=>{
         const foundDevice = await Promise.allSettled(detectedDevice.map(method=>{
             return Promise.race([
                 writer(method),
@@ -47,14 +45,17 @@ for (const adr of standardAddresses) {
             ]);
        }))
        console.log('apply',foundDevice)
-      },timeOut++) 
+      //},timeOut++) 
       
          //foundDevice.push(value);
        
        //const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
        //Debug('foundDevice')(humandReadable)
     })
-}
+})
+
+
+
 /*
 standardAddresses.forEach(async adr=>{
     const deviceWriter = [
