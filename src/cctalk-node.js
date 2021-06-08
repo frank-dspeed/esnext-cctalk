@@ -138,8 +138,8 @@ export const getConnection = port => {
      
      // @ts-ignore
      const sendCommandPromise = portToWrite => input => {
-        /** @type {Promise<Uint8ArrayType> | null} */
-        let command;
+        // @ts-ignore
+        const command = {}
          // Send command with promised reply
          // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
          const promise = new Promise((resolve, reject) => {
