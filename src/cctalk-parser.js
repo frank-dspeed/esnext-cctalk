@@ -166,7 +166,9 @@ newest event is first
        * @param {Uint8ArrayType} array 
        */
       const reducer = function(result, value, index, array) {
-        if (index % 2 === 0) { result.push(array.slice(index, index + 2).reverse() /** Returns [eventCode,channel]*/); }
+        if (index % 2 === 0) { 
+            result.push(array.slice(index, index + 2).reverse() /** Returns [eventCode,channel]*/); 
+        }
         return result;
       }
       

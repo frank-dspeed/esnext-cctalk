@@ -1,12 +1,6 @@
 import './types.js'
-// Create signed Payload from arrguments
-// Create signed Payload from Object
-// Verify Payload
-// tryGetPayload CRC Type.
-/** @param {*} message */
-const debug = message => 
-    /** @param {*} msg */
-    (...msg) => console.log(message,...msg)
+
+import Debug from './debug.js';
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -211,7 +205,7 @@ const crc16verify = chunk => {
     const currentCRC = [chunk[srcPosition], chunk[checksumPosition]];
     const CRCArray = calcCrc16(chunk);
     
-    //debug('ccMessage:crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
+    //Debug('ccMessage:crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
     return CRCArray ? ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1])) : false;
 }
 
@@ -244,17 +238,17 @@ const fromUint8Array = _buffer => {
     // Check for CRC8
     if (crc8verify(_buffer)) {
         CCTalkMessage._crcType = 8;
-        //debug('ccMessage:crc')('CRC8_CHECKSUM');
+        //Debug('ccMessage:crc')('CRC8_CHECKSUM');
         return CCTalkMessage;
     } 
     
     if (crc16verify(_buffer)) {
         CCTalkMessage._crcType = 16;
-        //debug('ccMessage:crc')('CRC16_CHECKSUM');
+        //Debug('ccMessage:crc')('CRC16_CHECKSUM');
         return CCTalkMessage;
     } 
     
-    //debug('ccMessage:crc::warning')(this._buffer);
+    //Debug('ccMessage:crc::warning')(this._buffer);
     return CCTalkMessage;
     //throw new Error('WRONG_CHECKSUM');
 }
@@ -413,16 +407,16 @@ export const getSendCommand = (
 export const verifyCCTalkMessage = message => {
             
     if (crc8verify(message)) {       
-        debug('ccMessage:crc')('CRC8_CHECKSUM');
+        Debug('ccMessage:crc')('CRC8_CHECKSUM');
         return message;
     } 
     
     if (crc16verify(message)) {
-        debug('ccMessage:crc')('CRC16_CHECKSUM');
+        Debug('ccMessage:crc')('CRC16_CHECKSUM');
         return message;
     } 
     
-    debug('ccMessage:crc::warning')(message);
+    Debug('ccMessage:crc::warning')(message);
     throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }

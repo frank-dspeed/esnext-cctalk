@@ -1,9 +1,6 @@
 import { getSendCommand, getMessage } from './cctalk-crc.js';
-const NoOp = () => { /** */ };
-/** @param {*} message */
-const debug = message => 
-    /** @param {*} msg */
-    (...msg) => console.log(message,...msg)
+import Debug from './debug.js';
+
 // Talk from the BUS to the billAcceptor for example
 const sendCommand = getSendCommand(0,40,16)
 // in general you will configure sendCommand per target to talk to
@@ -11,7 +8,7 @@ const sendCommand = getSendCommand(0,40,16)
 //Device Logic
 /* Moved to CCTalkSession Logic
 const onBusOpen = () => {
-    debug('device::onBusOpen')(this.ready)
+    Debug('device::onBusOpen')(this.ready)
     if (!this.ready) {
       sendCommand('simplePoll')
         .then(() => {
@@ -30,14 +27,14 @@ const onBusOpen = () => {
 //Gets event data passed 
 const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
     const emit = (...x) => console.log(...x)
-    //debug('cctalk::device::events')(events._data); // Runs always
+    //Debug('cctalk::device::events')(events._data); // Runs always
     if (impl.eventCodes.lenght = 0) {
         throw new Error('eventCodes needs to be Implamented')   
     }
   
     if (eventBuffer && events._data[0] != eventBuffer[0]) {
         // Debug only Once !!
-        debug('cctalk::device::events')(events._data);
+        Debug('cctalk::device::events')(events._data);
         const EventCounter = events._data[0] - eventBuffer[0];
         if(EventCounter > 5){
           // We got more events in Buffer then we Could Process should not Happen if device works
@@ -55,7 +52,7 @@ const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
           // @ts-ignore
           var coin = this.channelToCoin(channel)
 
-          debug('cctalk::device::events::type')(channel,type,coin);
+          Debug('cctalk::device::events::type')(channel,type,coin);
           switch(type) {
           // @ts-ignore
           case impl.eventCodes.accepted:
@@ -63,13 +60,13 @@ const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
             break;
           case impl.eventCodes.escrow:
             if (channel === 0) {
-                debug('cctalk::device::events::type::rejected')(channel,type);
+                Debug('cctalk::device::events::type::rejected')(channel,type);
                 emit('rejected');
             } else if (channel > 3) {
-                debug('cctalk::device::events::type::return')(coin,'return');
+                Debug('cctalk::device::events::type::return')(coin,'return');
                 sendCommand('routeBill',new Uint8Array([0])).catch((e)=>console.log(e))
             } else {
-                debug('cctalk::device::events::type::routeBill')(coin,'routeBill');
+                Debug('cctalk::device::events::type::routeBill')(coin,'routeBill');
                 //emit(impl.eventCodes[type], channel);
                 sendCommand('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
             }
@@ -297,6 +294,8 @@ const reverseMapCommandsAndEventCodes = impl => {
   return reversed;
 }
 
+
+
 export const emp800 = ()=> {
 
 
@@ -405,7 +404,7 @@ const emp800Mappings = {
       },
     onReady(){
         /*  
-        debug('CCTALK')('emp800-ready');
+        Debug('CCTALK')('emp800-ready');
           this.ready = true;
           this.pollInterval = setInterval(()=> {
             this.poll()
@@ -426,14 +425,14 @@ const emp800Mappings = {
                 this.parseEventBuffer(buffer)
             });
     
-            debug('CoinAcceptor::poll()')(this.ready)
+            Debug('CoinAcceptor::poll()')(this.ready)
             */
     },
     /** @param {number} channel*/
     channelToCoin(channel) {
         const channelsMap = ['0.10','0.20','0.50','1.00','2.00']
         const coin = channelsMap[channel-1]
-        debug('cctalk::NOTICE::')('Channel=>', channel ,coin);
+        Debug('cctalk::NOTICE::')('Channel=>', channel ,coin);
         return coin;
     },
     /** @param {number} channel */
@@ -587,7 +586,7 @@ const taikoPub7 = () => {
        */
         
         onReady() {
-            debug('CCTALK')('jmcReady-ready');
+            Debug('CCTALK')('jmcReady-ready');
             //br.selfTest();
             var EU_AS_HEX = new Uint8Array([69,85])
             sendCommand('requestBillId', new Uint8Array([1]))  
