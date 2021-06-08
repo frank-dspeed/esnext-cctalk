@@ -28,10 +28,12 @@ const detectedDevice = [
 // })
 
 const tryWriter = async (adr,crcType) => {
-    const writer = getDeviceWriter(connection,adr,crcType);
-    return writer(254).then(()=>writer)
+    const writer = Promise.race([
+        getDeviceWriter(connection,adr,crcType)(254).then(()=>writer);
+        timeoutPromise()
+    ]).catch(e=>console.log(e,adr,crcType)); 
 }
-
+/*
 const detectDevice = async (adr) => {
     return await Promise.race([
         tryWriter(adr,8),
