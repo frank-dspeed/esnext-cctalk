@@ -83,3 +83,14 @@ let port = await navigator.serial.requestPort();
 
 ## Debug settings
 sudo DEBUG=*,-*::debug,-serialport* node basic-tests.js 
+
+```
+const testEvents = getSendCommand(2,1,8)
+/*
+await connection.parserWrite(testEvents(0,Uint8Array.from([ 17,
+  1, 1, 1, 0, 0,
+  0, 0, 0, 0, 0
+]))).then(debug)
+*/
+
+```
