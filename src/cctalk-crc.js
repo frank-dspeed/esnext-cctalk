@@ -406,16 +406,16 @@ export const getSendCommand = (
 export const verifyCCTalkMessage = message => {
             
     if (crc8verify(message)) {       
-        Debug('esnext-cctalk::crc')('CRC8_CHECKSUM');
+        Debug('esnext-cctalk::crc::debug')('CRC8_CHECKSUM');
         return message;
     } 
     
     if (crc16verify(message)) {
-        Debug('esnext-cctalk::crc')('CRC16_CHECKSUM');
+        Debug('esnext-cctalk::crc::debug')('CRC16_CHECKSUM');
         return message;
     } 
     
-    Debug('esnext-cctalk::crc::warning')(message);
+    Debug('esnext-cctalk::crc')(message);
     throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }

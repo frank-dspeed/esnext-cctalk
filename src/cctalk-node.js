@@ -134,7 +134,8 @@ export const getConnection = port => {
           command.resolve = resolve;
           command.reject = reject;
          }).catch((err) => {
-            Debug('COMMANDCHAIN::PROMISE::ERROR')(err,{command})
+            Debug('esnext-cctalk::connection::sendCommandPromise::error')(err,{command})
+            throw err;
          });
    
          // use the command chain to send command only when previous commands have finished
