@@ -5,7 +5,7 @@ import { getSendCommand, getMessage  } from './cctalk-crc.js';
 //const coinAcceptor = emp800();
 import { al66v } from './device-al66v.js';
 const coindDetectorType = al66v();
-const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
+const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),500))
 const debug = Debug('test')
 import Bluebird from 'bluebird';
 const mapSeries = Bluebird.mapSeries
