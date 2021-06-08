@@ -170,7 +170,7 @@ const calcCrc16 = chunk => {
 
     const raw = getCrc16Unit8Array(chunk);
     
-    console.log(crc.crc16(raw))
+    console.log(crc.crc16(raw).readUInt8())
     process.exit()
 
     // our
