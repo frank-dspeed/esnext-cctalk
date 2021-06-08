@@ -83,30 +83,41 @@ export const lazyNodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
 
 
 
-//const SerialPort = require('serialport')
-//const port = new SerialPort('/dev/ttyUSB0')
+
+/**
+ * const SerialPort = require('serialport')
+ * const port = new SerialPort('/dev/ttyUSB0')
+ * @param {*} port 
+ * @returns 
+ */
 export const getConnection = port => {
 
     const CCTalk = NodeStreamParser();
     const parser = port.pipe(new CCTalk())
     let debug = Debug('esnext-cctalk::node::getConnection')
-    /**
-     * Async Promise Chain only for demo in production you will want to use a 
-     * welll defined generator
-     */
 
+     /**
+     * Async Promise Chain only for demo in production you will want to use a
+       welll defined generator
+       @type {null|Promise<Uint8ArrayType>}
+      */
      let lastCommand = null;
      let commandChainPromise = Promise.resolve();
  
+     // @ts-ignore
      parser.on('data', message => {
          const command = getMessage(new Uint8Array(message));
+         
          // if destination is master or bus we accept it
-         const isbufferReadingCommand = (command.command === 229 || command.command === 0)
-         if (!isbufferReadingCommand) {
-             Debug('esnext-cctalk::node')({command})
-         }
-         Debug('esnext-cctalk::node')({command})
          const isAnswer = command.dest === 1 || command.dest === 0
+         const isbufferReadingCommand = (!isAnswer || command.command === 229 || command.command === 0)
+         if (!isbufferReadingCommand) {
+            // dont log buffer reading Commands
+            Debug('esnext-cctalk/src/cctalk-node::parser::onData')({command})
+         } else {
+            Debug('esnext-cctalk/src/cctalk-node::parser::onData::debug')({command})
+         }
+         
          if(isAnswer) {
              debug('response::',{command})
              if(lastCommand) {
@@ -143,7 +154,6 @@ export const getConnection = port => {
          commandChainPromise = commandChainPromise
            .then(() => {
               lastCommand = command;
-              Debug('esnext-cctalk::connection::sendCommandPromise::debug')('SET LAST COMMAND')
               return new Promise((resolve,reject)=> {
                 Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
                   
@@ -162,45 +172,47 @@ export const getConnection = port => {
     }
  
 
-         // @ts-ignore
-         const sendCommandPromiseParser = (command) => {
- 
-            // Send command with promised reply
-            // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
-            const promise = new Promise((resolve, reject) => {
-             command.resolve = resolve;
-             command.reject = reject;
-            }).catch((err) => {
-               Debug('esnext-cctalk::connection::sendCommandPromise::error')(err,{command})
-               throw err;
-            });
-      
-            // use the command chain to send command only when previous commands have finished
-            // this way replies can be correctly attributed to commands
-            commandChainPromise = commandChainPromise
-              .then(() => {
-                 lastCommand = command;
-                 Debug('esnext-cctalk::connection::sendCommandPromise::debug')('SET LAST COMMAND')
-                 return new Promise((resolve,reject)=> {
-                   Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
-                     
-                   parser.write(command, err =>{
-                       if(err) {
-                         reject(err)
-                       } else {
-                         resolve(true)
-                       }
-                     });
-                   });
-              })
-              .then(() => promise)
-      
-            return promise
-       }
+    // @ts-ignore
+    const sendCommandPromiseParser = (command) => {
+
+        // Send command with promised reply
+        // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
+        const promise = new Promise((resolve, reject) => {
+            command.resolve = resolve;
+            command.reject = reject;
+        }).catch((err) => {
+            Debug('esnext-cctalk::connection::sendCommandPromise::error')(err,{command})
+            throw err;
+        });
+    
+        // use the command chain to send command only when previous commands have finished
+        // this way replies can be correctly attributed to commands
+        commandChainPromise = commandChainPromise
+            .then(() => {
+                lastCommand = command;
+                Debug('esnext-cctalk::connection::sendCommandPromise::debug')('SET LAST COMMAND')
+                return new Promise((resolve,reject)=> {
+                Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
+                    
+                parser.write(command, err =>{
+                    if(err) {
+                        reject(err)
+                    } else {
+                        resolve(true)
+                    }
+                    });
+                });
+            })
+            .then(() => promise)
+    
+        return promise
+    }
     
     return {
         write: sendCommandPromise,
-        parserWrite: sendCommandPromiseParser
+        parserWrite: sendCommandPromiseParser,
+        port,
+        parser
     }
 
 }    
