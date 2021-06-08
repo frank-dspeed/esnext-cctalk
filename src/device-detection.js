@@ -36,12 +36,13 @@ for (const adr of standardAddresses) {
         getDeviceWriter(connection,adr,16),
         timeoutPromise(),
     ]).then(async writer=>{
-      Debug('got Writer')({writer})
+      Debug('found')({writer})
        const foundDevice = [];
        for (const method of detectedDevice) {
           foundDevice.push(await writer(method));
        }
-       const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
+       const humandReadable = foundDevice.map(getMessage)
+       //.map(msg=>String.fromCharCode.apply(null, msg.data));
        Debug('foundDevice',humandReadable)
     })
 }
