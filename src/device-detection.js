@@ -7,8 +7,8 @@ import { al66v } from './device-al66v.js';
 const coindDetectorType = al66v();
 const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
 const debug = Debug('test')
-import { mapSeries } from 'bluebird';
-
+import Bluebird from 'bluebird';
+const mapSeries = Bluebird.mapSeries
 import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0');
 
