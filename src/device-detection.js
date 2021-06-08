@@ -42,9 +42,9 @@ for (const adr of standardAddresses) {
           foundDevice.push(await writer(method));
        }
        console.log('don')
-       const humandReadable = foundDevice.map(getMessage)
-       console.log('don'{ humandReadable, foundDevice})
-       //.map(msg=>String.fromCharCode.apply(null, msg.data));
+       const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
+       console.log('don',{ humandReadable, foundDevice})
+       
        Debug('foundDevice',humandReadable)
     })
 }
