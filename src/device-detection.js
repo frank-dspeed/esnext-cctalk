@@ -35,7 +35,7 @@ for (const adr of standardAddresses) {
         getDeviceWriter(connection,adr,8),
         getDeviceWriter(connection,adr,16),
         timeoutPromise(),
-    ])
+    ]).then(writer=>console.log({writer}))
 }
 /*
 standardAddresses.forEach(async adr=>{
