@@ -38,12 +38,12 @@ mapSeries(standardAddresses,adr=>{
     ]).then(async writer=>{
       Debug('found')({writer})
       //setTimeout(async ()=>{
-        const foundDevice = await Promise.allSettled(detectedDevice.map(method=>{
+        const foundDevice = await mapSeries(detectedDevice,method=>{
             return Promise.race([
                 writer(method),
                 timeoutPromise()
             ]);
-       }))
+       })
        console.log('apply',foundDevice)
       //},timeOut++) 
       
