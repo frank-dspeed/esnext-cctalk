@@ -154,11 +154,13 @@ export const al66v = ()=> {
             return [command,data]
             //.then((reply) => { return String.fromCharCode.apply(null, reply.data); });
         },
+        /** @param {Uint8ArrayType} CCTalkMessage */
         readBufferedCreditEvents(CCTalkMessage) {
             const parsedMessage = eventsParser(CCTalkMessage);
             if (parsedMessage) {
                 const { events, eventsCounter } = parsedMessage;
-                const getEvents = event => {
+                
+                const getEvents = (/** @type {Uint8Array | Uint8ClampedArray | [any, any]} */ event) => {
                     const [ channel, sorterPathOrEventCode ] = event;
                     const isAccepted = channel;
                     if (isAccepted) {
