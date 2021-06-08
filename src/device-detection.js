@@ -35,8 +35,13 @@ const tryWriter = async (adr,crcType) => {
 const detectDevice = async (adr) => {
     return await Promise.race([
         tryWriter(adr,8),
+        timeoutPromise()
+    ]).catch(e=>{
+      return Promise.race([
         tryWriter(adr,16),
-    ])
+        timeoutPromise()
+    ])  
+    })
 }
 console.log('D',await detectDevice(2))
 setTimeout(async ()=>console.log('D',await detectDevice(40)),500)
