@@ -204,7 +204,7 @@ const crc16verify = chunk => {
     const currentCRC = [chunk[srcPosition], chunk[checksumPosition]];
     const CRCArray = calcCrc16(chunk);
     
-    //Debug('esnext-cctalk::crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
+    Debug('esnext-cctalk::crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
     return CRCArray ? ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1])) : false;
 }
 
