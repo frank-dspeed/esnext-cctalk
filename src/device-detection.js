@@ -43,6 +43,7 @@ for (const adr of standardAddresses) {
        }
        console.log('don')
        const humandReadable = foundDevice.map(getMessage)
+       console.log('don'{ humandReadable, foundDevice})
        //.map(msg=>String.fromCharCode.apply(null, msg.data));
        Debug('foundDevice',humandReadable)
     })
