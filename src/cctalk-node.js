@@ -114,7 +114,7 @@ export const getConnection = port => {
          if(isAnswer) {
             Debug('esnext-cctalk/node/connection/parser/onData/isAnswer/debug')({command})
              if(lastCommand) {
-                 var Command = lastCommand;
+                 let Command = lastCommand;
                  lastCommand = null;
                  if(command.command === 0){
                    Command.resolve(new Uint8Array(message));
@@ -137,15 +137,15 @@ export const getConnection = port => {
      })
      
      // @ts-ignore
-     const sendCommandPromise = (command) => {
- 
+     const sendCommandPromise = portToWrite => input => {
+        /** @type {Promise<Uint8ArrayType> | null} */
+        let command;
          // Send command with promised reply
          // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
          const promise = new Promise((resolve, reject) => {
-          command.resolve = resolve;
-          command.reject = reject;
+            Object.assign(command, { resolve, reject, input })
          }).catch((err) => {
-            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{command})
+            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{input})
             throw err;
          });
    
@@ -155,9 +155,9 @@ export const getConnection = port => {
            .then(() => {
               lastCommand = command;
               return new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({command})
-                  
-                port.write(command, err =>{
+                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({input})
+                // @ts-ignore
+                portToWrite.write(command.input, err =>{
                     if(err) {
                       reject(err)
                     } else {
@@ -209,8 +209,8 @@ export const getConnection = port => {
     }
     
     return {
-        write: sendCommandPromise,
-        parserWrite: sendCommandPromiseParser,
+        write: sendCommandPromise(port),
+        parserWrite: sendCommandPromise(parser),//sendCommandPromiseParser,
         port,
         parser
     }
