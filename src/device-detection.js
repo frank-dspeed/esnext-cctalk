@@ -27,19 +27,25 @@ const detectedDevice = [
 //     coindDetector(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
 // })
 
+const tryWriter = async (adr,crcType) => {
+    const writer = getDeviceWriter(connection,adr,crcType);
+    return writer(254).then(()=>writer)
+}
+
+const detectDevice = async () => {
+    return await Promise.race([
+        tryWriter(2,8),
+        tryWriter(2,16),
+    ])
+}
+console.log('D',await detectDevice() )
 const simpleButWorking = () => {
 
 }
 
 const standardAddresses = [2,40];
 let timeOut = 50;
-const tryWriter = (adr,crcType) => {
-    const writer = getDeviceWriter(connection,adr,crcType);
-    return Promise.race([
-        writer(254).then(()=>(writer)),
-        timeoutPromise(),
-    ]);
-}
+/*
 mapSeries(standardAddresses,adr=>{
     return Promise.race([
         tryWriter(adr,8),
@@ -50,7 +56,7 @@ mapSeries(standardAddresses,adr=>{
       console.log( writers )
     //})
 })
-
+*/
 
 
 /*
