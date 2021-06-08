@@ -94,7 +94,7 @@ export const getConnection = port => {
 
     const CCTalk = NodeStreamParser();
     const parser = port.pipe(new CCTalk())
-    let debug = Debug('esnext-cctalk::node::getConnection')
+    
 
      /**
      * Async Promise Chain only for demo in production you will want to use a
@@ -110,16 +110,9 @@ export const getConnection = port => {
          
          // if destination is master or bus we accept it
          const isAnswer = command.dest === 1 || command.dest === 0
-         const isbufferReadingCommand = (!isAnswer || command.command === 229 || command.command === 0)
-         if (!isbufferReadingCommand) {
-            // dont log buffer reading Commands
-            Debug('esnext-cctalk/src/cctalk-node::parser::onData')({command})
-         } else {
-            Debug('esnext-cctalk/src/cctalk-node::parser::onData::debug')({command})
-         }
          
          if(isAnswer) {
-             debug('response::',{command})
+            Debug('esnext-cctalk/node/connection/parser/onData/isAnswer/debug')({command})
              if(lastCommand) {
                  var Command = lastCommand;
                  lastCommand = null;
@@ -130,7 +123,14 @@ export const getConnection = port => {
                  }
              }
            } else {
-             return
+                const isbufferReadingCommand = (command.command === 229 || command.command === 0)
+                if (!isbufferReadingCommand) {
+                    // dont log buffer reading Commands
+                    Debug('esnext-cctalk/node/connection/parser/onData')({command})
+                } else {
+                    Debug('esnext-cctalk/node/connection/parser/onData/debug')({command})
+                }
+                return
            }
          
          
@@ -145,7 +145,7 @@ export const getConnection = port => {
           command.resolve = resolve;
           command.reject = reject;
          }).catch((err) => {
-            Debug('esnext-cctalk::connection::sendCommandPromise::error')(err,{command})
+            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{command})
             throw err;
          });
    
@@ -155,7 +155,7 @@ export const getConnection = port => {
            .then(() => {
               lastCommand = command;
               return new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
+                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({command})
                   
                 port.write(command, err =>{
                     if(err) {
@@ -181,7 +181,7 @@ export const getConnection = port => {
             command.resolve = resolve;
             command.reject = reject;
         }).catch((err) => {
-            Debug('esnext-cctalk::connection::sendCommandPromise::error')(err,{command})
+            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{command})
             throw err;
         });
     
@@ -190,9 +190,9 @@ export const getConnection = port => {
         commandChainPromise = commandChainPromise
             .then(() => {
                 lastCommand = command;
-                Debug('esnext-cctalk::connection::sendCommandPromise::debug')('SET LAST COMMAND')
+                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')('SET LAST COMMAND')
                 return new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
+                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({command})
                     
                 parser.write(command, err =>{
                     if(err) {
