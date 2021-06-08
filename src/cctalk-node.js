@@ -86,6 +86,13 @@ export const lazyNodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
 
 
 /**
+ * Async Promise Chain only for demo in production you will want to use a
+ welll defined generator
+@type {null|Promise<Uint8ArrayType>}
+*/
+let lastCommand = null;
+let commandChainPromise = Promise.resolve();
+/**
  * const SerialPort = require('serialport')
  * const port = new SerialPort('/dev/ttyUSB0')
  * @param {*} port 
@@ -97,13 +104,6 @@ export const getConnection = port => {
     const parser = port.pipe(new CCTalk())
     
 
-     /**
-     * Async Promise Chain only for demo in production you will want to use a
-       welll defined generator
-       @type {null|Promise<Uint8ArrayType>}
-      */
-     let lastCommand = null;
-     let commandChainPromise = Promise.resolve();
  
      // @ts-ignore
      parser.on('data', message => {
