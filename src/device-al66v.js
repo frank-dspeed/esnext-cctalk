@@ -178,7 +178,7 @@ export const al66v = ()=> {
                     return parsedMessage.events.map(getEvents)
                 */
                 lastEventCounter = parsedMessage.eventsCounter;
-                return getEvents(parsedMessage.events[0]);
+                return { eventId: lastEventCounter,  value: getEvents(parsedMessage.events[0]); }
             }
         }      
     }
