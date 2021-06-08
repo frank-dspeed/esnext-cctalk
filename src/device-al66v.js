@@ -1,6 +1,8 @@
+import { getEventListener } from 'events';
 import { PollResponseEventsParser } from './cctalk-parser.js'
 export const al66v = ()=> {
     const eventsParser = PollResponseEventsParser();
+    let lastEventCounter;
     const eventCodes = {
         accepted: 0,
         rejected: 1,
@@ -155,21 +157,27 @@ export const al66v = ()=> {
         readBufferedCreditEvents(CCTalkMessage) {
             const parsedMessage = eventsParser(CCTalkMessage);
             if (parsedMessage) {
-                for (const [channel, sorterPathOrEventCode] of parsedMessage.events) {
-                  const isAccepted = channel;
-                  if (isAccepted) {
-                     const sorterPath = sorterPathOrEventCode;
-                     console.log('Accepted',{ channel,sorterPath })
-                     continue
-                  }
-                  
-                  let eventCode = sorterPathOrEventCode;
-                  if (eventCode === 0) {
-                    continue
-                  }
-                  console.log('rejected',eventCode)
+                const getEvents = event => {
+                    const [ channel, sorterPathOrEventCode ] = parsedMessage.events[0];
+                    const isAccepted = channel;
+                    if (isAccepted) {
+                         const sorterPath = sorterPathOrEventCode;
+                         return channel;
+                         //console.log('Accepted',{ channel,sorterPath })
+                    }
+                    
+                    let eventCode = sorterPathOrEventCode;
+                    if (eventCode === 0) {
+                        return    
+                    }
+                    
+                    console.log('rejected',eventCode)
                 }
-                //lastEventCounter = PollResponseEvents.eventsCounter;
+                getEvents(parsedMessage.events[0]);                
+                /*
+                    return parsedMessage.events.map(getEvents)
+                */
+                lastEventCounter = parsedMessage.eventsCounter;
             }
         }      
     }
