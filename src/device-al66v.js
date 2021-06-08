@@ -143,8 +143,8 @@ export const al66v = ()=> {
         },
         /** @param {number} channel*/
         channelToCoin(channel) {
-            const channelsMap = [0,2.00,1.00,0.50,0.20,0.10,0.05,0.02,0.01]
-            const coin = channelsMap[channel]
+            const channelsMap = [0, 2.00, 1.00, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01]
+            const coin = channelsMap[channel].toFixed(2)
             return coin;
         },
         /** @param {number} channel */
