@@ -54,5 +54,5 @@ standardAddresses.forEach(async adr=>{
         detectedDevice.forEach(async (cmd)=>{
             await writer(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
         })
-    }
+    })
 })
