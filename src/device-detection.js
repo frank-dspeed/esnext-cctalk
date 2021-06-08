@@ -27,31 +27,29 @@ const detectedDevice = [
 //     coindDetector(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
 // })
 
+const simpleButWorking = () => {
+
+}
 
 const standardAddresses = [2,40];
 let timeOut = 50;
+const tryWriter = (adr,crcType) => {
+    const writer = getDeviceWriter(connection,adr,crcType);
+    return Promise.race([
+        writer(254).then(()=>(writer)),
+        timeoutPromise(),
+    ]);
+}
 mapSeries(standardAddresses,adr=>{
     return Promise.race([
-        getDeviceWriter(connection,adr,8),
-        getDeviceWriter(connection,adr,16),
+        ()=>tryWriter(adr,8)),
+        ()=>tryWriter(adr,16)),
         timeoutPromise(),
-    ]).then(async writer=>{
-      Debug('found')({writer})
-      //setTimeout(async ()=>{
-        const foundDevice = await mapSeries(detectedDevice,method=>{
-            return Promise.race([
-                writer(method),
-                timeoutPromise()
-            ]);
-       })
-       console.log('apply',foundDevice)
-      //},timeOut++) 
-      
-         //foundDevice.push(value);
-       
-       //const humandReadable = foundDevice.map(getMessage).map(msg=>String.fromCharCode.apply(null, msg.data));
-       //Debug('foundDevice')(humandReadable)
-    })
+    ])
+}).then(writers=>{
+    //mapSeries(writers,writer => {
+      console.log( writers )
+    //})
 })
 
 
