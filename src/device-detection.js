@@ -42,8 +42,8 @@ const tryWriter = (adr,crcType) => {
 }
 mapSeries(standardAddresses,adr=>{
     return Promise.race([
-        ()=>tryWriter(adr,8)),
-        ()=>tryWriter(adr,16)),
+        tryWriter(adr,8),
+        tryWriter(adr,16),
         timeoutPromise(),
     ])
 }).then(writers=>{
