@@ -46,18 +46,13 @@ const detectedDevice = [
 const standardAddresses = [2,40];
 
 standardAddresses.forEach(async adr=>{
-    
-    await getDeviceWriter(connection,adr,8)(254).then(()=>{
-        // found
+    const deviceWriter = [
+        getDeviceWriter(connection,adr,8),
+        getDeviceWriter(connection,adr,16)
+    ].forEach( async (writer, i) => {
+        await writer(254)
         detectedDevice.forEach(async (cmd)=>{
-            await getDeviceWriter(connection,adr,8)(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
+            await writer(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
         })
-    })
-
-    await getDeviceWriter(connection,adr,16)(254).then(()=>{
-        // found
-        detectedDevice.forEach(async (cmd)=>{
-            await getDeviceWriter(connection,adr,16)(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
-        })
-    })
+    }
 })
