@@ -42,10 +42,18 @@ for (const adr of standardAddresses) {
        const foundDevice = [];
        for (const method of detectedDevice) {
         console.log('apply','before') 
-        const value = await Promise.race([
-            writer(method),
-            timeoutPromise()
-        ]);
+        try {
+            const value = await Promise.race([
+                writer(method),
+                timeoutPromise()
+            ]);
+        } catch (e) {
+            const value = await Promise.race([
+                writer(method),
+                timeoutPromise()
+            ]);
+        }
+        
          console.log('apply',value)
          foundDevice.push(value);
        }
