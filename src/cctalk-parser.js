@@ -1,12 +1,6 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
-
-const NoOp = () => { /** */ };
-/** @param {*} message */
-const debug = message => 
-    /** @param {*} msg */
-    (...msg) => console.log(message,...msg)
-
+import Debug from './debug.js';
 
 const cctalkPortParserInitalState = {
     preservedDataBuffer: new Uint8ClampedArray([]), 
@@ -145,6 +139,7 @@ newest event is first
 
     /** @param {Uint8ArrayType} pollResponse */
     const pollResponseEventsParser = pollResponse => {
+      Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ pollResponse})
       // getData out of the pollResponse Payload
       const eventBuffer = getMessage(pollResponse).data
       const lastEventCounter = preserved.eventBuffer[0];
