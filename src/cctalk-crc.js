@@ -42,8 +42,8 @@ const getPayloadPositionData = chunk => {
  */
 const getDataFromChunk = chunk => {
     errorUint8(chunk);
-    const { dataStartPosition , dataEndPosition} = getPayloadPositionData(chunk);
-    return new Uint8Array(chunk.slice(dataStartPosition , dataEndPosition));
+    const { dataStartPosition , checksumPosition} = getPayloadPositionData(chunk);
+    return new Uint8Array(chunk.slice(dataStartPosition , checksumPosition));
 }
 
 /** start https://unpkg.com/browse/crc@3.8.0/crc16xmodem.js */  
