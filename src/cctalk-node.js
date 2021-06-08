@@ -112,7 +112,7 @@ export const getConnection = port => {
              if(lastCommand) {
                  var Command = lastCommand;
                  lastCommand = null;
-                 if(command.command === coinAcceptor.commands.return){
+                 if(command.command === 0){
                    Command.resolve(new Uint8Array(message));
                  } else {
                    Command.reject(new Uint8Array(message));
