@@ -172,12 +172,22 @@ export const getDeviceWriter = (connection,address,crcType) => {
     //const billSendCommand = getSendCommand(1,40,16)
     //const sendMethod = (methodName, arg ) => coinSendCommand(...coinAcceptor.methods[methodName](arg));
     /** 
-     * @param {number} command
+     * @param {number|Uint8ArrayType} command
      * @param {Uint8ArrayType} data
      */
     const deviceWriter = (command, data) => {
-        const Message = getSendCommand(1,2,8)(command,data);
-        return connection.write(Message);
+        const isUint8 = (typeof command).indexOf('Uint8') === 0;
+        // @ts-ignore
+        if (isUint8 && command.length === 2) {
+            // @ts-ignore
+            return connection.write(getSendCommand(1,address,crcType)(...command));
+        }
+        
+        // @ts-ignore
+        if (isUint8 && command.length > 2) {
+            return connection.write(command);
+        }
+        return connection.write(getSendCommand(1,address,crcType)(command,data));
     }
     return deviceWriter
 }
