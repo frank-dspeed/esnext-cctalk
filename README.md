@@ -79,3 +79,7 @@ const connection = () => {
 This Site helped me a lot https://cctalktutorial.wordpress.com/
 
 let port = await navigator.serial.requestPort();
+
+
+## Debug settings
+sudo DEBUG=*,-*::debug,-serialport* node basic-tests.js 
