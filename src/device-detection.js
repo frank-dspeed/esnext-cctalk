@@ -47,7 +47,7 @@ for (const adr of standardAddresses) {
             ]);
        }))
        console.log('apply',foundDevice)
-      },timeout++) 
+      },timeOut++) 
       
          //foundDevice.push(value);
        
