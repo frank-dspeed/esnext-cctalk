@@ -32,13 +32,16 @@ const tryWriter = async (adr,crcType) => {
     return writer(254).then(()=>writer)
 }
 
-const detectDevice = async () => {
+const detectDevice = async (adr) => {
     return await Promise.race([
-        tryWriter(2,8),
-        tryWriter(2,16),
+        tryWriter(adr,8),
+        tryWriter(adr,16),
     ])
 }
-console.log('D',await detectDevice() )
+console.log('D',await detectDevice(2))
+console.log('D',await detectDevice(30))
+
+
 const simpleButWorking = () => {
 
 }
