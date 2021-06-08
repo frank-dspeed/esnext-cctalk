@@ -427,7 +427,7 @@ export const verifyCCTalkMessage = message => {
     } 
     
     Debug('esnext-cctalk::crc')(message);
-    Debug('esnext-cctalk::crc')'ERROR TEMP DISABLED');
+    Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
     //throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }
