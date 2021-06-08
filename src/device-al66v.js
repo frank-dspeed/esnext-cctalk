@@ -1,4 +1,5 @@
 import { PollResponseEventsParser } from './cctalk-parser.js'
+import { Debug } from './debug.js';
 export const al66v = ()=> {
     const eventsParser = PollResponseEventsParser();
     let lastEventCounter;
@@ -170,13 +171,14 @@ export const al66v = ()=> {
                         return    
                     }
                     
-                    console.log('rejected',eventCode)
+                    Debug('readBufferedCreditEvents')('rejected',eventCode)
                 }
-                getEvents(parsedMessage.events[0]);                
+                                
                 /*
                     return parsedMessage.events.map(getEvents)
                 */
                 lastEventCounter = parsedMessage.eventsCounter;
+                return getEvents(parsedMessage.events[0]);
             }
         }      
     }
