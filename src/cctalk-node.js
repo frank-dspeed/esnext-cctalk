@@ -143,9 +143,9 @@ export const getConnection = port => {
          commandChainPromise = commandChainPromise
            .then(() => {
               lastCommand = command;
-              Debug('COMMANDCHAIN::PROMISE')('SET LAST COMMAND')
+              Debug('esnext-cctalk::connection::sendCommandPromise::debug')('SET LAST COMMAND')
               return new Promise((resolve,reject)=> {
-                Debug('COMMANDCHAIN::PROMISE')({command})
+                Debug('esnext-cctalk::connection::sendCommandPromise::debug')({command})
                   
                 port.write(command, err =>{
                     if(err) {
