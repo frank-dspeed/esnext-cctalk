@@ -27,7 +27,7 @@ export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
        const CCTalk = require('@serialport/parser-cctalk')
        const port = new SerialPort('/dev/ttyUSB0')
        const parser = port.pipe(new CCtalk())
-       parser.on('data', console.log)
+       parser.on('data', Debug('esnext-cctalk::node'))
    */
    class NodeTransformStream extends Transform {
        /**
@@ -63,7 +63,7 @@ export const lazyNodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
                 const CCTalk = require('@serialport/parser-cctalk')
                 const port = new SerialPort('/dev/ttyUSB0')
                 const parser = port.pipe(new CCtalk())
-                parser.on('data', console.log)
+                parser.on('data', Debug('esnext-cctalk::node'))
             */
             class NodeTransformStream extends Transform {
                 /**
@@ -103,9 +103,9 @@ export const getConnection = port => {
          // if destination is master or bus we accept it
          const isbufferReadingCommand = (command.command === 229 || command.command === 0)
          if (!isbufferReadingCommand) {
-             console.log({command})
+             Debug('esnext-cctalk::node')({command})
          }
-         console.log({command})
+         Debug('esnext-cctalk::node')({command})
          const isAnswer = command.dest === 1 || command.dest === 0
          if(isAnswer) {
              debug('response::',{command})

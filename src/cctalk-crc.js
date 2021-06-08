@@ -1,5 +1,4 @@
 import './types.js'
-
 import Debug from './debug.js';
 
 /**
@@ -205,7 +204,7 @@ const crc16verify = chunk => {
     const currentCRC = [chunk[srcPosition], chunk[checksumPosition]];
     const CRCArray = calcCrc16(chunk);
     
-    //Debug('ccMessage:crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
+    //Debug('esnext-cctalk::crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
     return CRCArray ? ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1])) : false;
 }
 
@@ -238,17 +237,17 @@ const fromUint8Array = _buffer => {
     // Check for CRC8
     if (crc8verify(_buffer)) {
         CCTalkMessage._crcType = 8;
-        //Debug('ccMessage:crc')('CRC8_CHECKSUM');
+        //Debug('esnext-cctalk::crc')('CRC8_CHECKSUM');
         return CCTalkMessage;
     } 
     
     if (crc16verify(_buffer)) {
         CCTalkMessage._crcType = 16;
-        //Debug('ccMessage:crc')('CRC16_CHECKSUM');
+        //Debug('esnext-cctalk::crc')('CRC16_CHECKSUM');
         return CCTalkMessage;
     } 
     
-    //Debug('ccMessage:crc::warning')(this._buffer);
+    //Debug('esnext-cctalk::crc::warning')(this._buffer);
     return CCTalkMessage;
     //throw new Error('WRONG_CHECKSUM');
 }
@@ -407,16 +406,16 @@ export const getSendCommand = (
 export const verifyCCTalkMessage = message => {
             
     if (crc8verify(message)) {       
-        Debug('ccMessage:crc')('CRC8_CHECKSUM');
+        Debug('esnext-cctalk::crc')('CRC8_CHECKSUM');
         return message;
     } 
     
     if (crc16verify(message)) {
-        Debug('ccMessage:crc')('CRC16_CHECKSUM');
+        Debug('esnext-cctalk::crc')('CRC16_CHECKSUM');
         return message;
     } 
     
-    Debug('ccMessage:crc::warning')(message);
+    Debug('esnext-cctalk::crc::warning')(message);
     throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }
@@ -451,8 +450,6 @@ export const CCTalkMessageCompat = (
         _buffer: object2Array(messageObj),
     }
     
-
-
     return CompatMessage;
 
 };
