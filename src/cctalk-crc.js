@@ -170,9 +170,9 @@ const calcCrc16 = chunk => {
 
     const raw = getCrc16Unit8Array(chunk);
     
-    console.log(crc.crc16(raw).toString(16).match(/.{1,2}/g)
-    ?.map((val)=> parseInt(val, 16)))
-    process.exit()
+    //console.log(crc.crc16(raw).toString(16).match(/.{1,2}/g)
+    //?.map((val)=> parseInt(val, 16)))
+    //process.exit()
 
     // our
     const checksums = crc16xmodem(raw);
@@ -427,7 +427,8 @@ export const verifyCCTalkMessage = message => {
     } 
     
     Debug('esnext-cctalk::crc')(message);
-    throw new Error('CRC is none valid checked CRC8 and CRC16')
+    Debug('esnext-cctalk::crc')'ERROR TEMP DISABLED');
+    //throw new Error('CRC is none valid checked CRC8 and CRC16')
     //return message;
 }
 
