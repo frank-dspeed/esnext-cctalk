@@ -163,7 +163,7 @@ newest event is first
        */
       const reducer = function(result, value, index, array) {
         if (index % 2 === 0) { 
-            result.push(array.slice(index, index + 2).reverse() /** Returns [eventCode,channel]*/); 
+            result.push(array.slice(index, index + 2) /** Returns [channel,eventCode]*/); 
         }
         return result;
       }
