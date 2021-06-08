@@ -1,4 +1,3 @@
-import { getEventListener } from 'events';
 import { PollResponseEventsParser } from './cctalk-parser.js'
 export const al66v = ()=> {
     const eventsParser = PollResponseEventsParser();
