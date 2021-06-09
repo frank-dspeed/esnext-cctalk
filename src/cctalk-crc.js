@@ -526,8 +526,10 @@ export const crcMethods = {
         sign(unsignedButCompletPayload) {            
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload })
              //calcCrc16(completPayload) 
-            const CRCArray = calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodem);
-            
+            const signedPayload = crc16sign( 
+                unsignedButCompletPayload, 
+                calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodem) 
+            );
             
             return signedPayload
         },
