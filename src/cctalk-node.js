@@ -1,6 +1,6 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { CCTalkParser } from './cctalk-parser.js';
-import { getSendCommand, getMessage } from './cctalk-crc.js';
+import { getSendCommand, getMessage, CreatePayload, crcMethods } from './cctalk-crc.js';
 import { Transform } from 'stream';
 import Debug from './debug.js';
 export const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
@@ -218,7 +218,7 @@ export const getConnection = port => {
 
 }    
 
-export const getDeviceWriter = (connection,address,crcType) => {
+export const getDeviceWriter = (connection,address,methodName) => {
     //const coinSendCommand = getSendCommand(1,2,8)
     //const billSendCommand = getSendCommand(1,40,16)
     //const sendMethod = (methodName, arg ) => coinSendCommand(...coinAcceptor.methods[methodName](arg));
@@ -231,14 +231,14 @@ export const getDeviceWriter = (connection,address,crcType) => {
         // @ts-ignore
         if (isUint8 && command.length === 2) {
             // @ts-ignore
-            return connection.write(getSendCommand(1,address,crcType)(...command));
+            return connection.write(CreatePayload(1,address,crcMethods[methodName].sign)(...command));
         }
         
         // @ts-ignore
         if (isUint8 && command.length > 2) {
             return connection.write(command);
         }
-        return connection.write(getSendCommand(1,address,crcType)(command,data));
+        return connection.write(CreatePayload(1,address,crcMethods[methodName].sign)(command,data));
     }
     return deviceWriter
 }
