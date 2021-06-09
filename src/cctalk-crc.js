@@ -1,7 +1,7 @@
 import './types.js'
 import Debug from './debug.js';
 import { crc16xmodem } from 'node-crc';
-import { method } from 'bluebird';
+//import { method } from 'bluebird';
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -254,7 +254,7 @@ const fromUint8Array = _buffer => {
         return CCTalkMessage;
     } 
     
-    if (crc16verify(_buffer)) {
+    if (crcMethods.crc16xmodemJs.verify(_buffer)) {
         CCTalkMessage._crcType = 16;
         //Debug('esnext-cctalk::crc')('CRC16_CHECKSUM');
         return CCTalkMessage;
@@ -332,10 +332,10 @@ const array2Object = arr => {
         data,
         crc,
         get crcType() {
-            if (crc8verify(arr)) {
+            if (crcMethods.crc8.verify(arr)) {
                 return 8
             } 
-            if (crc16verify(arr)) {
+            if (crcMethods.crc16xmodemJs.verify(arr)) {
                 return 16
             }
             return
@@ -366,7 +366,7 @@ export const object2Array = messageObj => {
     
     // Sign the resulting _buffer if needed
     if (!crc && crcType) {
-        const signingMethod = ( crcType === 8 ) ? crc8sign : ( crcType === 16 ) ? crc16sign : ()=>{/* NoOp */};
+        const signingMethod = ( crcType === 8 ) ? crcMethods.crc8.sign : ( crcType === 16 ) ? crcMethods.crc16xmodemJs.sign : ()=>{/* NoOp */};
         signingMethod(_buffer);
     }
     verifyCCTalkMessage(_buffer)
@@ -390,9 +390,9 @@ export const getSendCommand = (
 ) => {
     const signingMethod = 
         ( crcType === 8 ) 
-            ? crc8sign 
+            ? crcMethods.crc8.sign
             : ( crcType === 16 ) 
-                ? crc16sign 
+                ? crcMethods.crc16xmodemJs.sign
                 : ()=>{/* NoOp */};
     
     /**
@@ -411,6 +411,33 @@ export const getSendCommand = (
     return sendCommand
     
 }
+
+/**
+ * 
+ * @param {*} targetSpec { src, dest, crcSigningMethod }
+  * @returns 
+ */
+ export const CreatePayload = (targetSpec) => {
+    const { src, dest, crcSigningMethod } = targetSpec || { src: 1, des: 2, crcSigningMethod: crcMethods.crc8.sign };
+    /**
+     * 
+     * @param {*} command 
+     * @param {*} data 
+     * @returns 
+     */
+    const createPayload = ( command, data = new Uint8Array(0) ) => {
+        const CCTalkPayload = new Uint8Array(
+            [dest, data.length, src, command, ...data,0]
+        );
+        crcSigningMethod(CCTalkPayload);
+        return CCTalkPayload;
+    }
+    return createPayload;
+    
+}
+
+
+
 
 /**
  * 
@@ -496,8 +523,9 @@ export const crcMethods = {
         return message;
     } 
     */
-    Debug('esnext-cctalk::crc')(message);
+   const tryedMethods = Object.keys(crcMethods).join(', ');
+    Debug('esnext-cctalk::crc')(completPayload,tryedMethods);
     //Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
-    throw new Error('CRC is none valid checked',Object.keys(crcMethods).join(', '))
+    throw new Error(`CRC is none valid checked ${tryedMethods}`)
     //return message;
 }
