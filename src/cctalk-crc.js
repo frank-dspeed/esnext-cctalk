@@ -506,6 +506,7 @@ export const crcMethods = {
  * @returns 
  */
  export const verifyCCTalkMessage = completPayload => {
+    Debug('esnext-cctalk/crc/info')(completPayload);
     for (const [methodName, methods] of Object.entries(crcMethods)) {
         if (methods.verify(completPayload)) {       
             Debug('esnext-cctalk::crc::debug')(methodName);
@@ -524,7 +525,7 @@ export const crcMethods = {
     } 
     */
    const tryedMethods = Object.keys(crcMethods).join(', ');
-    Debug('esnext-cctalk::crc')(completPayload,tryedMethods);
+    Debug('esnext-cctalk::crc::warning')(completPayload,tryedMethods);
     //Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
     throw new Error(`CRC is none valid checked ${tryedMethods}`)
     //return message;
