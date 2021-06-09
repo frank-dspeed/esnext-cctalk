@@ -1,6 +1,6 @@
 import './types.js'
 import Debug from './debug.js';
-import crc, { crc16 } from 'node-crc';
+import { crc16xmodem } from 'node-crc';
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -54,7 +54,7 @@ const getDataFromChunk = chunk => {
  * @param { number } [previous] Uint8
  * @returns {number} crc16checksums as byteOffsets use toString(16)
  */
-const crc16xmodem = (buf, previous) => {
+export const Oldcrc16xmodem = (buf, previous) => {
     if (!(buf instanceof Uint8Array)) {
         //We need to work with int8 while nodeJS Works with int16
         throw new Error('buf is not Uint8Array')
@@ -140,6 +140,7 @@ const crc8verify = chunk => {
  * Turns a CCTalk parser chunk and returns crc16 verfiyable Uint8Array
  * that contains only the relevant parts.
  * Allows us to use a already signed chunk for verification
+ * Returns a striped payload without src and crc filds
  * @param {Uint8ArrayType} chunk already signed or unsigned 
  * @returns 
  */
