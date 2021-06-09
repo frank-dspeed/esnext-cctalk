@@ -177,6 +177,7 @@ const calcCrc16 = chunk => {
 
     // our
     const checksums = crc16xmodem(raw);
+    /*
     const checksumsArray = checksums.toString(16).match(/.{1,2}/g)
         ?.map((val)=> parseInt(val, 16))
         .reverse(); 
@@ -184,6 +185,8 @@ const calcCrc16 = chunk => {
     
     
     return checksumsArray;
+    */
+   return checksums
 }
 
 /**
