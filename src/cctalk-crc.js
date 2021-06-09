@@ -480,10 +480,10 @@ export const CCTalkMessageCompat = (
 
 export const crcMethods = {
     crc16xmodem: {
-        sign(completPayload) {            
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload })
-            const signedPayload = crc16sign(completPayload, crc16xmodem)
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
+        sign(unsignedButCompletPayload) {            
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload })
+            const signedPayload = crc16sign(unsignedButCompletPayload, crc16xmodem)
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload})
             return signedPayload
         },
         verify(completPayload) {
@@ -491,9 +491,10 @@ export const crcMethods = {
         }
     },
     crc16xmodemJs: {
-        sign(completPayload) {
-            const signedPayload = crc16sign(completPayload, calcCrc16Js )
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ completPayload, signedPayload})
+        sign(unsignedButCompletPayload) {
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
+            const signedPayload = crc16sign(unsignedButCompletPayload, calcCrc16Js )
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ signedPayload})
             return signedPayload
         },
         verify(completPayload) {
