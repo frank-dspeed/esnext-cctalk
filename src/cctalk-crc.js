@@ -1,6 +1,7 @@
 import './types.js'
 import Debug from './debug.js';
 import { crc16xmodem } from 'node-crc';
+import { method } from 'bluebird';
 
 /**
  * errorUint8 Errors if its not a Uint8*
@@ -54,7 +55,7 @@ const getDataFromChunk = chunk => {
  * @param { number } [previous] Uint8
  * @returns {number} crc16checksums as byteOffsets use toString(16)
  */
-export const Oldcrc16xmodem = (buf, previous) => {
+export const crc16xmodemJs = (buf, previous) => {
     if (!(buf instanceof Uint8Array)) {
         //We need to work with int8 while nodeJS Works with int16
         throw new Error('buf is not Uint8Array')
@@ -109,15 +110,15 @@ const calcCrc8 = chunk => {
 
 /**
  * 
- * @param {Uint8ArrayType} chunk 
+ * @param {Uint8ArrayType} completPayload
  * @returns {Uint8ArrayType} chunk with inserted checksum on the right position
  */
-const calculateAndInsertCrc8ChecksumForThePayload = chunk => {
-    errorUint8(chunk);
-    const checksum = calcCrc8(chunk)
-    const { checksumPosition } = getPayloadPositionData(chunk);
-    chunk[checksumPosition] = checksum;
-    return chunk
+const crc8sign = completPayload => {
+    errorUint8(completPayload);
+    const checksum = calcCrc8(completPayload)
+    const { checksumPosition } = getPayloadPositionData(completPayload);
+    completPayload[checksumPosition] = checksum;
+    return completPayload
 }
 
 /**
@@ -162,65 +163,62 @@ const getCrc16Unit8Array = chunk => {
     return new Uint8Array([chunk[0],chunk[1],chunk[3],..._data])
 }
 
+const calcCrc16 = crc16xmodem;
+
 /**
  * 
  * @param {Uint8ArrayType} chunk 
  * @returns {Array<number> | undefined}
  */
-const calcCrc16 = chunk => {
+export const calcCrc16Js = chunk => {
 
     const raw = getCrc16Unit8Array(chunk);
     
-    //console.log(crc.crc16(raw).toString(16).match(/.{1,2}/g)
-    //?.map((val)=> parseInt(val, 16)))
-    //process.exit()
-
     // our
-    const checksums = crc16xmodem(raw);
-    /*
+    const checksums = crc16xmodemJs(raw);
+    
     const checksumsArray = checksums.toString(16).match(/.{1,2}/g)
         ?.map((val)=> parseInt(val, 16))
         .reverse(); 
     
-    
-    
     return checksumsArray;
-    */
-   return checksums
+    
 }
 
 /**
  * 
- * @param {Uint8ArrayType} chunk 
+ * @param {Uint8ArrayType} completPayload 
+ * @param {*} crcImplementation
  * @returns {Uint8ArrayType}
  */
-const signCrc16 = chunk => {
-    const { srcPosition, checksumPosition} = getPayloadPositionData(chunk);
-    const CRCArray = calcCrc16(chunk) 
+const crc16sign = (completPayload, crcImplementation )=> {
+    const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
+    const CRCArray = crcImplementation; //calcCrc16(completPayload) 
     if (!CRCArray) {
-        console.log(chunk)
+        console.log(completPayload)
         throw new Error('Could not Sign CRC16');
     }
-    chunk[srcPosition] = CRCArray[0];
-    chunk[checksumPosition] = CRCArray[1];
+    completPayload[srcPosition] = CRCArray[0];
+    completPayload[checksumPosition] = CRCArray[1];
     
-    return chunk;
+    return completPayload;
 }
 
 /**
  * 
- * @param {Uint8ArrayType} chunk 
+ * @param {Uint8ArrayType} completPayload
+ * @param {*} crc16Implementation
  * @returns {boolean}
  */
-const crc16verify = chunk => {
-    const { srcPosition, checksumPosition} = getPayloadPositionData(chunk);
+const crc16verify = (completPayload, crc16Implementation )=> {
+    const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
     // NOTE: was dataEndPosition historicaly
     
-    const currentCRC = [chunk[srcPosition], chunk[checksumPosition]];
-    const CRCArray = calcCrc16(chunk);
+    const crc16ChecksumsFromPayload = [completPayload[srcPosition], completPayload[checksumPosition]];
+    const crc16Checksums = crc16Implementation(completPayload) //calcCrc16(completPayload);
     
-    Debug('esnext-cctalk::crc')(`${currentCRC[0]} == ${CRCArray[0]}, ${currentCRC[1]} == ${CRCArray[1]}`);
-    return CRCArray ? ((currentCRC[0] == CRCArray[0]) && (currentCRC[1] == CRCArray[1])) : false;
+    Debug('esnext-cctalk::crc')(`${crc16ChecksumsFromPayload[0]} == ${crc16Checksums[0]}, ${crc16ChecksumsFromPayload[1]} == ${crc16Checksums[1]}`);
+    return crc16Checksums ? ((crc16ChecksumsFromPayload[0] == crc16Checksums[0]) && (crc16ChecksumsFromPayload[1] == crc16Checksums[1])) : false;
 }
 
 
@@ -368,7 +366,7 @@ export const object2Array = messageObj => {
     
     // Sign the resulting _buffer if needed
     if (!crc && crcType) {
-        const signingMethod = ( crcType === 8 ) ? calculateAndInsertCrc8ChecksumForThePayload : ( crcType === 16 ) ? signCrc16 : ()=>{/* NoOp */};
+        const signingMethod = ( crcType === 8 ) ? crc8sign : ( crcType === 16 ) ? crc16sign : ()=>{/* NoOp */};
         signingMethod(_buffer);
     }
     verifyCCTalkMessage(_buffer)
@@ -392,9 +390,9 @@ export const getSendCommand = (
 ) => {
     const signingMethod = 
         ( crcType === 8 ) 
-            ? calculateAndInsertCrc8ChecksumForThePayload 
+            ? crc8sign 
             : ( crcType === 16 ) 
-                ? signCrc16 
+                ? crc16sign 
                 : ()=>{/* NoOp */};
     
     /**
@@ -412,28 +410,6 @@ export const getSendCommand = (
     }
     return sendCommand
     
-}
-/**
- * 
- * @param {*} message 
- * @returns 
- */
-export const verifyCCTalkMessage = message => {
-            
-    if (crc8verify(message)) {       
-        Debug('esnext-cctalk::crc::debug')('CRC8_CHECKSUM');
-        return message;
-    } 
-    
-    if (crc16verify(message)) {
-        Debug('esnext-cctalk::crc::debug')('CRC16_CHECKSUM');
-        return message;
-    } 
-    
-    Debug('esnext-cctalk::crc')(message);
-    //Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
-    throw new Error('CRC is none valid checked CRC8 and CRC16')
-    //return message;
 }
 
 /**
@@ -469,3 +445,59 @@ export const CCTalkMessageCompat = (
     return CompatMessage;
 
 };
+
+export const crcMethods = {
+    crc16xmodem: {
+        sign(completPayload) {
+            return crc16sign(completPayload, crc16xmodem)
+        },
+        verify(completPayload) {
+            return crc16verify(completPayload, crc16xmodem )
+        }
+    },
+    crc16xmodemJs: {
+        sign(completPayload) {
+            return crc16sign(completPayload, calcCrc16Js )
+        },
+        verify(completPayload) {
+            return crc16verify(completPayload, calcCrc16Js )
+        }
+    },
+    crc8: {
+        sign(completPayload) {
+            return crc8verify(completPayload)
+        },
+        verify() {
+            return crc8verify(completPayload)
+        }
+    }
+}
+
+/**
+ * 
+ * @param {*} completPayload 
+ * @returns 
+ */
+ export const verifyCCTalkMessage = completPayload => {
+    for (const [methodName, methods] of Object.entries(crcMethods)) {
+        if (methods.verify(completPayload)) {       
+            Debug('esnext-cctalk::crc::debug')(methodName);
+            return completPayload;
+        }
+    }
+    /*
+    if (crc8verify(message)) {       
+        Debug('esnext-cctalk::crc::debug')('CRC8_CHECKSUM');
+        return message;
+    } 
+    
+    if (crc16verify(message)) {
+        Debug('esnext-cctalk::crc::debug')('CRC16_CHECKSUM');
+        return message;
+    } 
+    */
+    Debug('esnext-cctalk::crc')(message);
+    //Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
+    throw new Error('CRC is none valid checked',Object.keys(crcMethods).join(', '))
+    //return message;
+}

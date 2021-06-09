@@ -56,9 +56,9 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
         const endOfChunk = 5 + dataLength;
         
         const moreThen2bytes = Uint8ArrayView.length > 1;
-        const completePayload = Uint8ArrayView.length >= endOfChunk;
+        const completPayload = Uint8ArrayView.length >= endOfChunk;
         
-        const processPayload = (moreThen2bytes && completePayload)
+        const processPayload = (moreThen2bytes && completPayload)
         
         if (!processPayload) {
             // Keep the Data Buffer Until there is more data or a Timeout
