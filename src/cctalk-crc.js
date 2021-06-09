@@ -163,7 +163,7 @@ const getCrc16Unit8Array = chunk => {
     return new Uint8Array([chunk[0],chunk[1],chunk[3],..._data])
 }
 
-const calcCrc16 = (completPayload,crcImplementation )=> {
+const crc16calc = (completPayload,crcImplementation )=> {
     const raw = getCrc16Unit8Array(completPayload);
     const checksums = crcImplementation(raw).reverse();
     return checksums;
