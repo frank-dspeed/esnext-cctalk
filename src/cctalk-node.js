@@ -223,7 +223,7 @@ export const getDeviceWriter = (connection,address,methodName) => {
         src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
     };
     const createPayload = CreatePayload(deviceSpec);
-    Debug('esnext-cctalk/node/getDeviceWriter/info')({ deviceSpec })
+    Debug('esnext-cctalk/node/getDeviceWriter/info')({ deviceSpec, methodName })
     //const coinSendCommand = getSendCommand(1,2,8)
     //const billSendCommand = getSendCommand(1,40,16)
     //const sendMethod = (methodName, arg ) => coinSendCommand(...coinAcceptor.methods[methodName](arg));

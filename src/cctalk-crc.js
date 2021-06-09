@@ -476,7 +476,9 @@ export const CCTalkMessageCompat = (
 export const crcMethods = {
     crc16xmodem: {
         sign(completPayload) {
-            return crc16sign(completPayload, crc16xmodem)
+            const signedPayload = crc16sign(completPayload, crc16xmodem)
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
+            return signedPayload
         },
         verify(completPayload) {
             return crc16verify(completPayload, crc16xmodem )
@@ -484,7 +486,9 @@ export const crcMethods = {
     },
     crc16xmodemJs: {
         sign(completPayload) {
-            return crc16sign(completPayload, calcCrc16Js )
+            const signedPayload =crc16sign(completPayload, calcCrc16Js )
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
+            return signedPayload
         },
         verify(completPayload) {
             return crc16verify(completPayload, calcCrc16Js )
@@ -492,7 +496,9 @@ export const crcMethods = {
     },
     crc8: {
         sign(completPayload) {
-            return crc8sign(completPayload)
+            const signedPayload = crc8sign(completPayload)
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
+            return signedPayload
         },
         verify(completPayload) {
             return crc8verify(completPayload)
