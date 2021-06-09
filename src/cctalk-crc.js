@@ -494,7 +494,7 @@ export const crcMethods = {
         sign(completPayload) {
             return crc8verify(completPayload)
         },
-        verify() {
+        verify(completPayload) {
             return crc8verify(completPayload)
         }
     }
