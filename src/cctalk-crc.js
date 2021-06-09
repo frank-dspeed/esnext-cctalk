@@ -193,7 +193,7 @@ export const calcCrc16Js = chunk => {
  */
 const crc16sign = (completPayload, crcImplementation )=> {
     const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
-    const CRCArray = crcImplementation; //calcCrc16(completPayload) 
+    const CRCArray = crcImplementation(completPayload); //calcCrc16(completPayload) 
     if (!CRCArray) {
         console.log(completPayload)
         throw new Error('Could not Sign CRC16');
@@ -486,7 +486,7 @@ export const crcMethods = {
     },
     crc16xmodemJs: {
         sign(completPayload) {
-            const signedPayload =crc16sign(completPayload, calcCrc16Js )
+            const signedPayload = crc16sign(completPayload, calcCrc16Js )
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
             return signedPayload
         },
