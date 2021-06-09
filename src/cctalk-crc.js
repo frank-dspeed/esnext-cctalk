@@ -225,12 +225,13 @@ const crc16sign = (unsignedButCompletPayload, CRCArray )=> {
         throw new Error('Could not Sign CRC16');
     }
     
-    const [ dest, dataLength ] = unsignedButCompletPayload;
+    const [ dest, dataLength, crcPart1, command] = unsignedButCompletPayload;
     
     //crc16sign(unsignedButCompletPayload, crc16xmodem)
     const signedPayload = Uint8ClampedArray.from([
         dest, dataLength,
         CRCArray[0],
+        command,
         ...getDataFromChunk(unsignedButCompletPayload),
         CRCArray[1],
     ])
