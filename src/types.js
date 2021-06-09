@@ -1,4 +1,4 @@
-/** @typedef { Uint8Array | Uint8ClampedArray } Uint8ArrayType */
+/** @typedef { Uint8Array | Uint8Array } Uint8ArrayType */
 /** @typedef { Buffer | Uint8ArrayType } BufferOrUnit8 */
 /**
  * @callback CCTalkParserTransformFn

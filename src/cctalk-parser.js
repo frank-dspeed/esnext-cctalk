@@ -3,7 +3,7 @@ import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
 import Debug from './debug.js';
 
 const cctalkPortParserInitalState = {
-    preservedDataBuffer: new Uint8ClampedArray([]), 
+    preservedDataBuffer: new Uint8Array([]), 
     lastByteFetchTime: 0, 
 }
 
@@ -32,7 +32,7 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
             const now = Date.now();
             const delayBetweenLastByte = now - lastByteFetchTime;
             if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
-              cctalkPortParser.preservedDataBuffer = new Uint8ClampedArray([]);
+              cctalkPortParser.preservedDataBuffer = new Uint8Array([]);
             }
             cctalkPortParser.lastByteFetchTime = now;
         }
@@ -47,7 +47,7 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
          * even NodeJS Buffer Objects Into Unit8Arrays without any tools
          * browser nativ buffer implementations are UInt8 Arrays
          */
-        const Uint8ArrayView = new Uint8ClampedArray([
+        const Uint8ArrayView = new Uint8Array([
             ...cctalkPortParser.preservedDataBuffer,
             ...buffer
         ]);
@@ -79,7 +79,7 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
         }
 
         if (cctalkPortParser.preservedDataBuffer.length > 0) {
-            cctalkPortParser._transform( new Uint8ClampedArray([]), destination )
+            cctalkPortParser._transform( new Uint8Array([]), destination )
         }
         
     }

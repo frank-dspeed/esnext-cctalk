@@ -95,7 +95,7 @@ export const al66v = ()=> {
             const value = bool ? 0xFF : 0x00;
             const command = commands.modifyMasterInhibit;
             //const data = new Uint8Array(1).fill(value);
-            const data = Uint8ClampedArray.from([value]);
+            const data = Uint8Array.from([value]);
             return [command, data];
         },
         enableAcceptance() {
@@ -160,7 +160,7 @@ export const al66v = ()=> {
             if (parsedMessage) {
                 const { events, eventsCounter } = parsedMessage;
                 
-                const getEvents = (/** @type {Uint8Array | Uint8ClampedArray | [any, any]} */ event) => {
+                const getEvents = (/** @type {Uint8Array | Uint8Array | [any, any]} */ event) => {
                     const [ channel, sorterPathOrEventCode ] = event;
                     const isAccepted = channel;
                     if (isAccepted) {
