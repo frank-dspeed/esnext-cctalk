@@ -163,29 +163,41 @@ const getCrc16Unit8Array = chunk => {
     return new Uint8Array([chunk[0],chunk[1],chunk[3],..._data])
 }
 
-const crc16calc = (completPayload,crcImplementation )=> {
-    const raw = getCrc16Unit8Array(completPayload);
-    const checksums = crcImplementation(raw).reverse();
-    return checksums;
+/**
+ * returns checksums as reversed array crcImplementation needs to return
+ * unreversed array
+ * @param {*} completPayload 
+ * @param {*} crcImplementation 
+ * @returns 
+ */
+const calculateCrc16ChecksumsWith = (completPayload,crcImplementation ) => {
+    errorUint8(completPayload);
+    const bufferForChecksumCalculation = Uint8Array.from(
+        [completPayload[0],completPayload[1],completPayload[3],...getDataFromChunk(completPayload)
+    ]);
+    return crcImplementation(bufferForChecksumCalculation).reverse();
 }
 
 /**
  * 
- * @param {Uint8ArrayType} chunk 
+ * @param {Uint8ArrayType} completPayload 
  * @returns {Array<number> | undefined}
  */
-export const calcCrc16Js = chunk => {
+export const calcCrc16Js = completPayload => {
 
-    const raw = getCrc16Unit8Array(chunk);
+    errorUint8(completPayload);
+    /**
+     * 
+     * @param {*} rawChecksums 
+     * @returns 
+     */
+    const crc16xmodemJsToArray = rawChecksums => rawChecksums
+        .toString(16).match(/.{1,2}/g)
+        ?.map( val => parseInt(val, 16));
+
+    const crc16xmodemJsImpl = raw => crc16xmodemJsToArray(crc16xmodemJs(raw))
     
-    // our
-    const checksums = crc16xmodemJs(raw);
-    
-    const checksumsArray = checksums.toString(16).match(/.{1,2}/g)
-        ?.map((val)=> parseInt(val, 16))
-        .reverse(); 
-    
-    return checksumsArray;
+    return calculateCrc16ChecksumsWith(completPayload, crc16xmodemJsImpl);
     
 }
 
@@ -195,35 +207,66 @@ export const calcCrc16Js = chunk => {
  * @param {*} crcImplementation
  * @returns {Uint8ArrayType}
  */
-const crc16sign = (completPayload, crcImplementation )=> {
-    const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
-    
-    const CRCArray = crc16calc(completPayload,crcImplementation); //calcCrc16(completPayload) 
+const crc16sign = (unsignedButCompletPayload, CRCArray )=> {
+    /*
+    const CRCArray = calculateCrc16ChecksumsWith(completPayload,crcImplementation); //calcCrc16(completPayload) 
     if (!CRCArray) {
         console.log(completPayload)
         throw new Error('Could not Sign CRC16');
     }
+    const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
     completPayload[srcPosition] = CRCArray[0];
     completPayload[checksumPosition] = CRCArray[1];
     
     return completPayload;
+    */
+    if (!CRCArray) {
+        console.log({unsignedButCompletPayload})
+        throw new Error('Could not Sign CRC16');
+    }
+    
+    const [ dest, dataLength ] = unsignedButCompletPayload;
+    
+    //crc16sign(unsignedButCompletPayload, crc16xmodem)
+    const signedPayload = Uint8ClampedArray.from([
+        dest, dataLength,
+        CRCArray[0],
+        ...getDataFromChunk(unsignedButCompletPayload),
+        CRCArray[1],
+    ])
+    
+    Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload})
+    return signedPayload;
 }
 
 /**
  * 
- * @param {Uint8ArrayType} completPayload
- * @param {*} crc16Implementation
+ * @param {Uint8ArrayType} signedPayload
+ * @param {*} signingMethod
  * @returns {boolean}
  */
-const crc16verify = (completPayload, crc16Implementation )=> {
-    const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
+const crc16verify = (signedPayload, signingMethod )=> {
+    const { srcPosition, checksumPosition} = getPayloadPositionData(signedPayload);
     // NOTE: was dataEndPosition historicaly
     
-    const crc16ChecksumsFromPayload = [completPayload[srcPosition], completPayload[checksumPosition]];
-    const crc16Checksums = crc16calc(completPayload,crc16Implementation); //crc16Implementation(completPayload) //calcCrc16(completPayload);
+    const crc16ChecksumsFromPayload = [signedPayload[srcPosition], signedPayload[checksumPosition]];
     
+    const crc16VeriferPayload = signingMethod(signedPayload);
+    const crc16ChecksumsFromVeriferPayload = [crc16VeriferPayload[srcPosition], crc16VeriferPayload[checksumPosition]];
+    const isValid = (
+        (crc16ChecksumsFromPayload[0] == crc16ChecksumsFromVeriferPayload[0]) && (crc16ChecksumsFromPayload[1] == crc16ChecksumsFromVeriferPayload[1])
+    )
+    
+    Debug('esnext-cctalk::crc')(`
+        ${crc16ChecksumsFromPayload[0]} == ${crc16ChecksumsFromVeriferPayload[0]}, 
+        ${crc16ChecksumsFromPayload[1]} == ${crc16ChecksumsFromVeriferPayload[1]}
+    `);
+    return isValid;
+    /*
+    const crc16Checksums = calculateCrc16ChecksumsWith(signedPayload,crc16Implementation); //crc16Implementation(completPayload) //calcCrc16(completPayload);
     Debug('esnext-cctalk::crc')(`${crc16ChecksumsFromPayload[0]} == ${crc16Checksums[0]}, ${crc16ChecksumsFromPayload[1]} == ${crc16Checksums[1]}`);
     return crc16Checksums ? ((crc16ChecksumsFromPayload[0] == crc16Checksums[0]) && (crc16ChecksumsFromPayload[1] == crc16Checksums[1])) : false;
+    */
 }
 
 
@@ -482,23 +525,40 @@ export const crcMethods = {
     crc16xmodem: {
         sign(unsignedButCompletPayload) {            
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload })
-            const signedPayload = crc16sign(unsignedButCompletPayload, crc16xmodem)
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload})
+             //calcCrc16(completPayload) 
+            const CRCArray = calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodem);
+            
+            
             return signedPayload
         },
-        verify(completPayload) {
-            return crc16verify(completPayload, crc16xmodem )
+        verify(signedPayload) {
+            return crc16verify(signedPayload, crcMethods.crc16xmodem.sign )
         }
     },
     crc16xmodemJs: {
         sign(unsignedButCompletPayload) {
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
-            const signedPayload = crc16sign(unsignedButCompletPayload, calcCrc16Js )
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ signedPayload})
+            
+            errorUint8(completPayload);
+            /**
+             * 
+             * @param {*} rawChecksums 
+             * @returns 
+             */
+            const crc16xmodemJsToArray = rawChecksums => rawChecksums
+                .toString(16).match(/.{1,2}/g)
+                ?.map( val => parseInt(val, 16));
+        
+            const crc16xmodemJsImpl = raw => crc16xmodemJsToArray(crc16xmodemJs(raw));
+            const signedPayload = crc16sign( 
+                unsignedButCompletPayload, 
+                calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodemJsImpl) 
+            );
+    
             return signedPayload
         },
         verify(completPayload) {
-            return crc16verify(completPayload, calcCrc16Js )
+            return crc16verify(completPayload, crcMethods.crc16xmodemJs.sign )
         }
     },
     crc8: {
