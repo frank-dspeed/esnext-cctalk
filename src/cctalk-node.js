@@ -231,14 +231,18 @@ export const getDeviceWriter = (connection,address,methodName) => {
         // @ts-ignore
         if (isUint8 && command.length === 2) {
             // @ts-ignore
-            return connection.write(CreatePayload(1,address,crcMethods[methodName].sign)(...command));
+            return connection.write(CreatePayload({ 
+                src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
+            })(...command));
         }
         
         // @ts-ignore
         if (isUint8 && command.length > 2) {
             return connection.write(command);
         }
-        return connection.write(CreatePayload(1,address,crcMethods[methodName].sign)(command,data));
+        return connection.write(CreatePayload({ 
+            src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
+        })(command,data));
     }
     return deviceWriter
 }
