@@ -541,7 +541,7 @@ export const crcMethods = {
         sign(unsignedButCompletPayload) {
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
             
-            errorUint8(completPayload);
+            errorUint8(unsignedButCompletPayload);
             /**
              * 
              * @param {*} rawChecksums 
@@ -564,9 +564,9 @@ export const crcMethods = {
         }
     },
     crc8: {
-        sign(completPayload) {
-            const signedPayload = crc8sign(completPayload)
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ completPayload, signedPayload})
+        sign(unsignedButCompletPayload) {
+            const signedPayload = crc8sign(unsignedButCompletPayload)
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload, signedPayload})
             return signedPayload
         },
         verify(completPayload) {
