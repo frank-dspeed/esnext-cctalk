@@ -236,7 +236,7 @@ const crc16sign = (unsignedButCompletPayload, CRCArray )=> {
         CRCArray[1],
     ])
     
-    Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload})
+    Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload })
     return signedPayload;
 }
 
@@ -478,8 +478,8 @@ export const getSendCommand = (
         const CCTalkPayload = new Uint8Array(
             [dest, data.length, src, command, ...data,0]
         );
-        crcSigningMethod(CCTalkPayload);
-        return CCTalkPayload;
+        
+        return crcSigningMethod(CCTalkPayload);
     }
     return createPayload;
     
@@ -560,6 +560,11 @@ export const crcMethods = {
     
             return signedPayload
         },
+        /**
+         * 
+         * @param {*} completPayload 
+         * @returns 
+         */
         verify(completPayload) {
             return crc16verify(completPayload, crcMethods.crc16xmodemJs.sign )
         }
