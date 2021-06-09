@@ -198,7 +198,7 @@ export const calcCrc16Js = chunk => {
 const crc16sign = (completPayload, crcImplementation )=> {
     const { srcPosition, checksumPosition} = getPayloadPositionData(completPayload);
     
-    const CRCArray = calcCrc16(completPayload,crcImplementation); //calcCrc16(completPayload) 
+    const CRCArray = crc16calc(completPayload,crcImplementation); //calcCrc16(completPayload) 
     if (!CRCArray) {
         console.log(completPayload)
         throw new Error('Could not Sign CRC16');
@@ -220,7 +220,7 @@ const crc16verify = (completPayload, crc16Implementation )=> {
     // NOTE: was dataEndPosition historicaly
     
     const crc16ChecksumsFromPayload = [completPayload[srcPosition], completPayload[checksumPosition]];
-    const crc16Checksums = crc16Implementation(completPayload) //calcCrc16(completPayload);
+    const crc16Checksums = crc16calc(completPayload,crc16Implementation); //crc16Implementation(completPayload) //calcCrc16(completPayload);
     
     Debug('esnext-cctalk::crc')(`${crc16ChecksumsFromPayload[0]} == ${crc16Checksums[0]}, ${crc16ChecksumsFromPayload[1]} == ${crc16Checksums[1]}`);
     return crc16Checksums ? ((crc16ChecksumsFromPayload[0] == crc16Checksums[0]) && (crc16ChecksumsFromPayload[1] == crc16Checksums[1])) : false;
