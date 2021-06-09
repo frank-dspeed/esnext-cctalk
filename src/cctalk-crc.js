@@ -492,7 +492,7 @@ export const crcMethods = {
     },
     crc8: {
         sign(completPayload) {
-            return crc8verify(completPayload)
+            return crc8sign(completPayload)
         },
         verify(completPayload) {
             return crc8verify(completPayload)
