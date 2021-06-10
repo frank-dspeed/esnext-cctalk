@@ -61,7 +61,7 @@ function read(stream) {
  * or it needs to supply read.
  * @returns 
  */
-export const CCTalkSession = (port) => {
+export const CCTalkSession = (/** @type {any} */ port) => {
     const timeout = 120 * 1000; //2min
     /** @property {Promise.reject} reject */
     const deffredPromise = {};
@@ -93,12 +93,16 @@ export const CCTalkSession = (port) => {
         }
         // Handle Channel Type Answers for the session and Session State
         const methods = { 
+          /**
+           * @param {number} channel
+           */
           escrow(channel) {
             if (channel === 0) {
               debug('cctalk::device::events::type::rejected')('escrow','=>rejected');
               //emit('rejected');
               return
             } 
+            // @ts-ignore
             const currency = currencyMap[channel]
             const bankNoteToBigToAccept = channel > 3;
             if (bankNoteToBigToAccept) {
@@ -112,11 +116,15 @@ export const CCTalkSession = (port) => {
             //this.exec('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
         
           },
-          accepted(channel) {}
+          /**
+           * @param {any} _channel
+           */
+          accepted(_channel) {}
         }
-        const handler = parsePollResponseResult => {
+        const handler = (/** @type {any[]} */ parsePollResponseResult) => {
           parsePollResponseResult.forEach(element => {
             const [channel, type] = element;
+            // @ts-ignore
             methods[type](channel);
           });
           

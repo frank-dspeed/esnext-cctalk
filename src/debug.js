@@ -19,16 +19,17 @@ export const Debug = msg => {
             return fn
         }
         
-        // @ts-ignore
-        return async (...args) => {
-            if (fn === NoOp){
-             
-                // @ts-ignore
-                fn = await import('debug').then(m=>m.default(msg)).catch(e=>debugLog(msg));
-            }
+        /**
+         * 
+         * @param  {...any} args 
+         */
+        const dbgLog = async (...args) => {
+            const dbgMsg = await import('debug').then(m=>m.default(msg)).catch(e=>debugLog(msg));
+
             // @ts-ignore
-            return fn(...args);
+            dbgMsg(...args);
         }
+        return dbgLog;
     }
     return fn;
 }

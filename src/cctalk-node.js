@@ -4,6 +4,7 @@ import { getSendCommand, getMessage, CreatePayload, crcMethods } from './cctalk-
 import { Transform } from 'stream';
 import Debug from './debug.js';
 export const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
+
 /**
  * 
  * Serial communication was derivated from RS232 standard.
@@ -88,10 +89,21 @@ export const lazyNodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
 /**
  * Async Promise Chain only for demo in production you will want to use a
  welll defined generator
-@type {null|Promise<Uint8ArrayType>}
+ * @typedef {null|Promise<Uint8ArrayType>} defferedPromise
 */
-let lastCommand = null;
-let commandChainPromise = Promise.resolve();
+
+
+
+
+
+
+/** @type {*} */
+let currentProcessingPromise = null;
+
+/** type {Promise<Uint8Array>[]} */
+/** @type {*} */
+const currentProcessingPromises = [];
+
 /**
  * const SerialPort = require('serialport')
  * const port = new SerialPort('/dev/ttyUSB0')
@@ -101,112 +113,114 @@ let commandChainPromise = Promise.resolve();
 export const getConnection = port => {
 
     const CCTalk = NodeStreamParser();
-    const parser = port.pipe(new CCTalk())
-    
+    const parser = port.pipe(new CCTalk());
+     
+    // @ts-ignore
+    const cctalkConnectioNParser = message => {
+        if(currentProcessingPromise) {
+            const messageAsUint8Array = Uint8Array.from(message);  
+            currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
+            Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
+            const completPair = currentProcessingPromises.length === 2;
 
- 
-     // @ts-ignore
-     parser.on('data', message => {
-         const command = getMessage(new Uint8Array(message));
-         
-         // if destination is master or bus we accept it
-         const isAnswer = command.dest === 1 || command.dest === 0
-         
-         if(isAnswer) {
-            Debug('esnext-cctalk/node/connection/parser/onData/isAnswer/debug')({command})
-             if(lastCommand) {
-                 let Command = lastCommand;
-                 lastCommand = null;
-                 if(command.command === 0){
-                   Command.resolve(new Uint8Array(message));
-                 } else {
-                   Command.reject(new Uint8Array(message));
-                 }
-             }
-           } else {
-                const isbufferReadingCommand = (command.command === 229 || command.command === 0)
-                if (!isbufferReadingCommand) {
-                    // dont log buffer reading Commands
-                    Debug('esnext-cctalk/node/connection/parser/onData')({command})
-                } else {
-                    Debug('esnext-cctalk/node/connection/parser/onData/debug')({command})
+            if (completPair) {
+                
+                currentProcessingPromise = null;
+                const messageObject = getMessage(messageAsUint8Array); 
+                const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
+
+                if(isForMasterOrBus) {       
+                    Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
+                    const { currentProcessingPromise: processedPromise} = currentProcessingPromises.pop();
+                    const { currentProcessingPromise: currentPromise } = currentProcessingPromises.pop();
+                    // @ts-ignore
+                    processedPromise.resolve(messageAsUint8Array);
+                    currentPromise.resolve(messageAsUint8Array);
+                    return 
                 }
+                // throw error here is something wrong.
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
+            }
+            
+            
+            
+           //     resolve(messageAsUint8Array);
+             /*
+                console.log(Promise.allSettled([currentProcessingPromise]))
+                if(messageObject.command === 0){
+                   console.log('resolve')
+                   resolve(messageAsUint8Array);
+                   console.log(Promise.allSettled([currentProcessingPromise]))
+                } else {
+                    console.log('reso')
+                   reject(messageAsUint8Array);
+                   console.log(Promise.allSettled([currentProcessingPromise]))
+                }
+               /              
+             } 
+             if (lastInput.toString() === messageAsUint8Array.toString()) {
+                console.log('ECHO',message)
                 return
-           }
+            }
+            */
+             /*
+             else {
+                
+                const isbufferReadingCommand = (messageObject.command === 229 || messageObject.command === 0)
+                if (!isbufferReadingCommand) {
+                    // Log everything that is not Buffer Reading
+                    Debug('esnext-cctalk/node/connection/parser/onData')({messageObject})
+                } else {
+                    Debug('esnext-cctalk/node/connection/parser/onData/debug')({messageObject})
+                }
+                reject(messageAsUint8Array);
+                return
+            }
+            */
+        } 
+        // we got no promise but we got data we need to error and exit
+
          
-         
-     })
+     }
+    
+     parser.on('data', cctalkConnectioNParser)
      
      // @ts-ignore
-     const sendCommandPromise = portToWrite => input => {
-        // @ts-ignore
-        const command = {}
-         // Send command with promised reply
-         // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
-         const promise = new Promise((resolve, reject) => {
-            Object.assign(command, { resolve, reject, input })
-         }).catch((err) => {
-            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{input})
-            throw err;
-         });
-   
-         // use the command chain to send command only when previous commands have finished
-         // this way replies can be correctly attributed to commands
-         commandChainPromise = commandChainPromise
-           .then(() => {
-              lastCommand = command;
-              return new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({input})
-                // @ts-ignore
-                portToWrite.write(command.input, err =>{
-                    if(err) {
-                      reject(err)
-                    } else {
-                      resolve(true)
-                    }
-                  });
+    const sendCommandPromise = portToWrite => 
+        /** @param {Uint8Array} input */
+        async input => {
+            // @ts-ignore
+            const command = {}
+            const commandPromise = new Promise((resolve, reject) => {
+                Object.assign(command, { resolve, reject, input })
+            });
+            const promise = Promise.race([
+                commandPromise,
+                new Promise((resolve) => 
+                    // @ts-ignore
+                    setTimeout(() => { resolve(Promise.reject(`timeout: ${command.input}`)) }, 5000))
+            ]).catch( err => {
+                Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{input})
+                throw err;
+            });
+            Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({input})
+            Promise.resolve()
+                .then(() => {
+                    // @ts-ignore
+                    currentProcessingPromise = command;
+                    return new Promise((resolve,reject)=> {
+                        Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({ 
+                            /** @type {Uint8Array} */ 
+                            input
+                        })
+                        // @ts-ignore
+                        portToWrite.write(command.input, err =>{
+                            if(err) { reject(err) } 
+                            resolve(true);    
+                        });
+                    });                
                 });
-           })
-           .then(() => promise)
-   
-         return promise
-    }
- 
-
-    // @ts-ignore
-    const sendCommandPromiseParser = (command) => {
-
-        // Send command with promised reply
-        // If you use this function, use it exclusively and don't forget to call _onData() if you override onData()
-        const promise = new Promise((resolve, reject) => {
-            command.resolve = resolve;
-            command.reject = reject;
-        }).catch((err) => {
-            Debug('esnext-cctalk/node/connection/sendCommandPromise/error')(err,{command})
-            throw err;
-        });
-    
-        // use the command chain to send command only when previous commands have finished
-        // this way replies can be correctly attributed to commands
-        commandChainPromise = commandChainPromise
-            .then(() => {
-                lastCommand = command;
-                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')('SET LAST COMMAND')
-                return new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk/node/connection/sendCommandPromise/debug')({command})
-                    
-                parser.write(command, err =>{
-                    if(err) {
-                        reject(err)
-                    } else {
-                        resolve(true)
-                    }
-                    });
-                });
-            })
-            .then(() => promise)
-    
-        return promise
+            return promise;
     }
     
     return {
@@ -218,8 +232,15 @@ export const getConnection = port => {
 
 }    
 
-export const getDeviceWriter = (connection,address,methodName) => {
+export const getDeviceWriter = (
+    /** @type {{ write: any; parserWrite?: (input: any) => Promise<any>; port?: any; parser?: any; }} */ 
+    connection,/** 
+    @type {any} */ 
+    address,/** 
+    @type {string | number} */ 
+    methodName) => {
     const deviceSpec = { 
+        // @ts-ignore
         src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
     };
     const createPayload = CreatePayload(deviceSpec);
@@ -231,7 +252,7 @@ export const getDeviceWriter = (connection,address,methodName) => {
      * @param {number|Uint8ArrayType} command
      * @param {Uint8ArrayType} data
      */
-    const deviceWriter = (command, data) => {
+    const deviceWriter = (command, data= new Uint8Array(0)) => {
         const isUint8 = (typeof command).indexOf('Uint8') === 0;
         
         // @ts-ignore
@@ -245,6 +266,7 @@ export const getDeviceWriter = (connection,address,methodName) => {
             return connection.write(command);
         }
         return connection.write(CreatePayload({ 
+            // @ts-ignore
             src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
         })(command,data));
     }

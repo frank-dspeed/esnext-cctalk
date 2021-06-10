@@ -193,9 +193,9 @@ export const calcCrc16Js = completPayload => {
      */
     const crc16xmodemJsToArray = rawChecksums => rawChecksums
         .toString(16).match(/.{1,2}/g)
-        ?.map( val => parseInt(val, 16));
+        ?.map( (/** @type {string} */ val) => parseInt(val, 16));
 
-    const crc16xmodemJsImpl = raw => crc16xmodemJsToArray(crc16xmodemJs(raw))
+    const crc16xmodemJsImpl = (/** @type {Uint8Array} */ raw) => crc16xmodemJsToArray(crc16xmodemJs(raw))
     
     return calculateCrc16ChecksumsWith(completPayload, crc16xmodemJsImpl);
     
@@ -203,11 +203,11 @@ export const calcCrc16Js = completPayload => {
 
 /**
  * 
- * @param {Uint8ArrayType} completPayload 
- * @param {*} crcImplementation
+ * @param {Uint8ArrayType} unsignedButCompletPayload
+ * @param {Uint8Array} CRCArray
  * @returns {Uint8ArrayType}
  */
-const crc16sign = (unsignedButCompletPayload, CRCArray )=> {
+const crc16sign = ( unsignedButCompletPayload,  CRCArray )=> {
     /*
     const CRCArray = calculateCrc16ChecksumsWith(completPayload,crcImplementation); //calcCrc16(completPayload) 
     if (!CRCArray) {
@@ -522,8 +522,13 @@ export const CCTalkMessageCompat = (
 
 };
 
+/** @typedef {Uint8Array} unsignedButCompletPayload*/
+
 export const crcMethods = {
     crc16xmodem: {
+        /**
+         * @param {Uint8Array} unsignedButCompletPayload
+         */
         sign(unsignedButCompletPayload) {            
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload })
              //calcCrc16(completPayload) 
@@ -534,11 +539,17 @@ export const crcMethods = {
             
             return signedPayload
         },
+        /**
+         * @param {Uint8Array} signedPayload
+         */
         verify(signedPayload) {
             return crc16verify(signedPayload, crcMethods.crc16xmodem.sign )
         }
     },
     crc16xmodemJs: {
+        /**
+         * @param {Uint8Array} unsignedButCompletPayload
+         */
         sign(unsignedButCompletPayload) {
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
             
@@ -550,9 +561,9 @@ export const crcMethods = {
              */
             const crc16xmodemJsToArray = rawChecksums => rawChecksums
                 .toString(16).match(/.{1,2}/g)
-                ?.map( val => parseInt(val, 16));
+                ?.map( (/** @type {string} */ val) => parseInt(val, 16));
         
-            const crc16xmodemJsImpl = raw => crc16xmodemJsToArray(crc16xmodemJs(raw));
+            const crc16xmodemJsImpl = (/** @type {Uint8Array} */ raw) => crc16xmodemJsToArray(crc16xmodemJs(raw));
             const signedPayload = crc16sign( 
                 unsignedButCompletPayload, 
                 calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodemJsImpl) 
@@ -570,11 +581,17 @@ export const crcMethods = {
         }
     },
     crc8: {
+        /**
+         * @param {Uint8Array} unsignedButCompletPayload
+         */
         sign(unsignedButCompletPayload) {
             const signedPayload = crc8sign(unsignedButCompletPayload)
             Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload, signedPayload})
             return signedPayload
         },
+        /**
+         * @param {Uint8Array} completPayload
+         */
         verify(completPayload) {
             return crc8verify(completPayload)
         }
