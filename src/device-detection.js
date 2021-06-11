@@ -53,13 +53,16 @@ const getDeviceInfo = async (writer) => {
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
     const writer = getDeviceWriter(connection,adr,crcMethodName);
+    /*
     return Promise.allSettled([
         writer(254).then( () => {
             return getDeviceInfo( writer )
         }),
     ])
-    /*
+    */
+    
     if (adr === 2) {
+        const crc8Writer = getDeviceWriter(connection,adr,'crc8');
         return await writerCrc8(254).then( () => {
             return getDeviceInfo( writerCrc8 )
         });
@@ -72,7 +75,7 @@ const testAdr = async (adr, crcMethodName ) => {
             return getDeviceInfo( crc16Writer );
         });   
     }
-    */
+    
     //await getDeviceWriter(connection,adr,'crc16xmodemJs');
     // request info with correct crc type
 }
