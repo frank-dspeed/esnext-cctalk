@@ -30,9 +30,9 @@ const readTextMessage = payload => String.fromCharCode.apply(null, [...getMessag
 const getDeviceInfo = async (writer) => {
     const result = []
     try {
-        result.push( await writer(244).then(readTextMessage) );
-        result.push( await writer(245).then(readTextMessage) );
-        result.push( await writer(246).then(readTextMessage) );
+        result.push( writer(244).then(readTextMessage) );
+        result.push( writer(245).then(readTextMessage) );
+        result.push( writer(246).then(readTextMessage) );
         //console.log('RESULT:', { productCode, equipmentCategoryId, manufacturerId})
     } catch(e) {
         console.error('SOMETHING WRONG')
