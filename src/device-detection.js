@@ -40,23 +40,17 @@ const testAdr = async adr => {
     // 254 with all crc types
     let foundCrcType = '';
     const writerCrc8 = getDeviceWriter(connection,adr,'crc8');
-    const first = await writerCrc8(254).then( () => {
+    await writerCrc8(254).then( () => {
         foundCrcType = 'crc8'
-        console.log('found crc8',adr)
         return getDeviceInfo( writerCrc8 );
-    });
-    if (foundCrcType) {
-        console.log('using it found crc8',adr)
-        return first;
-    }
-    if (!foundCrcType) {
+    }).catch(()=>{
         const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
-        await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
+        return await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
             foundCrcType = 'crc16xmodem'
             console.log('found crc16xmodem',adr)
-            return getDeviceInfo(crc16Writer);
+            return getDeviceInfo( crc16Writer );
         });
-    }
+    });
 
     //await getDeviceWriter(connection,adr,'crc16xmodemJs');
     // request info with correct crc type
