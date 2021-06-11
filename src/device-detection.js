@@ -98,7 +98,7 @@ const findDevices = async function* () {
     }
 };
 
-getDeviceWriter(connection,0,'crc8')(253).then(console.log)
+getDeviceWriter(connection,0,'crc8')(254).then(console.log)
 /*
 (async () => {
     try {
