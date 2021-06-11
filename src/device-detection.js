@@ -130,6 +130,8 @@ export const detectDevices = async emit => {
         }
     }
 } 
+
+export default detectDevices
 //detectDevices(console.log)
 
         
