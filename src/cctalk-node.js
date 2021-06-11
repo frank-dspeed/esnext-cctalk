@@ -209,7 +209,7 @@ export const getConnection = port => {
                         // find the promise in current
                         const foundProcess = currentProcessingPromises.filter(tasks=>tasks.currentProcessingPromise.input === input) 
                         if (foundProcess.length) {
-                            console.log(foundProcess)
+                            console.log({ foundProcess })
                             process.exit()
                         }
                         
