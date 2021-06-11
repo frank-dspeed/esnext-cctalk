@@ -86,7 +86,7 @@ const findDevices = async function* () {
 
 (async () => {
 
-    for await (let device of findDevices) {
+    for await (let device of findDevices()) {
       Debug('esnext-cctalk/device-detection/foundDevice')(device);
     }
   
