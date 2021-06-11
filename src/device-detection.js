@@ -103,12 +103,19 @@ const findDevices = async function* () {
         let found = await testAdr(adrAsInt, 'crc16xmodem');
         yield found
     }
+    for (const [adr, name] of Object.entries(deviceTypes)) {
+        const adrAsInt = parseInt(adr)
+        let found = await testAdr(adrAsInt, 'crc8');
+        yield found
+    }
 };
 
 (async () => {
     
         for await (let device of findDevices()) {
-            Debug('esnext-cctalk/device-detection/foundDevice')(device);
+            if (device[0].value) {
+                Debug('esnext-cctalk/device-detection/foundDevice')(device);
+            }
         }
 
   
