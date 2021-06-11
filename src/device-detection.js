@@ -43,7 +43,7 @@ const testAdr = async adr => {
     const first = await writerCrc8(254).then( () => {
         foundCrcType = 'crc8'
         console.log('found crc8',adr)
-        return getDeviceInfo(writerCrc8 ).catch(Debug('crc8::'));
+        return getDeviceInfo( writerCrc8 );
     });
     if (foundCrcType) {
         console.log('using it found crc8',adr)
@@ -54,7 +54,7 @@ const testAdr = async adr => {
         await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
             foundCrcType = 'crc16xmodem'
             console.log('found crc16xmodem',adr)
-            return getDeviceInfo(crc16Writer).catch(Debug('crc16::'));
+            return getDeviceInfo(crc16Writer);
         });
     }
 
