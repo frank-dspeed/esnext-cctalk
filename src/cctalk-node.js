@@ -115,14 +115,14 @@ export const getConnection = port => {
      */
      const onCCTalkResponse = message => {
         if(currentProcessingPromise) {
-            Debug('PROMISE')(currentProcessingPromise)
+            //Debug('PROMISE')(currentProcessingPromise)
             const messageAsUint8Array = Uint8Array.from(message);  
             // Note currentProcessingPromise stays the same if less then 2 commands got send
             currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
             Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
             const completPair = currentProcessingPromises.length === 2;
             currentProcessingPromises.forEach(p=>{
-                Debug('currentProcessingPromises')(p.messageAsUint8Array)
+                Debug('currentProcessingPromises')(p.currentProcessingPromise)
                 /**
                  * https://stackoverflow.com/a/35820220/5318303
                  */
@@ -131,7 +131,7 @@ export const getConnection = port => {
                     return Promise.race([promise, t])
                             .then(v => v === t, () => false)
                 }
-                 isPromisePending3(p.currentProcessingPromise.commandPromise).then(Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug'))
+                 //isPromisePending3(p.currentProcessingPromise.commandPromise).then(Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug'))
                 
             })
             //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
