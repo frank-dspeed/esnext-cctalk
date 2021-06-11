@@ -59,7 +59,7 @@ const deviceTypes = {
 
 for (const [adr, name] of Object.entries(deviceTypes)) {
     console.log(adr,name)
-    testAdr(adr)
+    testAdr(adr).then(x=>console.log('RESULT',{ x })
 }
 /*
 
