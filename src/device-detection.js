@@ -63,7 +63,7 @@ const testAdr = async (adr, crcMethodName ) => {
     
     if (adr === 2) {
         const crc8Writer = getDeviceWriter(connection,adr,'crc8');
-        return await writerCrc8(254).then( () => {
+        return await crc8Writer(254).then( () => {
             return getDeviceInfo( writerCrc8 )
         });
     } 
