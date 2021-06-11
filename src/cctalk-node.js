@@ -136,11 +136,12 @@ export const getConnection = port => {
             })
             //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
             if (completPair) {
-                currentProcessingPromise = null;
+                
                 const messageObject = getMessage(messageAsUint8Array); 
                 const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
 
                 if(isForMasterOrBus) {       
+                    currentProcessingPromise = null;
                     Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
                     const { currentProcessingPromise: processedPromise} = currentProcessingPromises.pop();
                     const { currentProcessingPromise: currentPromise } = currentProcessingPromises.pop();
@@ -149,6 +150,7 @@ export const getConnection = port => {
                     currentPromise.resolve(messageAsUint8Array);
                     return 
                 }
+
                 // throw error here is something wrong.
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ currentProcessingPromise, messageAsUint8Array })
