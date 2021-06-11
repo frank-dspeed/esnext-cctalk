@@ -115,7 +115,7 @@ export const getConnection = port => {
      */
      const onCCTalkResponse = message => {
         if(currentProcessingPromise) {
-            Debug('currentProcessingPromises')([ currentProcessingPromises])
+            Debug('currentProcessingPromises')({ currentProcessingPromises})
             const messageAsUint8Array = Uint8Array.from(message);  
             // Note currentProcessingPromise stays the same if less then 2 commands got send
             currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
@@ -138,6 +138,7 @@ export const getConnection = port => {
                 }
                 // throw error here is something wrong.
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ currentProcessingPromise, messageAsUint8Array })
             }
         } 
         // we got no promise but we got data we need to error and exit   
