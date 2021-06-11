@@ -53,7 +53,7 @@ const testAdr = async adr => {
     // request info with correct crc type
 }
 const deviceTypes = {
-    40: 'billReader',
+    //40: 'billReader',
     2: 'coinAcceptor'
 }
 
