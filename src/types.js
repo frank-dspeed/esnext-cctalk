@@ -1,15 +1,15 @@
 /** @typedef { Uint8Array | Uint8Array } Uint8ArrayType */
 /** @typedef { Buffer | Uint8ArrayType } BufferOrUnit8 */
 /**
- * @callback CCTalkParserTransformFn
+ * @callback OnCompletePayloadTransformFn
  * @param { BufferOrUnit8 } buffer 
  * @param {*} destination 
  */
 
 /**
- * @typedef CCTalkParserInstance
+ * @typedef OnCompletePayloadInstance
  * @property { Uint8ArrayType } preservedDataBuffer
  * @property {number} lastByteFetchTime
  * @property {number} maxDelayBetweenBytesMs
- * @property {CCTalkParserTransformFn} _transform
+ * @property {OnCompletePayloadTransformFn} _transform
  */

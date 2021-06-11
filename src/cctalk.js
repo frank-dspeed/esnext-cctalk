@@ -1,5 +1,5 @@
 import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
-import { CCTalkParser } from './cctalk-parser.js';
+import { OnCompletePayload } from './cctalk-parser.js';
 
 /** @param {*} message */
 const debug = message => 
@@ -107,13 +107,13 @@ export const CCTalkSession = (/** @type {any} */ port) => {
             const bankNoteToBigToAccept = channel > 3;
             if (bankNoteToBigToAccept) {
               debug('cctalk::device::events::type::return')(currency,'routeReturnReject','=>routeBill(0)');
-              //this.exec('routeBill', new Uint8Array([0])).catch((e)=>console.log(e))
+              //this.exec('routeBill', Uint8Array.from([0])).catch((e)=>console.log(e))
               return
             } 
   
             debug('cctalk::device::events::type::routeBill(1)')(currency,'routeAccept', '=>routeBill(1)');
             //emit(impl.eventCodes[type], channel);
-            //this.exec('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
+            //this.exec('routeBill',Uint8Array.from([1])).catch((e)=>console.log(e))
         
           },
           /**
@@ -136,3 +136,8 @@ export const CCTalkSession = (/** @type {any} */ port) => {
     ]).catch(connectionErrors=>console.error(connectionErrors))
   
   }
+
+
+
+
+  

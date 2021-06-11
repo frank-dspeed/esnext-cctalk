@@ -75,14 +75,93 @@ const connection = () => {
 
 ```
 
-## Credits
-This Site helped me a lot https://cctalktutorial.wordpress.com/
 
 let port = await navigator.serial.requestPort();
 
 
+
+## Features
+- serialPromise - Interface Allows you to work in a sync way with a Async Serial Port Integration
+- deviceDetection - via ccTalk bus and usb 
+- Collections of readBuffered Reply Parsers and a Framework to add new definitions
+- Collections of device and the CCTalk Spec they support 
+
+## Minimum usage
+```js
+import { crcMethods } from 'cctalk-crc';
+
+// Minimum 5 filds as per CCTalk Spec
+port.write(crcMethods.crc8.sign(Uint8Array.from([40,0,0,254,0])));
+// Verify that all data on the port is a validCCTalkMessage
+port.on( 'data', onCrcVerifyedPayload(console.log));
+
+/**
+ * More Advanced Features
+ **/
+import { 
+  // Promise Methods
+  CreateCCTalkRequest, onCCtalkResponse, 
+  // Validation of CCTalk Message integrity
+  onCompletPayload, 
+  // Validation of additional CRC Integrity
+  onCrcVerifyedPayload 
+} from 'cctalk-parser';
+
+// Or Verify and resolve cctalkRequest
+// port.on( 'data', onCrcVerifyedPayload(serialWriteCCtalkMessage(console.log)) );
+const cctalkRequest = CreateCCTalkRequest( port.write );
+const processing = [ onCompletPayload, onCrcVerifyedPayload, onCCtalkResponse ];
+port.on( 'data', data => {
+  try { processing.forEach( method => method(data)) };
+  // Optional Error Handling ES2020+
+});
+
+// a Promise that will timeout if there is no answer
+// if there is a answer it will get handled by onCCtalkResponse
+
+// Question 
+await cctalkRequest(
+  crcMethods.crc8.sign(
+    Uint8Array.from([40,0,0,254,0])
+  )
+).then(
+  verifyedValidCompletAnswerReply => 
+    console.log(
+      verifyedValidCompletAnswerReply
+    )
+);
+
+// We can Answer on our own Question for testing
+
+// Question not blocking via await will be resolved by Answer
+const Question = cctalkRequest(
+  crcMethods.crc8.sign(
+    Uint8Array.from([40,0,0,254,0])
+  )
+).then(
+  verifyedValidCompletAnswerReply => 
+    console.log(
+      { verifyedValidCompletAnswerReply }
+    )
+);
+
+// Answer Blocking - Question and Answer returns with same value
+const Answer = await cctalkRequest(
+  crcMethods.crc8.sign(
+    Uint8Array.from([1,0,0,0,0])
+  )
+).then(
+  verificationEcho => 
+    console.log(
+      { verificationEcho }
+    )
+);
+
+```
+
 ## Debug settings
 sudo DEBUG=*,-*::debug,-serialport* node basic-tests.js 
+// NODE_ENV=production === disable logging
 
 ```
 const testEvents = getSendCommand(2,1,8)
@@ -94,3 +173,11 @@ await connection.parserWrite(testEvents(0,Uint8Array.from([ 17,
 */
 
 ```
+
+
+
+## Todo
+Change wording to cctalkRequest, ccTalkResponse
+
+## Credits
+This Site helped me a lot https://cctalktutorial.wordpress.com/

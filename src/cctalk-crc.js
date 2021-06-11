@@ -45,7 +45,7 @@ const getPayloadPositionData = chunk => {
 const getDataFromChunk = chunk => {
     errorUint8(chunk);
     const { dataStartPosition , checksumPosition} = getPayloadPositionData(chunk);
-    return new Uint8Array(chunk.slice(dataStartPosition , checksumPosition));
+    return Uint8Array.from(chunk.slice(dataStartPosition , checksumPosition));
 }
 
 /** start https://unpkg.com/browse/crc@3.8.0/crc16xmodem.js */  
@@ -122,22 +122,6 @@ const crc8sign = completPayload => {
 }
 
 /**
- * 
- * @param {Uint8ArrayType} chunk 
- * @returns {boolean}
- */
-const crc8verify = chunk => {
-    errorUint8(chunk);
-    const { checksumPosition } = getPayloadPositionData(chunk);
-
-    const checksum = chunk[checksumPosition];
-    const expectedChecksum = calcCrc8(chunk);
-    // We use != and not !== because we are not sure if we work with Uint8Arrays or not
-
-    return (checksum === expectedChecksum);
-}
-
-/**
  * Turns a CCTalk parser chunk and returns crc16 verfiyable Uint8Array
  * that contains only the relevant parts.
  * Allows us to use a already signed chunk for verification
@@ -160,7 +144,7 @@ const getCrc16Unit8Array = chunk => {
     UArray.set(_data, 3);
     */
     const _data = getDataFromChunk(chunk);
-    return new Uint8Array([chunk[0],chunk[1],chunk[3],..._data])
+    return Uint8Array.from([chunk[0],chunk[1],chunk[3],..._data])
 }
 
 /**
@@ -274,44 +258,29 @@ const crc16verify = (signedPayload, signingMethod )=> {
 //new 254
 /**
  * maybe deprecated look into array2Object
+ * also we use getMessage(buffer)
  * @param {Uint8ArrayType} _buffer 
  * @returns 
  */
 const fromUint8Array = _buffer => {
     errorUint8(_buffer);
-    // parse command
-    //this._buffer = src;
-    const CCTalkMessage = {
-        _dest: _buffer[0],
-        _dataLength: _buffer[1],
-        _src: _buffer[2],
-        _command: _buffer[3],
-        _data: _buffer.slice(4, _buffer[1]+4),
-        _checksum: _buffer[_buffer[1] + 4],
+    const { 
+        checksumPosition,srcPosition, dataLengthPosition ,destPosition, commandPosition 
+    } = getPayloadPositionData(_buffer);
+    
+    const command = _buffer[commandPosition]
+    
+    const cctalkPayloadObject = {
+        _dest: _buffer[destPosition],
+        _dataLength: _buffer[dataLengthPosition],
+        _src: _buffer[srcPosition],
+        _command: command,
+        _data: getDataFromChunk(_buffer),
+        _checksum: _buffer[checksumPosition],
         _crcType: 0
     }
     
-    if (!CCTalkMessage._checksum) {
-        console.log(_buffer);
-        throw new Error('NO_CHECKSUM');
-    }
-    
-    // Check for CRC8
-    if (crc8verify(_buffer)) {
-        CCTalkMessage._crcType = 8;
-        //Debug('esnext-cctalk::crc')('CRC8_CHECKSUM');
-        return CCTalkMessage;
-    } 
-    
-    if (crcMethods.crc16xmodemJs.verify(_buffer)) {
-        CCTalkMessage._crcType = 16;
-        //Debug('esnext-cctalk::crc')('CRC16_CHECKSUM');
-        return CCTalkMessage;
-    } 
-    
-    //Debug('esnext-cctalk::crc::warning')(this._buffer);
-    return CCTalkMessage;
-    //throw new Error('WRONG_CHECKSUM');
+    return cctalkPayloadObject;
 }
 
 /**
@@ -411,7 +380,7 @@ export const object2Array = messageObj => {
         crcType = 8
     } = messageObj;
 
-    const _buffer = new Uint8Array([ dest, data.length , src, command, ...data, crc ]);
+    const _buffer = Uint8Array.from([ dest, data.length , src, command, ...data, crc ]);
     
     // Sign the resulting _buffer if needed
     if (!crc && crcType) {
@@ -451,7 +420,7 @@ export const getSendCommand = (
      * @returns 
      */
     const sendCommand = ( command, data = new Uint8Array(0) ) => {
-        const CCTalkPayload = new Uint8Array(
+        const CCTalkPayload = Uint8Array.from(
             [dest, data.length, src, command, ...data,0]
         );
         signingMethod(CCTalkPayload);
@@ -475,18 +444,14 @@ export const getSendCommand = (
      * @returns 
      */
     const createPayload = ( command, data = new Uint8Array(0) ) => {
-        const CCTalkPayload = new Uint8Array(
+        const CCTalkPayload = Uint8Array.from(
             [dest, data.length, src, command, ...data,0]
         );
         
         return crcSigningMethod(CCTalkPayload);
     }
     return createPayload;
-    
 }
-
-
-
 
 /**
  * 
@@ -551,9 +516,8 @@ export const crcMethods = {
          * @param {Uint8Array} unsignedButCompletPayload
          */
         sign(unsignedButCompletPayload) {
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
-            
             errorUint8(unsignedButCompletPayload);
+            Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload })
             /**
              * 
              * @param {*} rawChecksums 
@@ -564,6 +528,7 @@ export const crcMethods = {
                 ?.map( (/** @type {string} */ val) => parseInt(val, 16));
         
             const crc16xmodemJsImpl = (/** @type {Uint8Array} */ raw) => crc16xmodemJsToArray(crc16xmodemJs(raw));
+            
             const signedPayload = crc16sign( 
                 unsignedButCompletPayload, 
                 calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodemJsImpl) 
@@ -590,10 +555,19 @@ export const crcMethods = {
             return signedPayload
         },
         /**
-         * @param {Uint8Array} completPayload
+         * @param {Uint8Array} signedPayload
+         * @returns {boolean}
          */
-        verify(completPayload) {
-            return crc8verify(completPayload)
+        verify(signedPayload) {
+            errorUint8(signedPayload);
+            const verificationPayload = crcMethods.crc8.sign(signedPayload);
+
+            const { checksumPosition } = getPayloadPositionData(signedPayload);
+
+            const expectedChecksum = verificationPayload[checksumPosition];
+            const checksum = signedPayload[checksumPosition];
+
+            return (checksum === expectedChecksum);
         }
     }
 }
@@ -605,26 +579,15 @@ export const crcMethods = {
  */
  export const verifyCCTalkMessage = completPayload => {
     Debug('esnext-cctalk/crc/info')(completPayload);
+   
     for (const [methodName, methods] of Object.entries(crcMethods)) {
         if (methods.verify(completPayload)) {       
-            Debug('esnext-cctalk::crc::debug')(methodName);
+            Debug('esnext-cctalk/crc/verifyCCTalkMessage/debug')(methodName);
             return completPayload;
         }
     }
-    /*
-    if (crc8verify(message)) {       
-        Debug('esnext-cctalk::crc::debug')('CRC8_CHECKSUM');
-        return message;
-    } 
-    
-    if (crc16verify(message)) {
-        Debug('esnext-cctalk::crc::debug')('CRC16_CHECKSUM');
-        return message;
-    } 
-    */
-   const tryedMethods = Object.keys(crcMethods).join(', ');
-    Debug('esnext-cctalk::crc::warning')(completPayload,tryedMethods);
-    //Debug('esnext-cctalk::crc')('ERROR TEMP DISABLED');
+
+    const tryedMethods = Object.keys(crcMethods).join(', ');
+    Debug('esnext-cctalk/crc/verifyCCTalkMessage/warning')(completPayload,tryedMethods);
     throw new Error(`CRC is none valid checked ${tryedMethods}`)
-    //return message;
 }

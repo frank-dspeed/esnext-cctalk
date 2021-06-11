@@ -64,11 +64,11 @@ const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
                 emit('rejected');
             } else if (channel > 3) {
                 Debug('cctalk::device::events::type::return')(coin,'return');
-                sendCommand('routeBill',new Uint8Array([0])).catch((e)=>console.log(e))
+                sendCommand('routeBill',Uint8Array.from([0])).catch((e)=>console.log(e))
             } else {
                 Debug('cctalk::device::events::type::routeBill')(coin,'routeBill');
                 //emit(impl.eventCodes[type], channel);
-                sendCommand('routeBill',new Uint8Array([1])).catch((e)=>console.log(e))
+                sendCommand('routeBill',Uint8Array.from([1])).catch((e)=>console.log(e))
             }
             break;
           case impl.eventCodes.inhibited:
@@ -415,7 +415,7 @@ const emp800Mappings = {
     },
     readBufferedCredit() {
         const command = emp800Mappings.commands.readBufferedCredit;
-        const data = new Uint8Array();
+        const data = new Uint8Array(0);
         return [command,data];
     },
     poll() {
@@ -586,16 +586,16 @@ export const taikoPub7 = () => {
         onReady() {
             Debug('CCTALK')('jmcReady-ready');
             //br.selfTest();
-            var EU_AS_HEX = new Uint8Array([69,85])
-            sendCommand('requestBillId', new Uint8Array([1]))  
-            sendCommand('requestBillId', new Uint8Array([1]))
-            sendCommand('requestBillId', new Uint8Array([2]))
-            sendCommand('requestBillId', new Uint8Array([3]))
+            var EU_AS_HEX = Uint8Array.from([69,85])
+            sendCommand('requestBillId', Uint8Array.from([1]))  
+            sendCommand('requestBillId', Uint8Array.from([1]))
+            sendCommand('requestBillId', Uint8Array.from([2]))
+            sendCommand('requestBillId', Uint8Array.from([3]))
             sendCommand('requestCountryScalingFactor', EU_AS_HEX)
             sendCommand('requestCurrencyRevision', EU_AS_HEX)
-            sendCommand('modifyBillOperatingMode', new Uint8Array([3])) // NO ESCROW NO STACKER 3 = both enabled 2 = only stacker
+            sendCommand('modifyBillOperatingMode', Uint8Array.from([3])) // NO ESCROW NO STACKER 3 = both enabled 2 = only stacker
             //this.setAcceptanceMask(); // 0xFFFF modifyInhibitStatus 255,255 // 255 1 0 0 0 0 0 0 //TODO: Needs Check  this.setAcceptanceMask(0xFFFF);
-            sendCommand('modifyInhibitStatus', new Uint8Array([255,255,255])) // [255,1] ==== alll [255,255,255]
+            sendCommand('modifyInhibitStatus', Uint8Array.from([255,255,255])) // [255,1] ==== alll [255,255,255]
             //this.enableAcceptance(); // modifyMasterInhibit 1
               
             sendCommand('modifyMasterInhibit', 
@@ -604,7 +604,7 @@ export const taikoPub7 = () => {
               //Array[Array] looks wrong but maybe produced right results? Should be 0xFF to accept
               [[1]] 
             )
-            */ new Uint8Array([0xFF])
+            */ Uint8Array.from([0xFF])
             );
             /*
               .then(()=> {
@@ -626,7 +626,7 @@ export const taikoPub7 = () => {
             //return this.sendCommand( this.commands.modifyBillOperatingMode,
             //Uint8Array.from([ operatingMode & 0xFF, (operatingMode >> 8) & 0xFF ]))
             //153
-            return sendCommand('modifyBillOperatingMode', new Uint8Array([1]))
+            return sendCommand('modifyBillOperatingMode', Uint8Array.from([1]))
               //.then(console.log)
           },
           /** @param {number} acceptanceMask*/
@@ -639,7 +639,7 @@ export const taikoPub7 = () => {
               acceptanceMask = 0xFFFF;
             }
             // Experiment replaced 255 255 with 255 1 === all?
-            return sendCommand('modifyInhibitStatus', new Uint8Array([255,1]))
+            return sendCommand('modifyInhibitStatus', Uint8Array.from([255,1]))
           },
           enableAcceptance(){
             //228  001
@@ -650,7 +650,7 @@ export const taikoPub7 = () => {
               //Array[Array] looks wrong but maybe produced right results? Should be 0xFF to accept
               [[1]] 
             )
-            */ new Uint8Array([0xFF])
+            */ Uint8Array.from([0xFF])
             )
           },
           selfTest() {

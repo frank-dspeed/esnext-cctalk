@@ -13,9 +13,8 @@ export const Debug = msg => {
     const isNode = typeof process !== 'undefined' && process.env;
     let fn = () => NoOp;
     if (isNode) {
-        
         const { DEBUG, NODE_ENV } = process.env;
-        if (NODE_ENV === 'production') {
+        if (!DEBUG && NODE_ENV === 'production') {
             return fn
         }
         
@@ -24,7 +23,8 @@ export const Debug = msg => {
          * @param  {...any} args 
          */
         const dbgLog = async (...args) => {
-            const dbgMsg = await import('debug').then(m=>m.default(msg)).catch(e=>debugLog(msg));
+            const dbgMsg = await import('debug')
+                .then(m=>m.default(msg)).catch(e=>debugLog(msg));
 
             // @ts-ignore
             dbgMsg(...args);

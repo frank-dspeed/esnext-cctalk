@@ -3,7 +3,7 @@ import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
 import Debug from './debug.js';
 
 const cctalkPortParserInitalState = {
-    preservedDataBuffer: new Uint8Array([]), 
+    preservedDataBuffer: new Uint8Array(0), 
     lastByteFetchTime: 0, 
 }
 
@@ -13,11 +13,11 @@ const cctalkPortParserInitalState = {
  * @param {number} maxDelayBetweenBytesMs 
  * @returns 
  */
-export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
+export const OnCompletePayload = ( maxDelayBetweenBytesMs = 50 ) => {
     
     const cctalkPortParser = { 
         maxDelayBetweenBytesMs,
-        /** @type {CCTalkParserTransformFn} */
+        /** @type {OnCompletePayloadTransformFn} */
         _transform: (buffer , destination ) =>  { destination(buffer); },
         ...cctalkPortParserInitalState,
     }
@@ -32,13 +32,13 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
             const now = Date.now();
             const delayBetweenLastByte = now - lastByteFetchTime;
             if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
-              cctalkPortParser.preservedDataBuffer = new Uint8Array([]);
+              cctalkPortParser.preservedDataBuffer = new Uint8Array(0);
             }
             cctalkPortParser.lastByteFetchTime = now;
         }
     }
 
-    /** @type {CCTalkParserTransformFn} */    
+    /** @type {OnCompletePayloadTransformFn} */    
     cctalkPortParser._transform = ( buffer, destination ) => {
        
        checkDelayAndResetPreservedDataBufferIfneeded()
@@ -47,7 +47,7 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
          * even NodeJS Buffer Objects Into Unit8Arrays without any tools
          * browser nativ buffer implementations are UInt8 Arrays
          */
-        const Uint8ArrayView = new Uint8Array([
+        const Uint8ArrayView = Uint8Array.from([
             ...cctalkPortParser.preservedDataBuffer,
             ...buffer
         ]);
@@ -79,7 +79,7 @@ export const CCTalkParser = ( maxDelayBetweenBytesMs = 50 ) => {
         }
 
         if (cctalkPortParser.preservedDataBuffer.length > 0) {
-            cctalkPortParser._transform( new Uint8Array([]), destination )
+            cctalkPortParser._transform( new Uint8Array(0), destination )
         }
         
     }
