@@ -121,7 +121,19 @@ export const getConnection = port => {
             currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
             Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
             const completPair = currentProcessingPromises.length === 2;
-            currentProcessingPromises.forEach(p=>Debug('currentProcessingPromises')(p.messageAsUint8Array))
+            currentProcessingPromises.forEach(p=>{
+                Debug('currentProcessingPromises')(p.messageAsUint8Array)
+                /**
+                 * https://stackoverflow.com/a/35820220/5318303
+                 */
+                const isPromisePending3 = (promise) => {
+                    const t = {}
+                    return Promise.race([promise, t])
+                            .then(v => v === t, () => false)
+                }
+                Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')( isPromisePending3(p.currentProcessingPromise) )
+                
+            })
             //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
             if (completPair) {
                 currentProcessingPromise = null;
