@@ -86,8 +86,9 @@ const findDevices = async function* () {
         const adrAsInt = parseInt(adr)
         //console.log(adr,name)
         // test all possible 
-        let found = yield await testAdr(adrAsInt,'crc8');
+        let found = await testAdr(adrAsInt,'crc8');
         console.log({found })
+        yield found
         process.exit()
         if (!found) {
             yield await testAdr(adrAsInt,'crc16xmodem');
