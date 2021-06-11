@@ -198,6 +198,7 @@ export const getConnection = port => {
             const commandPromise = new Promise((resolve, reject) => {
                 Object.assign(command, { resolve, reject, input, commandPromise })
             });
+            command.commandPromise = commandPromise;
             const promise = Promise.race([
                 commandPromise,
                 new Promise((resolve) => 
