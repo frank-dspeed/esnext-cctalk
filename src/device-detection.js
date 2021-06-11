@@ -39,6 +39,7 @@ const getDeviceInfo = async (writer) => {
 const testAdr = async adr => {
     // 254 with all crc types
     let foundCrcType = '';
+    console.log('ADD',adr)
     const writerCrc8 = getDeviceWriter(connection,adr,'crc8');
     if (adr === 2) {
         return await writerCrc8(254).then( () => {
