@@ -131,7 +131,7 @@ export const getConnection = port => {
                     return Promise.race([promise, t])
                             .then(v => v === t, () => false)
                 }
-                Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')( isPromisePending3(p.currentProcessingPromise) )
+                 isPromisePending3(p.currentProcessingPromise.commandPromise).then(Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug'))
                 
             })
             //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
