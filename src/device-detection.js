@@ -19,9 +19,14 @@ const detectedDevice = {
     244: 'requestProductCode', //Core commands
 }
 
+/** @param {Uint8Array} payload*/
+const readTextMessage = payload => String.fromCharCode.apply(null, [...getMessage(payload).data])
 
-const readTextMessage = payload => String.fromCharCode.apply(null, getMessage(payload).data)
-
+/**
+ * 
+ * @param {*} writer 
+ * @returns 
+ */
 const getDeviceInfo = async (writer) => {
     const result = []
     try {
@@ -36,6 +41,11 @@ const getDeviceInfo = async (writer) => {
     return { productCode, equipmentCategoryId, manufacturerId }
 }
 
+/**
+ * 
+ * @param {number} adr 
+ * @returns 
+ */
 const testAdr = async adr => {
     // 254 with all crc types
     let foundCrcType = '';
@@ -66,14 +76,24 @@ const deviceTypes = {
     2: 'coinAcceptor'
 }
 
-for (const [adr, name] of Object.entries(deviceTypes)) {
-    const adrAsInt = parseInt(adr)
+const findDevices = async function* () {
+    for (const [adr, name] of Object.entries(deviceTypes)) {
+        const adrAsInt = parseInt(adr)
+        //console.log(adr,name)
+        yield await testAdr(adrAsInt);
+    }
+};
 
-        console.log(adr,name)
-        await testAdr(adrAsInt).then(x=>console.log('RESULT',{ x }));
+(async () => {
 
-    
-}
+    for await (let device of findDevices) {
+      Debug('esnext-cctalk/device-detection/foundDevice')(device);
+    }
+  
+})();
+
+
+
 /*
 
 const tryWriter = async (adr,methodName) => {
