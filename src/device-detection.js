@@ -89,7 +89,7 @@ const findDevices = async function* () {
         let found = await testAdr(adrAsInt,'crc8');
         console.log({found })
         
-        if (!found.value) {
+        if (!found[0].value) {
             found = await testAdr(adrAsInt,'crc16xmodem');
         }
         yield found
