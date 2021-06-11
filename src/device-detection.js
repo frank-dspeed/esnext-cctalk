@@ -53,16 +53,18 @@ const getDeviceInfo = async (writer) => {
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
     const writer = getDeviceWriter(connection,adr,crcMethodName);
+    /*
     return writer(254).then( () => {
         return getDeviceInfo( writer )
     } );
-    /*
+    */
+    
     return Promise.allSettled([
         writer(254).then( () => {
             return getDeviceInfo( writer )
         }),
     ])
-    */
+    
     
     if (adr === 2) {
         const crc8Writer = getDeviceWriter(connection,adr,'crc8');
