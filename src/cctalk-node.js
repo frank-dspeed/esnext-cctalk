@@ -122,17 +122,7 @@ export const getConnection = port => {
             Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
             const completPair = currentProcessingPromises.length === 2;
             currentProcessingPromises.forEach(p=>{
-                Debug('currentProcessingPromises')(p.currentProcessingPromise)
-                /**
-                 * https://stackoverflow.com/a/35820220/5318303
-                 */
-                const isPromisePending3 = (promise) => {
-                    const t = {}
-                    return Promise.race([promise, t])
-                            .then(v => v === t, () => false)
-                }
-                 //isPromisePending3(p.currentProcessingPromise.commandPromise).then(Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug'))
-                
+                Debug('currentProcessingPromises')(p.currentProcessingPromise)          
             })
             //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
             if (completPair) {
@@ -154,6 +144,7 @@ export const getConnection = port => {
                 // throw error here is something wrong.
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ currentProcessingPromise, messageAsUint8Array })
+                throw new Error('Maybe Something Wrong')
             }
         } 
         // we got no promise but we got data we need to error and exit   
