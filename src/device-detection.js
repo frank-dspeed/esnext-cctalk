@@ -58,8 +58,11 @@ const deviceTypes = {
 }
 
 for (const [adr, name] of Object.entries(deviceTypes)) {
-    console.log(adr,name)
-    testAdr(adr).then(x=>console.log('RESULT',{ x }));
+    if (adr !== 40) {
+        console.log(adr,name)
+        testAdr(adr).then(x=>console.log('RESULT',{ x }));
+    }
+    
 }
 /*
 
