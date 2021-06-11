@@ -116,9 +116,13 @@ const detectDevices = async emit => {
     for await (let device of findDevices()) {
         if (device[0].value) {
             Debug('esnext-cctalk/device-detection/foundDevice')(device[0]);
+            if (emit) {
+                emit(device[0])
+            }
         }
     }
-}    
+} 
+
         
 
 
