@@ -23,7 +23,7 @@ const detectedDevice = {
 const readTextMessage = payload => String.fromCharCode.apply(null, getMessage(payload).data)
 
 const getDeviceInfo = async (writer) => {
-    
+    const result = []
     try {
         const productCode = await writer(244).then(readTextMessage);
         const equipmentCategoryId = await writer(245).then(readTextMessage);
@@ -32,8 +32,8 @@ const getDeviceInfo = async (writer) => {
     } catch(e) {
         console.error('SOMETHING WRONG')
     }
-     
-    
+    const [ productCode, equipmentCategoryId, manufacturerId ] = result;
+    return { productCode, equipmentCategoryId, manufacturerId }
 }
 
 const testAdr = async adr => {
