@@ -207,13 +207,12 @@ export const getConnection = port => {
                     // @ts-ignore
                     setTimeout(() => { 
                         // find the promise in current
-                        const foundProcess = currentProcessingPromises.filter(tasks=>tasks.currentProcessingPromise.input === input) 
-                        if (foundProcess.length) {
-                            console.log({ foundProcess })
-                            process.exit()
-                        }
-                        
-                        resolve(Promise.reject(`timeout: ${command.input}`)) 
+                        currentProcessingPromises.forEach ( (tasks, idx )=> {
+                            if (tasks.currentProcessingPromise.input === input) {
+                                currentProcessingPromises.splice(idx, 1);
+                            }
+                        }                        
+                        resolve(Promise.reject(`timeout: ${command.input}`));
                     }, 800))
             ]).catch( err => {
                 Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
