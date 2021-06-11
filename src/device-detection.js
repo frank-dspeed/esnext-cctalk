@@ -1,3 +1,5 @@
+import Debug from './debug.js'
+import { getConnection, getDeviceWriter } from './cctalk-node.js'
 import SerialPort from 'serialport';
 
 const port = new SerialPort('/dev/ttyUSB0',{
