@@ -53,8 +53,7 @@ const getDeviceInfo = async (writer) => {
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
     const writer = getDeviceWriter(connection,adr,crcMethodName);
-    console.log( { writer });
-    process.exit()
+    
     /*
     return writer(254).then( () => {
         return getDeviceInfo( writer )
@@ -63,7 +62,16 @@ const testAdr = async (adr, crcMethodName ) => {
     
     return Promise.allSettled([
         writer(254).then( () => {
-            return getDeviceInfo( writer )
+            return getDeviceInfo( writer ).then( info => {
+                
+                
+                    return {
+                        info,
+                        crcMethodName,
+                        adr
+                    }
+                
+            })
         }),
     ])
     
@@ -116,9 +124,9 @@ const findDevices = async function* () {
 const detectDevices = async emit => {
     for await (let device of findDevices()) {
         if (device[0].value) {
-            Debug('esnext-cctalk/device-detection/foundDevice')(device[0]);
+            Debug('esnext-cctalk/device-detection/foundDevice')(device[0].value);
             if (emit) {
-                emit(device[0])
+                emit(device[0].value)
             }
         }
     }
