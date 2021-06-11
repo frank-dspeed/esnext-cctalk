@@ -1,7 +1,7 @@
 import Debug from './debug.js'
 import { getConnection, getDeviceWriter } from './cctalk-node.js'
 import SerialPort from 'serialport';
-
+String.fromCharCode.apply(null, getMessage(info).data)
 const port = new SerialPort('/dev/ttyUSB0',{
     baudRate: 9600,
     autoOpen: true,
@@ -19,33 +19,37 @@ const detectedDevice = {
 
 const getDeviceInfo = async (writer) => {
     
-    const Promises = [
-       ()=> writer(244),
-       ()=> writer(245),
-       ()=> writer(246),
-    ]
+    try {
+        const productCode = await writer(244)
+        const equipmentCategoryId = await writer(245)
+        const manufacturerId = await writer(246)
+        console.log('RESULT:', { productCode, equipmentCategoryId, manufacturerId})
+    } catch(e) {
+        console.error('SOMETHING WRONG')
+    }
+     
     
-    return Promise.allSettled[Promises.map(fn=>fn())];
-       
 }
 
 const testAdr = async adr => {
     // 254 with all crc types
     let foundCrcType = '';
-    const first = await getDeviceWriter(connection,adr,'crc8')(254).then( () => {
+    const writerCrc8 = getDeviceWriter(connection,adr,'crc8');
+    const first = await writerCrc8(254).then( () => {
         foundCrcType = 'crc8'
         console.log('found crc8',adr)
-        return getDeviceInfo(adr, getDeviceWriter(connection,adr,'crc8') ).catch(Debug('crc8::'));
+        return getDeviceInfo(writerCrc8 ).catch(Debug('crc8::'));
     });
     if (foundCrcType) {
         console.log('using it found crc8',adr)
         return first;
     }
     if (!foundCrcType) {
+        const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
         await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
             foundCrcType = 'crc16xmodem'
             console.log('found crc16xmodem',adr)
-            return getDeviceInfo(adr,'crc16xmodem').catch(Debug('crc8::'));
+            return getDeviceInfo(crc16Writer).catch(Debug('crc8::'));
         });
     }
 

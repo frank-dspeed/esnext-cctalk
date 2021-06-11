@@ -117,7 +117,6 @@ const crc8sign = completPayload => {
     errorUint8(completPayload);
     const checksum = calcCrc8(completPayload)
     const { checksumPosition } = getPayloadPositionData(completPayload);
-    console.log('CRCSIGN::',checksum)
     completPayload[checksumPosition] = checksum;
     return completPayload
 }
