@@ -54,7 +54,7 @@ const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
     const writer = getDeviceWriter(connection,adr,crcMethodName);
     return Promise.allSettled([
-        await writer(254).then( () => {
+        writer(254).then( () => {
             return getDeviceInfo( writer )
         }),
     ])
@@ -94,17 +94,10 @@ const findDevices = async function* () {
 
 
 (async () => {
-    try {
+    
         for await (let device of findDevices()) {
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
         }
-    } catch (e) {
-        console.log(e)
-        process.exit()
-        for await (let device of findDevices()) {
-            Debug('esnext-cctalk/device-detection/foundDevice')(device);
-        }
-    }
 
   
 })();
