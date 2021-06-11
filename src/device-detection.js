@@ -84,14 +84,7 @@ const deviceTypes = {
 const findDevices = async function* () {
     for (const [adr, name] of Object.entries(deviceTypes)) {
         const adrAsInt = parseInt(adr)
-        //console.log(adr,name)
-        // test all possible 
-        let found = await testAdr(adrAsInt,'crc8');
-        console.log({found })
-        
-        if (!found[0].value) {
-            found = await testAdr(adrAsInt,'crc16xmodem');
-        }
+        let found = await testAdr(adrAsInt, adrAsInt === 40 ? 'crc16xmodem': 'crc8');
         yield found
     }
 };
