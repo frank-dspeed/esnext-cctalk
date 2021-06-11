@@ -41,12 +41,17 @@ const getDeviceInfo = async (writer) => {
     return { productCode, equipmentCategoryId, manufacturerId }
 }
 
+
+
+
+
+
 /**
  * 
  * @param {number} adr 
  * @returns 
  */
-const testAdr = async adr => {
+const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
     const writerCrc8 = getDeviceWriter(connection,adr,'crc8');
     Promise.allSettled([
@@ -88,21 +93,26 @@ const findDevices = async function* () {
     for (const [adr, name] of Object.entries(deviceTypes)) {
         const adrAsInt = parseInt(adr)
         //console.log(adr,name)
+        // test all possible 
         yield await testAdr(adrAsInt);
     }
 };
 
+getDeviceWriter(connection,0,'crc8')(253).then(console.log)
+/*
 (async () => {
     try {
         for await (let device of findDevices()) {
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
-          }
+        }
     } catch (e) {
         console.log(e)
     }
 
   
 })();
+
+*/
 
 
 
