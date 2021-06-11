@@ -44,7 +44,13 @@ const getDeviceInfo = async (writer) => {
 
 
 
-
+(async () =>{
+    const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
+    return await crc16Writer(254).then( () => {
+        console.log('found crc16xmodem',adr)
+        return getDeviceInfo( crc16Writer );
+    });    
+})()
 
 /**
  * 
@@ -53,18 +59,11 @@ const getDeviceInfo = async (writer) => {
  */
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
-    const writerCrc8 = getDeviceWriter(connection,adr,'crc8');
-    Promise.allSettled([
-        await writerCrc8(254).then( () => {
-            return getDeviceInfo( writerCrc8 )
+    const writer = getDeviceWriter(connection,adr,crcMethodName);
+    return Promise.allSettled([
+        await writer(254).then( () => {
+            return getDeviceInfo( writer )
         }),
-        (async () =>{
-            const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
-            return await crc16Writer(254).then( () => {
-                console.log('found crc16xmodem',adr)
-                return getDeviceInfo( crc16Writer );
-            });    
-        })()
     ])
     /*
     if (adr === 2) {
@@ -94,12 +93,13 @@ const findDevices = async function* () {
         const adrAsInt = parseInt(adr)
         //console.log(adr,name)
         // test all possible 
-        yield await testAdr(adrAsInt);
+        yield await testAdr(adrAsInt,'crc8');
+        yield await testAdr(adrAsInt,'crc16xmodem');
     }
 };
 
-getDeviceWriter(connection,0,'crc8')(254).then(console.log)
-/*
+
+
 (async () => {
     try {
         for await (let device of findDevices()) {
@@ -112,7 +112,6 @@ getDeviceWriter(connection,0,'crc8')(254).then(console.log)
   
 })();
 
-*/
 
 
 
