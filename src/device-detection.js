@@ -122,6 +122,7 @@ const detectDevices = async emit => {
         }
     }
 } 
+detectDevices()
 
         
 
