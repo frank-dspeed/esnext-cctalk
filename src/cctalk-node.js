@@ -232,6 +232,12 @@ export const getDeviceWriter = (
     address,/** 
     @type {string | number} */ 
     methodName) => {
+    if (typeof address !== 'number') {
+        throw new Error(`TypeError address needs to be number got: ${typeof address}`)
+    }
+    if (typeof methodName !== 'string') {
+        throw new Error(`TypeError methodName needs to be string got: ${typeof methodName}`)
+    }
     const deviceSpec = { 
         // @ts-ignore
         src: 1, dest: address, crcSigningMethod: crcMethods[methodName].sign
