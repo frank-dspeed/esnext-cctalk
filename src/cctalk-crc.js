@@ -104,7 +104,7 @@ const calcCrc8 = chunk => {
             sum += (byte);
         }
     )
-    console.log({ chunk, sum})
+
     return 0x100 - sum % 0x100; //256 - sum % 256
 }
 
