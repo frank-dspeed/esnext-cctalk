@@ -2,9 +2,20 @@ import './types.js'; //Do not treeshake that if you want a dev build for product
 import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
 import Debug from './debug.js';
 
-const cctalkPortParserInitalState = {
-    preservedDataBuffer: new Uint8Array(0), 
-    lastByteFetchTime: 0, 
+const checkDelayAndResetPreservedDataBufferIfneeded = onCompletPayloadInstance => {
+  const { 
+      maxDelayBetweenBytesMs, 
+      lastByteFetchTime,
+  } = onCompletPayloadInstance;
+  
+  if (maxDelayBetweenBytesMs > 0) {
+      const now = Date.now();
+      const delayBetweenLastByte = now - lastByteFetchTime;
+      if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
+        onCompletPayloadInstance.preservedDataBuffer = new Uint8Array(0);
+      }
+      onCompletPayloadInstance.lastByteFetchTime = now;
+  }
 }
 
 /**
@@ -14,111 +25,131 @@ const cctalkPortParserInitalState = {
  * @returns 
  */
 export const OnCompletePayload = ( maxDelayBetweenBytesMs = 50 ) => {
-    
-    const cctalkPortParser = { 
-        maxDelayBetweenBytesMs,
-        /** @type {OnCompletePayloadTransformFn} */
-        _transform: (buffer , destination ) =>  { destination(buffer); },
-        ...cctalkPortParserInitalState,
-    }
+  /** @typedef  */
+  const onCompletPayloadInstance = { 
+      maxDelayBetweenBytesMs,
+      /** @type {OnCompletePayloadTransformFn} */
+      _transform: (buffer , destination ) =>  { destination(buffer); },
+      preservedDataBuffer: new Uint8Array(0), 
+      lastByteFetchTime: 0,
+  }
 
-    const checkDelayAndResetPreservedDataBufferIfneeded = () => {
-        const { 
-            maxDelayBetweenBytesMs, 
-            lastByteFetchTime,
-        } = cctalkPortParser;
-        
-        if (maxDelayBetweenBytesMs > 0) {
-            const now = Date.now();
-            const delayBetweenLastByte = now - lastByteFetchTime;
-            if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
-              cctalkPortParser.preservedDataBuffer = new Uint8Array(0);
-            }
-            cctalkPortParser.lastByteFetchTime = now;
-        }
-    }
-
-    /** @type {OnCompletePayloadTransformFn} */    
-    cctalkPortParser._transform = ( buffer, destination ) => {
-       
-       checkDelayAndResetPreservedDataBufferIfneeded()
-        /**
-         * The spread operator ... uses a for const of loop and so converts 
-         * even NodeJS Buffer Objects Into Unit8Arrays without any tools
-         * browser nativ buffer implementations are UInt8 Arrays
-         */
-        const Uint8ArrayView = Uint8Array.from([
-            ...cctalkPortParser.preservedDataBuffer,
-            ...buffer
-        ]);
-        
-        const dataLength = Uint8ArrayView[1];
-        const endOfChunk = 5 + dataLength;
-        
-        const moreThen2bytes = Uint8ArrayView.length > 1;
-        const completPayload = Uint8ArrayView.length >= endOfChunk;
-        
-        const processPayload = (moreThen2bytes && completPayload)
-        
-        if (!processPayload) {
-            // Keep the Data Buffer Until there is more data or a Timeout
-            cctalkPortParser.preservedDataBuffer = Uint8ArrayView;
-            return
-        }
-        
-        const CCTalkPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
-        
-        cctalkPortParser.preservedDataBuffer = Uint8ArrayView
-            .slice(endOfChunk, Uint8ArrayView.length);
-        
-        try {
-            verifyCCTalkMessage(CCTalkPayload)
-            destination(CCTalkPayload);
-        } catch(checksumError) {
-            console.error(checksumError)
-        }
-
-        if (cctalkPortParser.preservedDataBuffer.length > 0) {
-            cctalkPortParser._transform( new Uint8Array(0), destination )
-        }
-        
-    }
-    
-    // Instance of parser
-    return cctalkPortParser;
+  
+  /** @type {OnCompletePayloadTransformFn} */    
+  onCompletPayloadInstance._transform = ( buffer, destination ) => {
+      
+      checkDelayAndResetPreservedDataBufferIfneeded(onCompletPayloadInstance)
+      /**
+       * The spread operator ... uses a for const of loop and so converts 
+       * even NodeJS Buffer Objects Into Unit8Arrays without any tools
+       * browser nativ buffer implementations are UInt8 Arrays
+       */
+      const Uint8ArrayView = Uint8Array.from([
+          ...onCompletPayloadInstance.preservedDataBuffer,
+          ...buffer
+      ]);
+      
+      const dataLength = Uint8ArrayView[1];
+      const endOfChunk = 5 + dataLength;
+      
+      const moreThen2bytes = Uint8ArrayView.length > 1;
+      const isCompletPayload = Uint8ArrayView.length >= endOfChunk;
+      
+      const processPayload = (moreThen2bytes && isCompletPayload)
+      
+      if (!processPayload) {
+          // Keep the Data Buffer Until there is more data or a Timeout
+          onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView;
+          Debug('KEEPING_DATA')(Uint8ArrayView)
+          return
+      }
+      
+      const completPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
+      Debug('KEEPING_DATA')(Uint8ArrayView)
+      onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView
+          .slice(endOfChunk, Uint8ArrayView.length);
+      
+      try {
+          verifyCCTalkMessage(completPayload)
+          //TODO: move that out 
+          destination(completPayload);
+      } catch(checksumError) {
+          console.error(checksumError)
+      }
+      // In general this should not happen outside of Dev
+      const readNextPayload = onCompletPayloadInstance.preservedDataBuffer.length > 1;
+      if (readNextPayload) {
+          onCompletPayloadInstance._transform( new Uint8Array(0), destination )
+      }
+      
+  }
+  
+  // Instance of onCompletPayloadInstance
+  return onCompletPayloadInstance;
 }
 
 /**
- * returns a pollResponseEventsParserInstance 
+ * 
+ * @param {Uint8Array} eventData 
+ * @returns 
+ */
+const getEventsAsArrays = eventData => {
+      /**
+       * This produces events[event] definition of event event[channel,type] 
+       * @param {Uint8Array[]} result 
+       * @param {number} value
+       * @param {number} index 
+       * @param {Uint8Array} array 
+       */
+       const reducer = function(result, value, index, array) {
+        if (index % 2 === 0) { 
+            result.push(array.slice(index, index + 2) /** Returns [channel,eventCode]*/); 
+        }
+        return result;
+      }
+      
+      /** @type {Uint8ArrayType[]} */
+      return eventData
+        .reduce(reducer, []);
+}
+
+
+/**
+ * 
+ * @param {number} currentEventCounter 
+ * @param {number} lastEventCounter 
+ */
+ const getNewEventsCount = (currentEventCounter,lastEventCounter) => {
+      
+      
+  if (lastEventCounter) {
+    // Debug only Once !! if (preserved.eventBuffer && currentEventCounter != lastEventCounter) {
+    
+    const newEventsCount = currentEventCounter - lastEventCounter;        
+    if(newEventsCount > 5){
+      // We are in a deSynced State
+      console.error('error', new Error(`
+        Event overflow. Events generated by the bill detector were lost!
+        Leads to the conclusion that we did not poll as fast as needed.
+        the events in 6 are lost
+      `));
+    }
+    return newEventsCount;
+  }
+}
+
+
+/**
+ * returns a readBufferedResponseInstance 
  * it is able to parse the reply from the poll
  * header/command and needs to be optained per device
  * and session as it is aware of the last eventsCount
  * @returns 
  */
-export const PollResponseEventsParser = () => {
-    const preserved = { eventBuffer: new Uint8Array() };
-    
-    /**
-     * 
-     * @param {Uint8ArrayType} eventBuffer 
-     * @param {number} lastEventCounter 
-     */
-    const checkIfEventsAreInSync = (eventBuffer,lastEventCounter) => {
-      const currentEventCounter =  eventBuffer[0];
-      
-      if (lastEventCounter) {
-        // Debug only Once !! if (preserved.eventBuffer && currentEventCounter != lastEventCounter) {
-        
-        const EventCounter = currentEventCounter - lastEventCounter;        
-        if(EventCounter > 5){
-          // We are in a deSynced State
-          console.error('error', new Error(`
-            Event overflow. Events generated by the bill detector were lost!
-            Leads to the conclusion that we did not poll as fast as needed.
-          `));
-        }
-      }
-    }
+export const ReadBufferedResponse = () => {
+    const preserved = { 
+      eventBuffer: new Uint8Array(0) 
+    };
     
     /**
      * 
@@ -138,53 +169,38 @@ newest event is first
 
 
     /** @param {Uint8ArrayType} pollResponse */
-    const pollResponseEventsParser = pollResponse => {
+    const readBufferedResponse = pollResponse => {
       Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ pollResponse })
       // getData out of the pollResponse Payload
       const eventBuffer = getMessage(pollResponse).data
-      const lastEventCounter = preserved.eventBuffer[0];
-      checkIfEventsAreInSync(eventBuffer,lastEventCounter)
       
+      const lastEventCounter = preserved.eventBuffer[0];
+      const currentEventCounter =  eventBuffer[0];
+      const newEventsCount = getNewEventsCount(currentEventCounter,lastEventCounter);    
+
       preserved.eventBuffer = eventBuffer;
+
       const eventData = eventBuffer.slice(1)
-      Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ eventData,eventBuffer })
+      
       if (!lastEventCounter) {
         // if we got no lastEventCounter this is the first event we see
         // currentEventCounter === eventData.length / 2
       }
-      
-      
-      /**
-       * This produces events[event] definition of event event[channel,type] 
-       * @param {Uint8ArrayType[]} result 
-       * @param {number} value
-       * @param {number} index 
-       * @param {Uint8ArrayType} array 
-       */
-      const reducer = function(result, value, index, array) {
-        if (index % 2 === 0) { 
-            result.push(array.slice(index, index + 2) /** Returns [channel,eventCode]*/); 
-        }
-        return result;
-      }
-      
-      /** @type {Uint8ArrayType[]} */
-      const events = eventData
-        .reduce(reducer, [])
+          
+      const events = getEventsAsArrays(eventData);
         
-  
-      if (!lastEventCounter) {
-        // if we got no lastEventCounter this is the first event we see
-        // currentEventCounter === events.length
-      }
-      const eventsCounter =  eventBuffer[0];
-      if (eventsCounter !== lastEventCounter) {
-        return { eventsCounter, events };
-      }
-      
+      if (currentEventCounter !== lastEventCounter && newEventsCount) {
+        Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ eventData, eventBuffer })
+        events.slice(0,newEventsCount)
+          .map( ( event, idx ) => 
+            ({ count: lastEventCounter + idx + 1, event }) 
+          );
+        
+        //return { currentEventCounter, events };
+      }    
       
     }
     
-    return pollResponseEventsParser
+    return readBufferedResponse
 }
   

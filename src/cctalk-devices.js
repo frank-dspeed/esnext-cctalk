@@ -1,3 +1,4 @@
+import { eventNames } from 'process';
 import { getSendCommand, getMessage } from './cctalk-crc.js';
 import Debug from './debug.js';
 
@@ -273,24 +274,28 @@ accepted or implied for any errors or omissions that are contained herein.
 These are the commands which should be supported by all ccTalk peripherals. They
 */
 
+/**
+ * This can be used with any Type its generic
+ * @param {Object.<string, number>} map 
+ */
+export const reverseHashMap = map => {
+  /** @type {Object.<number, string>} */
+  const reversedMap = {};
+  for (const [ name, header ] of Object.entries(map)) {
+    reversedMap[header] = name;
+  }
+  return reversedMap;
+}
+
 // Reverse map commands and eventCodes
 /** @param {{ eventCodes: Object.<string, number>, commands: Object.<string, number> }} impl  */
-const reverseMapCommandsAndEventCodes = impl => {
+export const reverseMapCommandsAndEventCodes = impl => {
   /** @type {{ eventCodes: Object.<number, string>, commands: Object.<number, string> }} reversed  */
-  const reversed = { eventCodes: {}, commands: {} };
+  const reversed = { 
+    eventCodes: reverseHashMap(impl.eventCodes), 
+    commands: reverseHashMap(impl.commands) 
+  };
     
-  Object.keys(impl.eventCodes)
-    .forEach( eventName => {
-      const value = impl.eventCodes[eventName];
-      reversed.eventCodes[value] = eventName;
-    });
-  
-  Object.keys(impl.commands)
-    .forEach( eventName => {
-      const value = impl.eventCodes[eventName];
-      reversed.eventCodes[value] = eventName;
-    });
-  
   return reversed;
 }
 

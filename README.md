@@ -30,9 +30,6 @@ a bit shift is equal to multiplying by 2^(# of bits+1), so instead of shifting t
 
 in CCTalk we work with 0x10 === 256 === val << 8. As the Protocol works with Integers 0 till 255 Unsigned bytes. And JS Works with int16 0x1000 int8 is 0x10 the data type is also called unsigned short
 
-
-
-
 ## Device Specification
 Bus 001 Device 006: ID 10c4:ea60 Silicon Labs CP210x UART Bridge
 {usbProductId: 60000, usbVendorId: 4292}
@@ -99,7 +96,7 @@ port.on( 'data', onCrcVerifyedPayload(console.log));
  * More Advanced Features
  **/
 import { 
-  // Promise Methods
+  // if used onCCtalkResponse is always the last callback
   CreateCCTalkRequest, onCCtalkResponse, 
   // Validation of CCTalk Message integrity
   onCompletPayload, 
@@ -127,7 +124,7 @@ await cctalkRequest(
 ).then(
   verifyedValidCompletAnswerReply => 
     console.log(
-      verifyedValidCompletAnswerReply
+      { verifyedValidCompletAnswerReply }
     )
 );
 

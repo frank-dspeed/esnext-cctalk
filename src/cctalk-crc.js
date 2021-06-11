@@ -209,7 +209,7 @@ const crc16sign = ( unsignedButCompletPayload,  CRCArray )=> {
         throw new Error('Could not Sign CRC16');
     }
     
-    const [ dest, dataLength, crcPart1, command] = unsignedButCompletPayload;
+    const [ dest, dataLength, crcPart1, command] = Uint8Array.from(unsignedButCompletPayload);
     
     //crc16sign(unsignedButCompletPayload, crc16xmodem)
     const signedPayload = Uint8Array.from([
@@ -220,7 +220,7 @@ const crc16sign = ( unsignedButCompletPayload,  CRCArray )=> {
         CRCArray[1],
     ])
     
-    Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ signedPayload })
+    Debug('esnext-cctalk/crc/crcMethods/crc16sign/debug')({ signedPayload })
     return signedPayload;
 }
 
@@ -528,10 +528,10 @@ export const crcMethods = {
                 ?.map( (/** @type {string} */ val) => parseInt(val, 16));
         
             const crc16xmodemJsImpl = (/** @type {Uint8Array} */ raw) => crc16xmodemJsToArray(crc16xmodemJs(raw));
-            
+
             const signedPayload = crc16sign( 
-                unsignedButCompletPayload, 
-                calculateCrc16ChecksumsWith(unsignedButCompletPayload, crc16xmodemJsImpl) 
+                Uint8Array.from(unsignedButCompletPayload), 
+                calculateCrc16ChecksumsWith(Uint8Array.from(unsignedButCompletPayload), crc16xmodemJsImpl) 
             );
     
             return signedPayload
@@ -550,8 +550,8 @@ export const crcMethods = {
          * @param {Uint8Array} unsignedButCompletPayload
          */
         sign(unsignedButCompletPayload) {
-            const signedPayload = crc8sign(unsignedButCompletPayload)
-            Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload, signedPayload})
+            const signedPayload = crc8sign(Uint8Array.from(unsignedButCompletPayload));
+            Debug('esnext-cctalk/crc/crcMethods/crc8/debug')({ unsignedButCompletPayload, signedPayload})
             return signedPayload
         },
         /**
