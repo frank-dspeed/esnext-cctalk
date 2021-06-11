@@ -196,7 +196,7 @@ export const getConnection = port => {
             // @ts-ignore
             const command = {}
             const commandPromise = new Promise((resolve, reject) => {
-                Object.assign(command, { resolve, reject, input })
+                Object.assign(command, { resolve, reject, input, commandPromise })
             });
             const promise = Promise.race([
                 commandPromise,
