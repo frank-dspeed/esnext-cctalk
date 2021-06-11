@@ -68,10 +68,10 @@ const deviceTypes = {
 
 for (const [adr, name] of Object.entries(deviceTypes)) {
     const adrAsInt = parseInt(adr)
-    if (adrAsInt !== 40) {
+
         console.log(adr,name)
         await testAdr(adrAsInt).then(x=>console.log('RESULT',{ x }));
-    }
+
     
 }
 /*
