@@ -121,7 +121,8 @@ export const getConnection = port => {
             currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
             Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
             const completPair = currentProcessingPromises.length === 2;
-            Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
+            currentProcessingPromises.forEach(p=>Debug('currentProcessingPromises')(p.messageAsUint8Array))
+            //Debug('currentProcessingPromises')({ currentProcessingPromises, messageAsUint8Array})
             if (completPair) {
                 currentProcessingPromise = null;
                 const messageObject = getMessage(messageAsUint8Array); 
