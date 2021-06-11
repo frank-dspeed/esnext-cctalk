@@ -44,13 +44,6 @@ const getDeviceInfo = async (writer) => {
 
 
 
-(async () =>{
-    const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
-    return await crc16Writer(254).then( () => {
-        console.log('found crc16xmodem',adr)
-        return getDeviceInfo( crc16Writer );
-    });    
-})()
 
 /**
  * 
