@@ -35,7 +35,7 @@ const testAdr = async adr => {
     const first = await getDeviceWriter(connection,adr,'crc8')(254).then( () => {
         foundCrcType = 'crc8'
         console.log('found crc8',adr)
-        return getDeviceInfo(adr,'crc8').catch(Debug('crc8::'));
+        return getDeviceInfo(adr, getDeviceWriter(connection,adr,'crc8') ).catch(Debug('crc8::'));
     });
     if (foundCrcType) {
         console.log('using it found crc8',adr)
