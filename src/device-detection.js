@@ -1,7 +1,9 @@
 import Debug from './debug.js'
 import { getConnection, getDeviceWriter } from './cctalk-node.js'
+import { getMessage } from './cctalk-crc.js'
 import SerialPort from 'serialport';
-String.fromCharCode.apply(null, getMessage(info).data)
+
+
 const port = new SerialPort('/dev/ttyUSB0',{
     baudRate: 9600,
     autoOpen: true,
@@ -17,12 +19,15 @@ const detectedDevice = {
     244: 'requestProductCode', //Core commands
 }
 
+
+const readTextMessage = payload => String.fromCharCode.apply(null, getMessage(payload).data)
+
 const getDeviceInfo = async (writer) => {
     
     try {
-        const productCode = await writer(244)
-        const equipmentCategoryId = await writer(245)
-        const manufacturerId = await writer(246)
+        const productCode = await writer(244).then(readTextMessage);
+        const equipmentCategoryId = await writer(245).then(readTextMessage);
+        const manufacturerId = await writer(246).then(readTextMessage);
         console.log('RESULT:', { productCode, equipmentCategoryId, manufacturerId})
     } catch(e) {
         console.error('SOMETHING WRONG')
