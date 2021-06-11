@@ -45,7 +45,7 @@ const testAdr = async adr => {
         return getDeviceInfo( writerCrc8 );
     }).catch(()=>{
         const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
-        return await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
+        return getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
             foundCrcType = 'crc16xmodem'
             console.log('found crc16xmodem',adr)
             return getDeviceInfo( crc16Writer );
