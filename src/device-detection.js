@@ -52,7 +52,7 @@ const getDeviceInfo = async (writer) => {
  */
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
-    const writer = getDeviceWriter(connection,adr,crcMethodName);
+    const write = getDeviceWriter(connection,adr,crcMethodName);
     
     /*
     return writer(254).then( () => {
@@ -61,16 +61,13 @@ const testAdr = async (adr, crcMethodName ) => {
     */
     
     return Promise.allSettled([
-        writer(254).then( () => {
-            return getDeviceInfo( writer ).then( info => {
-                
-                    return {
-                        info,
-                        crcMethodName,
-                        adr
-                    }
-                
-            })
+        write(254).then( () => {
+            return getDeviceInfo( write ).then( info =>({
+                write,
+                info,
+                crcMethodName,
+                adr,
+            }))
         }),
     ])
     
