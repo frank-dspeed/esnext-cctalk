@@ -81,7 +81,7 @@ const deviceTypes = {
     2: 'coinAcceptor'
 }
 
-const findDevices = async function* () {
+const findDevices2 = async function* () {
     for (const [adr, name] of Object.entries(deviceTypes)) {
         const adrAsInt = parseInt(adr)
         let found = await testAdr(adrAsInt, adrAsInt === 40 ? 'crc16xmodem': 'crc8');
@@ -89,7 +89,13 @@ const findDevices = async function* () {
     }
 };
 
-
+const findDevices = async function* () {
+    for (const [adr, name] of Object.entries(deviceTypes)) {
+        const adrAsInt = parseInt(adr)
+        let found = await testAdr(adrAsInt, 'crc16xmodem');
+        yield found
+    }
+};
 
 (async () => {
     
