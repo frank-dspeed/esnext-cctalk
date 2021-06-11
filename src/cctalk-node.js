@@ -207,8 +207,12 @@ export const getConnection = port => {
                     // @ts-ignore
                     setTimeout(() => { 
                         // find the promise in current
-                        console.log(currentProcessingPromises.filter(tasks=>tasks.currentProcessingPromise.input === input) )
-                        process,exit()
+                        const foundProcess = currentProcessingPromises.filter(tasks=>tasks.currentProcessingPromise.input === input) 
+                        if (foundProcess.length) {
+                            console.log(foundProcess)
+                            process.exit()
+                        }
+                        
                         resolve(Promise.reject(`timeout: ${command.input}`)) 
                     }, 800))
             ]).catch( err => {
