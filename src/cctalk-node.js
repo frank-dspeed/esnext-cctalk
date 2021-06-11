@@ -211,7 +211,7 @@ export const getConnection = port => {
                             if (tasks.currentProcessingPromise.input === input) {
                                 currentProcessingPromises.splice(idx, 1);
                             }
-                        }                        
+                        } )                        
                         resolve(Promise.reject(`timeout: ${command.input}`));
                     }, 800))
             ]).catch( err => {
