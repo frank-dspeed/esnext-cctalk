@@ -1,6 +1,12 @@
 import { PollResponseEventsParser } from './cctalk-parser.js'
 import { Debug } from './debug.js';
 export const al66v = ()=> {
+    
+    const deviceInfo =  {
+        productCode: 'AL06V-c',
+        equipmentCategoryId: 'Coin Acceptor',
+        manufacturerId: 'Alberici'
+    }
     const eventsParser = PollResponseEventsParser();
     let lastEventCounter;
     const eventCodes = {
@@ -114,7 +120,7 @@ export const al66v = ()=> {
             //enableAcceptance().then(()=>setAcceptanceMask(0xFFFF));
             // setAcceptanceMask should maybe get called before master ?
             //ThenPoll
-          },
+        },
         onReady(){
             /*  
             debug('CCTALK')('emp800-ready');

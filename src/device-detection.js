@@ -54,7 +54,7 @@ const testAdr = async adr => {
         await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
             foundCrcType = 'crc16xmodem'
             console.log('found crc16xmodem',adr)
-            return getDeviceInfo(crc16Writer).catch(Debug('crc8::'));
+            return getDeviceInfo(crc16Writer).catch(Debug('crc16::'));
         });
     }
 
@@ -62,7 +62,7 @@ const testAdr = async adr => {
     // request info with correct crc type
 }
 const deviceTypes = {
-    //40: 'billReader',
+    40: 'billReader',
     2: 'coinAcceptor'
 }
 
