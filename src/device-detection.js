@@ -64,7 +64,6 @@ const testAdr = async (adr, crcMethodName ) => {
         writer(254).then( () => {
             return getDeviceInfo( writer ).then( info => {
                 
-                
                     return {
                         info,
                         crcMethodName,
@@ -121,7 +120,7 @@ const findDevices = async function* () {
 };
 
 
-const detectDevices = async emit => {
+export const detectDevices = async emit => {
     for await (let device of findDevices()) {
         if (device[0].value) {
             Debug('esnext-cctalk/device-detection/foundDevice')(device[0].value);
@@ -131,7 +130,7 @@ const detectDevices = async emit => {
         }
     }
 } 
-detectDevices()
+//detectDevices(console.log)
 
         
 
