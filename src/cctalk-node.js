@@ -115,6 +115,7 @@ export const getConnection = port => {
      */
      const onCCTalkResponse = message => {
         if(currentProcessingPromise) {
+            Debug('PROMISE')(currentProcessingPromise)
             Debug('currentProcessingPromises')({ currentProcessingPromises})
             const messageAsUint8Array = Uint8Array.from(message);  
             // Note currentProcessingPromise stays the same if less then 2 commands got send
