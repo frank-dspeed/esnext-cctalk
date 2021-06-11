@@ -115,6 +115,7 @@ export const getConnection = port => {
      */
      const onCCTalkResponse = message => {
         if(currentProcessingPromise) {
+            Debug('currentProcessingPromises')([ currentProcessingPromises])
             const messageAsUint8Array = Uint8Array.from(message);  
             // Note currentProcessingPromise stays the same if less then 2 commands got send
             currentProcessingPromises.push({ currentProcessingPromise, messageAsUint8Array })
@@ -144,7 +145,6 @@ export const getConnection = port => {
 
     parser.on('data', onCCTalkResponse)
 
-    
     const additionalParserLogic = () => {
         /*
         if(messageObject.command === 0){
@@ -173,8 +173,6 @@ export const getConnection = port => {
         }
         */
     }
-
-
      
     // @ts-ignore
     const CreateCCTalkRequest = portToWrite => 
