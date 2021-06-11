@@ -45,17 +45,17 @@ const testAdr = async adr => {
             foundCrcType = 'crc8'
             return getDeviceInfo( writerCrc8 )
         });
-    } else {
-
-    }
+    } 
     
-    const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
-    return await getDeviceWriter(connection,adr,'crc16xmodem')(254).then( () => {
-        foundCrcType = 'crc16xmodem'
-        console.log('found crc16xmodem',adr)
-        return getDeviceInfo( crc16Writer );
-    });
+    if (adr === 40) {
 
+        const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
+        return await crc16Writer(254).then( () => {
+            foundCrcType = 'crc16xmodem'
+            console.log('found crc16xmodem',adr)
+            return getDeviceInfo( crc16Writer );
+        });
+    }
 
     //await getDeviceWriter(connection,adr,'crc16xmodemJs');
     // request info with correct crc type
