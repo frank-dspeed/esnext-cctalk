@@ -1,10 +1,10 @@
 import Debug from '../modules/debug.js'
-import { getConnection, getDeviceWriter } from './cctalk-node.js'
-import { getMessage } from './cctalk-crc.js'
+import { getConnection } from './cctalk-node.js'
+import { getMessage } from '../modules/payload-helpers.js'
+import { delayResolvePromise } from '../modules/promises-delayed.js';
+
 import SerialPort from 'serialport';
-
-
-const port = new SerialPort('/dev/ttyUSB0',{
+const port = new SerialPort('/dev/ttyUSB0', {
     baudRate: 9600,
     autoOpen: true,
     dataBits: 8,
@@ -41,18 +41,15 @@ const getDeviceInfo = async (writer) => {
     return { productCode, equipmentCategoryId, manufacturerId }
 }
 
-
-
-
-
 /**
  * 
  * @param {number} adr 
+ * @param {string} crcMethodName
  * @returns 
  */
 const testAdr = async (adr, crcMethodName ) => {
     // 254 with all crc types
-    const write = getDeviceWriter(connection,adr,crcMethodName);
+    const write = connection.getDeviceWriter(adr,crcMethodName);
     
     /*
     return writer(254).then( () => {
@@ -73,14 +70,14 @@ const testAdr = async (adr, crcMethodName ) => {
     
     
     if (adr === 2) {
-        const crc8Writer = getDeviceWriter(connection,adr,'crc8');
+        const crc8Writer = connection.getDeviceWriter(adr,'crc8');
         return await crc8Writer(254).then( () => {
             return getDeviceInfo( crc8Writer )
         });
     } 
     
     if (adr === 40) {
-        const crc16Writer = getDeviceWriter(connection,adr,'crc16xmodem');
+        const crc16Writer = connection.getDeviceWriter(adr,'crc16xmodem');
         return await crc16Writer(254).then( () => {
             console.log('found crc16xmodem',adr)
             return getDeviceInfo( crc16Writer );
@@ -116,12 +113,15 @@ const findDevices = async function* () {
     }
 };
 
-
+// @ts-ignore
 export const detectDevices = async emit => {
     for await (let device of findDevices()) {
+        // @ts-ignore
         if (device[0].value) {
+            // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device[0].value);
             if (emit) {
+                // @ts-ignore
                 emit(device[0].value)
             }
         }
@@ -131,124 +131,19 @@ export const detectDevices = async emit => {
 export default detectDevices
 //detectDevices(console.log)
 
-        
-
-
-
-
-
-
-/*
-
-const tryWriter = async (adr,methodName) => {
-    const writer = getDeviceWriter(connection,adr,methodName);
-    Object.assign(writer,{adr,methodName});
-    const racingPromises = [
-        writer(254).then(()=>writer),
-        timeoutPromise()
-    ]
-    const writerRace = Promise.race(racingPromises).then(writer=>{
-        const [,t] = racingPromises;
-        clearTimeout(t.timeout);
-        return writer
-    }).catch(e=>console.log(e,adr,methodName)); 
-    return writerRace
-}
-const possibleWriters = [
-    tryWriter(2,'crc8'),
-    tryWriter(40,'crc16xmodem'),
-    //tryWriter(40,'crc16xmodemJs'),
-    //tryWriter(40,16),
-]
-
-each(possibleWriters,writer=>{
-    // @ts-ignore
-    if (!writer) {
-        return 
-    }
-    writer.infos = [];
-    each(detectedDevice.map(cmd=>writer(cmd)),info=>{
-        const parsedInfo = String.fromCharCode.apply(null, getMessage(info).data)
-        
-        writer.infos.push(parsedInfo)
-        console.log(Date.now(),writer.infos)
-        //process.exit()
-    }).then(()=>{
-        Debug('device/found')(writer.infos,writer.adr,writer.crcType)
-    }).catch(e=>{
-        Debug('device/found')(writer.infos,writer.adr,writer.crcType)
-    })
-})
-//console.log(await getDeviceWriter(connection,2,8)(254).then(()=>writer))
-
-/*
-const detectDevice = async (adr) => {
-    return await Promise.race([
-        tryWriter(adr,8),
-        timeoutPromise()
-    ]).catch(e=>{
-      return Promise.race([
-        tryWriter(adr,16),
-        timeoutPromise()
-    ])  
-    })
-}
-console.log('D',await detectDevice(2))
-setTimeout(async ()=>console.log('D',await detectDevice(40)),500)
-
-
-
-const simpleButWorking = () => {
-
-}
-
-const standardAddresses = [2,40];
-let timeOut = 50;
-/*
-mapSeries(standardAddresses,adr=>{
-    return Promise.race([
-        tryWriter(adr,8),
-        tryWriter(adr,16),
-    ])
-}).then(writers=>{
-    //mapSeries(writers,writer => {
-      console.log( writers )
-    //})
-})
-*/
-
-
-/*
-standardAddresses.forEach(async adr=>{
-    const deviceWriter = [
-        getDeviceWriter(connection,adr,8),
-        getDeviceWriter(connection,adr,16)
-    ].forEach( async (writer, i) => {
-        Promise.race()
-        await writer(254)
-       
-    })
- /*
-    detectedDevice.forEach(async (cmd)=>{
-        await writer(cmd).then(getMessage).then(msg=> String.fromCharCode.apply(null, msg.data)).then(Debug('DETECTED'))
-    })
-
-})
-    */
-
-const DelayPromise = ms => new Promise(resolve => setTimeout(resolve, ms)
 const stableLoopAfterDetection = () => {
-    import getDevices from 'esnext-cctalk/src/device-detection.js';
+    //import detectDevices from 'esnext-cctalk/src/device-detection.js';
     let i = 0;
-
-    const tryPoll = write => DelayPromise(900).then(()=>write(254).catch(()=>tryPoll(write)))
+    // @ts-ignore
+    const tryPoll = write => delayResolvePromise(900).then(()=>write(254).catch(()=>tryPoll(write)))
     let promiseChain = Promise.resolve()
-    getDevices(async dev=>{
+    // @ts-ignore
+    detectDevices(async dev=>{
         console.log('Found', { dev })
         //if (i++ === 1) {
             // We have a perfect loop
             promiseChain = promiseChain
-                .then( delay(1000) )
+                .then(()=> delayResolvePromise(1000) )
                 .then(()=> tryPoll(dev.write).then(x=>console.log('connected:',x, { dev })) ) 
             //
         //}

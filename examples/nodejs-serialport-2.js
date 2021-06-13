@@ -1,10 +1,10 @@
 // Using Device Detection
-import getDevices from 'esnext-cctalk/src/device-detection.js';
+import detectDevices from 'esnext-cctalk/src/device-detection.js';
 let i = 0;
 
 const tryPoll = write => write(254).catch(()=>tryPoll(write))
 let promiseChain = Promise.resolve();
-getDevices(async dev=>{
+detectDevices(async dev=>{
     console.log('Found', { dev })
     //if (i++ === 1) {
         // We have a perfect loop

@@ -1,7 +1,7 @@
 import { crc16xmodem as crc16xmodemImpl } from 'node-crc';
 import { getChecksumFromPayloadAsString } from './16-shared-modules.js';
 import Debug from '../debug.js';
-import { errorUint8 } from '../error-uint8';
+import { errorUint8 } from '../error-uint8.js';
 
 export const crc16xmodem = {
     /** @param {Uint8Array} unsignedButCompletPayload */ 
