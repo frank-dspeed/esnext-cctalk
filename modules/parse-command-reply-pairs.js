@@ -109,7 +109,10 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 });
             const totalPromises = currentProcessingPromises.length;
             console.log('XXXXX', { currentProcessingPromises, totalPromises })
+            console.log('XXXXX', { totalPromises })
+
             return promise;
+
     }
     
     return {
