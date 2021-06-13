@@ -49,10 +49,9 @@ export const crc16xmodemJs = {
 
         const crc16xmodemJsImpl = (/** @type {Uint8Array} */ checksumLessPayload) => crc16xmodemJsToArray(crc16xmodem(checksumLessPayload));
         
-        const payloadWithoutChecksumAtEnd = unsignedButCompletPayload.slice(-1);
+        const payloadWithoutChecksumAtEnd = unsignedButCompletPayload.slice(0,-1);
         const destAndDataLengthAsArray = payloadWithoutChecksumAtEnd.slice(0,2);
         const headerAndDataAsArray = payloadWithoutChecksumAtEnd.slice(3);
-
         const checksumLessPayload =  Uint8Array.from([ ...destAndDataLengthAsArray, ...headerAndDataAsArray ])
         const checksumAsArray = crc16xmodemJsImpl(checksumLessPayload).reverse();
         
