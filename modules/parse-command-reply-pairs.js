@@ -55,8 +55,11 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 // throw error here is something wrong.
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ currentProcessingPromise, messageAsUint8Array })
+                const totalPromises = currentProcessingPromises.length;
+                console.log('XXXXX', { currentProcessingPromises, totalPromises })
+                console.log('XXXXX', { totalPromises })
                 currentProcessingPromises.splice(0,2);
-                currentProcessingPromise = null;
+                //currentProcessingPromise = null;
                 throw new Error('Maybe Something Wrong')
             }
         } 
@@ -110,9 +113,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                         });
                     });                
                 });
-            const totalPromises = currentProcessingPromises.length;
-            console.log('XXXXX', { currentProcessingPromises, totalPromises })
-            console.log('XXXXX', { totalPromises })
+
 
             return promise;
 
