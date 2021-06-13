@@ -50,7 +50,8 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                     currentPromise.resolve(messageAsUint8Array);
                     return 
                 }
-
+                currentProcessingPromises.splice(0,2);    
+                
                 // throw error here is something wrong.
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ currentProcessingPromise, messageAsUint8Array })
