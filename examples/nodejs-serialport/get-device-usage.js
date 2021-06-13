@@ -11,7 +11,6 @@ detectDevices(async dev=> {
     //if (i++ === 1) {
         // We have a perfect loop
         promiseChain = promiseChain
-        .then()
         .then(()=> tryPoll(dev.write).then(x=>console.log('connected:',x, { dev })) ) 
         //
     //}
