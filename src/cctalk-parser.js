@@ -73,7 +73,7 @@ export const OnCompletePayload = ( maxDelayBetweenBytesMs = 50 ) => {
         .slice(endOfChunk, Uint8ArrayView.length);
     
     try {
-        verifyCCTalkMessage(completPayload)
+        //verifyCCTalkMessage(completPayload)
         //TODO: move that out 
         destination(completPayload);
     } catch(checksumError) {

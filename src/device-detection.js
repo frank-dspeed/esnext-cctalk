@@ -100,7 +100,7 @@ const findDevices2 = async function* () {
     }
 };
 
-const findDevices = async function* () {
+const findDevices = async function* () {    
     for (const [adr, name] of Object.entries(deviceTypes)) {
         const adrAsInt = parseInt(adr)
         let found = await testAdr(adrAsInt, 'crc16xmodem');
@@ -132,21 +132,12 @@ export default detectDevices
 //detectDevices(console.log)
 
 const stableLoopAfterDetection = () => {
-    //import detectDevices from 'esnext-cctalk/src/device-detection.js';
-    let i = 0;
-    // @ts-ignore
-    const tryPoll = write => delayResolvePromise(900).then(()=>write(254).catch(()=>tryPoll(write)))
-    let promiseChain = Promise.resolve()
-    // @ts-ignore
-    detectDevices(async dev=>{
-        console.log('Found', { dev })
-        //if (i++ === 1) {
-            // We have a perfect loop
-            promiseChain = promiseChain
-                .then(()=> delayResolvePromise(1000) )
-                .then(()=> tryPoll(dev.write).then(x=>console.log('connected:',x, { dev })) ) 
-            //
-        //}
-        
-    })
+    import getDevices from 'esnext-cctalk/src/device-detection.js';
+    import { delayResolvePromise } from 'esnext-cctalk/modules/promises-delayed.js';
+    
+    const tryPoll = write => delayResolvePromise(2000).then(()=>write(254).catch(()=>tryPoll(write)));
+    getDevices(async dev=>{
+        console.log('Found', { dev })    
+        await tryPoll(dev.write).then(x=>console.log('connected:',x, { dev }));
+    });
 }
