@@ -20,7 +20,7 @@ export const crc16xmodem = {
             ...destAndDataLengthAsArray, checksumAsArray[0], 
             ...headerAndDataAsArray, checksumAsArray[1]
         ])
-        Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload, signedPayload });        
+        Debug('esnext-cctalk/crc/crcMethods/crc16xmodem/debug')({ unsignedButCompletPayload, signedPayload, checksumLessPayload, checksumAsArray });        
         return signedPayload;
     },
     /**
