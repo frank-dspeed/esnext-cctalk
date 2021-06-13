@@ -371,7 +371,7 @@ const emp800Mappings = {
       }
   }
 
-  const EMP800Methods = {
+  const methods = {
     // 0xFFFF === All 0x0000 === none  
     setAcceptanceMask(acceptanceMask = 0xFF ) {
         const command = emp800Mappings.commands.modifyInhibitStatus;
@@ -386,7 +386,7 @@ const emp800Mappings = {
         return [command, data]
     },
     enableAcceptance() {
-        return EMP800Methods.modifyMasterInhibit(true);
+        return methods.modifyMasterInhibit(true);
     },
     /** @param {number} channel*/
     requestCoinPosition(channel){
@@ -395,9 +395,9 @@ const emp800Mappings = {
         return [command, data]
     },
     configureAcceptance(acceptanceMask=0xFF) {
-        EMP800Methods.setAcceptanceMask(acceptanceMask);
-        //EMP800Methods.enableAcceptance();
-        EMP800Methods.modifyMasterInhibit(true);
+        methods.setAcceptanceMask(acceptanceMask);
+        //methods.enableAcceptance();
+        methods.modifyMasterInhibit(true);
         
                 
         //enableAcceptance().then(()=>setAcceptanceMask(0xFFFF));
@@ -411,8 +411,8 @@ const emp800Mappings = {
           this.pollInterval = setInterval(()=> {
             this.poll()
           }, 999);
-          EMP800Methods.enableAcceptance()
-            .then(()=>EMP800Methods.setAcceptanceMask(0xFFFF));
+          methods.enableAcceptance()
+            .then(()=>methods.setAcceptanceMask(0xFFFF));
             */
     },
     readBufferedCredit() {
@@ -421,7 +421,7 @@ const emp800Mappings = {
         return [command,data];
     },
     poll() {
-        return EMP800Methods.readBufferedCredit();
+        return methods.readBufferedCredit();
         /*
             sendCommand(emp800Mappings.commands.readBufferedCredit).then((buffer)=>{
                 this.parseEventBuffer(buffer)
@@ -454,7 +454,7 @@ const emp800Mappings = {
     // run poll yild
   }
   return {
-    methods: EMP800Methods,
+    methods,
     commands: emp800Mappings.commands,
     eventCodes: emp800Mappings.eventCodes
   }
