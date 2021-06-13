@@ -90,8 +90,8 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                     setTimeout(() => { 
                         // find the promise in current
                         // @ts-ignore
-                        tasks.forEach ( (tasks, idx )=> {
-                            if (tasks.task.input === input) {
+                        tasks.forEach ( (task, idx )=> {
+                            if (task.task.input === input) {
                                 tasks.splice(idx, 1);
                                 writeLock = false;
                             }
