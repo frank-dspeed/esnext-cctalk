@@ -63,12 +63,12 @@ export const OnCompletePayload = ( maxDelayBetweenBytesMs = 50 ) => {
     if (!processPayload) {
         // Keep the Data Buffer Until there is more data or a Timeout
         onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView;
-        Debug('KEEPING_DATA')(Uint8ArrayView)
+        Debug('onCompletPayloadInstance/doNot/processPayload')(Uint8ArrayView)
         return
     }
     
     const completPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
-    Debug('KEEPING_DATA')(Uint8ArrayView)
+    Debug('onCompletPayloadInstance/processPayload')(Uint8ArrayView)
     onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView
         .slice(endOfChunk, Uint8ArrayView.length);
     

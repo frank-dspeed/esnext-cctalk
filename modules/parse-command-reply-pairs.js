@@ -27,16 +27,16 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             const messageAsUint8Array = Uint8Array.from(message);  
             // Note task stays the same if less then 2 commands got send
             tasks.push({ task, messageAsUint8Array })
-            Debug('esnext-cctalk/node/connection/parser/onData/processingPromise/debug')({ messageAsUint8Array })
+            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
             const completPair = tasks.length === 2;
             
-            // @ts-ignore
-            tasks.forEach( p =>{
-                Debug('tasks')(p.task)          
-            })
             //Debug('tasks')({ tasks, messageAsUint8Array})
             if (completPair) {
-                
+
+                // @ts-ignore
+                tasks.forEach( p =>{
+                    Debug('onCCTalkCommandPairResponse/completPair')(p.task)          
+                })
                 const messageObject = getDestHeaderDataFromPayloadAsObject(messageAsUint8Array); 
                 const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
 
@@ -65,7 +65,8 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 throw new Error('Maybe Something Wrong')
             }
         } 
-        // we got no promise but we got data we need to error and exit   
+        // we got no promise but we got data we need to error and exit  
+        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message }) 
      }
 
     // @ts-ignore
