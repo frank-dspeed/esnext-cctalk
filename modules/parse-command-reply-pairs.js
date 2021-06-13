@@ -98,7 +98,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                         } )                        
                         // @ts-ignore
                         resolve(Promise.reject(`timeout: ${command.input}`));
-                    }, 800))
+                    }, 200))
             ]).catch( err => {
                 Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
                 throw err;
