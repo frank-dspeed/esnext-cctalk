@@ -1,6 +1,6 @@
 /**
  * errorUint8 Errors if its not a Uint8*
- * @param { Uint8ArrayType } chunk 
+ * @param { Uint8Array } chunk 
  */
  export const errorUint8 = chunk => {
     const isUint8 = chunk.constructor.name.indexOf('Uint8') === 0;

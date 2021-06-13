@@ -1,6 +1,6 @@
 {
   "name": "esnext-cctalk",
-  "version": "0.0.9",
+  "version": "0.1.1",
   "description": "A Collection of Methods to Work with Serial Devices that do use the CCTalk Protocol like the EMP800 and Taiko Pub 7",
   "main": "src/cctalk.js",
   "type": "module",
@@ -29,6 +29,9 @@
   "homepage": "https://github.com/frank-dspeed/esnext-cctalk#readme",
   "dependencies": {
     "@types/node": "^15.12.1"
+  },
+  "exports": {
+    "import": { "esnext-cctalk": "./" }
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.35",

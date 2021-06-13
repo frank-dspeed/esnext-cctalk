@@ -1,7 +1,9 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
-import { verifyCCTalkMessage, getMessage } from './cctalk-crc.js'
-import Debug from './debug.js';
+import { verifyCCTalkMessage } from './cctalk-crc.js'
+import { getMessage } from '../modules/payload-helpers.js'
+import Debug from '../modules/debug.js';
 
+/** @param {*} onCompletPayloadInstance */
 const checkDelayAndResetPreservedDataBufferIfneeded = onCompletPayloadInstance => {
   const { 
       maxDelayBetweenBytesMs, 
@@ -109,7 +111,7 @@ const getEventsAsArrays = eventData => {
         return result;
       }
       
-      /** @type {Uint8ArrayType[]} */
+      /** @type {Uint8Array[]} */
       return eventData
         .reduce(reducer, []);
 }
@@ -169,7 +171,7 @@ newest event is first
      */
 
 
-    /** @param {Uint8ArrayType} pollResponse */
+    /** @param {Uint8Array} pollResponse */
     const readBufferedResponse = pollResponse => {
       Debug('esnext-cctalk/parser/pollResponseEventParser/debug')({ pollResponse })
       // getData out of the pollResponse Payload

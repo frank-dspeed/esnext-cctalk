@@ -1,5 +1,5 @@
-/** @typedef { Uint8Array | Uint8Array } Uint8ArrayType */
-/** @typedef { Buffer | Uint8ArrayType } BufferOrUnit8 */
+/** @typedef { Buffer | Uint8Array } BufferOrUnit8 */
+
 /**
  * @callback OnCompletePayloadTransformFn
  * @param { BufferOrUnit8 } buffer 
@@ -8,7 +8,7 @@
 
 /**
  * @typedef OnCompletePayloadInstance
- * @property { Uint8ArrayType } preservedDataBuffer
+ * @property { Uint8Array } preservedDataBuffer
  * @property {number} lastByteFetchTime
  * @property {number} maxDelayBetweenBytesMs
  * @property {OnCompletePayloadTransformFn} _transform

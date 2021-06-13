@@ -1,4 +1,4 @@
-import Debug from './debug.js'
+import Debug from '../modules/debug.js'
 import { getConnection, getDeviceWriter } from './cctalk-node.js'
 import { getMessage } from './cctalk-crc.js'
 import SerialPort from 'serialport';
@@ -235,3 +235,23 @@ standardAddresses.forEach(async adr=>{
 
 })
     */
+
+const DelayPromise = ms => new Promise(resolve => setTimeout(resolve, ms)
+const stableLoopAfterDetection = () => {
+    import getDevices from 'esnext-cctalk/src/device-detection.js';
+    let i = 0;
+
+    const tryPoll = write => DelayPromise(900).then(()=>write(254).catch(()=>tryPoll(write)))
+    let promiseChain = Promise.resolve()
+    getDevices(async dev=>{
+        console.log('Found', { dev })
+        //if (i++ === 1) {
+            // We have a perfect loop
+            promiseChain = promiseChain
+                .then( delay(1000) )
+                .then(()=> tryPoll(dev.write).then(x=>console.log('connected:',x, { dev })) ) 
+            //
+        //}
+        
+    })
+}

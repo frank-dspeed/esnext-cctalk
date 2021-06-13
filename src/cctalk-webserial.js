@@ -9,7 +9,7 @@ import { OnCompletePayload } from './cctalk-parser.js';
  */
  export const WebStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
     const parser = OnCompletePayload(maxDelayBetweenBytesMs);
-    /** @type {TransformerTransformCallback<Uint8ArrayType,TransformStreamDefaultController>}  */
+    /** @type {TransformerTransformCallback<Uint8Array,TransformStreamDefaultController>}  */
     const transform = async (chunk, controller) => {
         parser._transform(chunk, controller.enqueue);
         /*
@@ -44,7 +44,7 @@ const init = () => {
         
         // @ts-ignore
         navigator.serial.requestPort({ filters }).then( async (
-            /** @type {{ getInfo: () => { usbProductId: any; usbVendorId: any; }; open: (arg0: { baudRate: number; }) => any; readable: { pipeTo: (arg0: WritableStream<Uint8ArrayType>) => any; }; writable: { getWriter: () => any; }; }} */ 
+            /** @type {{ getInfo: () => { usbProductId: any; usbVendorId: any; }; open: (arg0: { baudRate: number; }) => any; readable: { pipeTo: (arg0: WritableStream<Uint8Array>) => any; }; writable: { getWriter: () => any; }; }} */ 
             port
             ) => {
                 const { usbProductId, usbVendorId } = port.getInfo();

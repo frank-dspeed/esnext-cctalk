@@ -1,9 +1,8 @@
-import { eventNames } from 'process';
-import { getSendCommand, getMessage } from './cctalk-crc.js';
-import Debug from './debug.js';
+import { getCreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
+import Debug from '../modules/debug.js';
 
 // Talk from the BUS to the billAcceptor for example
-const sendCommand = getSendCommand(0,40,16)
+const sendCommand = getCreatePayloadUsingCrcMethodName(40,0,'crc16xmodemJs')
 // in general you will configure sendCommand per target to talk to
 
 //Device Logic
@@ -298,8 +297,6 @@ export const reverseMapCommandsAndEventCodes = impl => {
     
   return reversed;
 }
-
-
 
 export const emp800 = ()=> {
 

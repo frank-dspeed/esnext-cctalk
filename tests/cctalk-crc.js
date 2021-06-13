@@ -1,4 +1,4 @@
-import { CCTalkMessageCompat, object2Array } from '../src/cctalk-crc.js';
+import { CCTalkMessageCompat, object2Array } from '../modules/payload-helpers';
 console.log(CCTalkMessageCompat());
 console.log(object2Array({
     src: 1,

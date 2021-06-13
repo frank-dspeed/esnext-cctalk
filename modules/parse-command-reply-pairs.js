@@ -5,7 +5,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
  * const port = new SerialPort('/dev/ttyUSB0')
  * @returns 
  */
- export const CommandPairParser = () => {
+ export const OnCCTalkCommandPairResponse = () => {
 
     /** @type {*} */
     let currentProcessingPromise = null;
@@ -21,7 +21,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
      * @param {*} message 
      * @returns 
      */
-     const onCCTalkResponse = message => {
+     const onCCTalkCommandPairResponse = message => {
         if(currentProcessingPromise) {
             //Debug('PROMISE')(currentProcessingPromise)
             const messageAsUint8Array = Uint8Array.from(message);  
@@ -111,7 +111,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
     }
     
     return {
-        onCCTalkResponse,
+        onCCTalkCommandPairResponse,
         CreateCCTalkRequest
     }
 
