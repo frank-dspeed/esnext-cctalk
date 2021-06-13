@@ -1,5 +1,5 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
-import { OnCompletePayload } from './cctalk-parser.js';
+import { OnPayloadComplet } from './on-payload-complet.js';
 import { getCreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
 import { Transform } from 'stream';
 import Debug from '../modules/debug.js';
@@ -19,7 +19,7 @@ export const NodeCCTalkConnection = () =>{
      */
 }
 export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
-    const parser = OnCompletePayload(maxDelayBetweenBytesMs);
+    const parser = OnPayloadComplet(maxDelayBetweenBytesMs);
     /**
     * Parse the CCTalk protocol
     * @extends Transform
@@ -47,7 +47,7 @@ export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
 }
 
 export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
-    const parser = OnCompletePayload(maxDelayBetweenBytesMs);
+    const parser = OnPayloadComplet(maxDelayBetweenBytesMs);
     /*
     const CCTalkPayload = parser.buffers.pop();
     if (CCTalkPayload) {

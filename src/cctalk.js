@@ -1,5 +1,5 @@
 import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
-import { OnCompletePayload } from './cctalk-parser.js';
+import { OnPayloadComplet } from './on-payload-complet.js';
 
 /** @param {*} message */
 const debug = message => 

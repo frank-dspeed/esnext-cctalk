@@ -1,7 +1,7 @@
 import '../src/types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import Debug from '../modules/debug.js';
 
-import { OnCompletePayload } from '../src/cctalk-parser.js';
+import { OnCompletePayload } from '../src/on-payload-complet.js';
 import { OnCCTalkCommandPairResponse } from '../modules/parse-command-reply-pairs.js'
 
 import { crc16xmodemJs } from '../modules/crc/16-xmodemjs.js'

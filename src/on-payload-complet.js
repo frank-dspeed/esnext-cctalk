@@ -23,22 +23,22 @@ const checkDelayAndResetPreservedDataBufferIfneeded = onCompletPayloadInstance =
 /**
  * This parser makes sure that only valid CCTalkMessages/Payloads
  * get emitted it drops false messages as per CCTalk Specs
- * @function [OnCompletePayload]
+ * @function [OnPayloadComplet]
  * @param {number} maxDelayBetweenBytesMs 
  * @returns {onCompletPayloadInstance}
  */
-export const OnCompletePayload = ( maxDelayBetweenBytesMs = 50 ) => {
+export const OnPayloadComplet = ( maxDelayBetweenBytesMs = 50 ) => {
 
   const onCompletPayloadInstance = { 
       maxDelayBetweenBytesMs,
-      /** @type {OnCompletePayloadTransformFn} */
+      /** @type {OnPayloadCompletTransformFn} */
       _transform: (buffer , destination ) =>  { destination(buffer); },
       preservedDataBuffer: new Uint8Array(0), 
       lastByteFetchTime: 0,
   }
 
   
-  /** @type {OnCompletePayloadTransformFn} */    
+  /** @type {OnPayloadCompletTransformFn} */    
   onCompletPayloadInstance._transform = ( buffer, destination ) => {
     
     checkDelayAndResetPreservedDataBufferIfneeded(onCompletPayloadInstance)

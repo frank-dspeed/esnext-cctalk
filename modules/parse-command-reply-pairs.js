@@ -35,7 +35,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
 
                 // @ts-ignore
                 tasks.forEach( p =>{
-                    Debug('onCCTalkCommandPairResponse/completPair')(p.task)          
+                    Debug('onCCTalkCommandPairResponse/completPair')(p.task.input)          
                 })
                 const messageObject = getDestHeaderDataFromPayloadAsObject(messageAsUint8Array); 
                 const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0

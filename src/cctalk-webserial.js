@@ -1,14 +1,14 @@
 // https://googlechromelabs.github.io/serial-terminal/
 // https://github.com/GoogleChromeLabs/serial-terminal/tree/gh-pages
 import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
-import { OnCompletePayload } from './cctalk-parser.js';
+import { OnPayloadComplet } from './on-payload-complet.js';
 /**
  * 
  * @param {number} maxDelayBetweenBytesMs 
  * @returns 
  */
  export const WebStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
-    const parser = OnCompletePayload(maxDelayBetweenBytesMs);
+    const parser = OnPayloadComplet(maxDelayBetweenBytesMs);
     /** @type {TransformerTransformCallback<Uint8Array,TransformStreamDefaultController>}  */
     const transform = async (chunk, controller) => {
         parser._transform(chunk, controller.enqueue);
@@ -22,7 +22,7 @@ import { OnCompletePayload } from './cctalk-parser.js';
     
     return transform;    
 }
-const getOnCompletePayloadTransformStream = () => 
+const getOnPayloadCompletTransformStream = () => 
     new TransformStream({ 
         start() { /** required. */ }, 
         transform: WebStreamParser() 
@@ -61,7 +61,7 @@ const init = () => {
                     // Allow the serial port to be closed later.
                     writer.releaseLock();
 
-                    const cctalkDecoder = getOnCompletePayloadTransformStream();
+                    const cctalkDecoder = getOnPayloadCompletTransformStream();
                     const closedReadableStream = port.readable.pipeTo(cctalkDecoder.writable);
                     const reader = cctalkDecoder.readable.getReader();
                 
