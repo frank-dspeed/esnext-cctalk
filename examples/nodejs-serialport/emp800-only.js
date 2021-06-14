@@ -2,7 +2,7 @@
 // replace ../../ with esnext-cctalk
 // Utils
 import { delayResolvePromise } from '../../modules/promises-delayed.js';
-const wait200ms = async () => delayResolvePromise(200);
+const wait200ms = () => delayResolvePromise(200);
 
 // Essentials
 import { getConnection } from '../../src/cctalk-node.js';
@@ -27,7 +27,7 @@ await wait200ms();
 // 231 modifyInhibit Accept
 await coinAcceptor(231, Uint8Array.from([255, 1]));
 await wait200ms();
-// 228 modifyMasterInhibit Uint8Array.from([0xFF])
+// 228 modifyMasterInhibit
 await coinAcceptor(228, Uint8Array.from([0xFF]));
 await wait200ms();
 
