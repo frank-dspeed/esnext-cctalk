@@ -1,7 +1,6 @@
 // if you install esnext-cctalk from github
 // replace ../../ with esnext-cctalk
 // Utils
-import { getMessage } from '../../modules/payload-helpers.js'
 import { delayResolvePromise } from '../../modules/promises-delayed.js';
 const wait200ms = () => delayResolvePromise(200);
 
@@ -20,9 +19,6 @@ const port = new SerialPort('/dev/ttyUSB0', {
 // port can be only of type SerialPort in this implementation
 const { getDeviceWriter } = getConnection(port);
 const coinAcceptor = getDeviceWriter( 2, 'crc8' );
-
-
-
 
 await wait200ms();
 // 254 simplePoll
@@ -44,7 +40,7 @@ const readBufferedCredit = async () => {
         // await coinAcceptor(header, [data]) // => returns the response if it got a valid one
         console.log({ eventResponse })
         await wait200ms;
-        return readBufferedCredit;
+        return readBufferedCredit();
     }).catch(e=>wait200ms);
 
 }
