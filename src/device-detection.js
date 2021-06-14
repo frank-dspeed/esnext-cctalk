@@ -128,16 +128,4 @@ export const detectDevices = async emit => {
     }
 } 
 
-export default detectDevices
-//detectDevices(console.log)
-
-const stableLoopAfterDetection = () => {
-    //import getDevices from 'esnext-cctalk/src/device-detection.js';
-    //import { delayResolvePromise } from 'esnext-cctalk/modules/promises-delayed.js';
-    
-    const tryPoll = write => delayResolvePromise(2000).then(()=>write(254).catch(()=>tryPoll(write)));
-    getDevices(async dev=>{
-        console.log('Found', { dev })    
-        await tryPoll(dev.write).then(x=>console.log('connected:',x, { dev }));
-    });
-}
+export default detectDevices;

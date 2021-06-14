@@ -23,21 +23,3 @@ console.log(crc16xmodem.sign(Uint8Array.from([40,0,1,254,0])))
 
 
 console.log('##########')
-
-console.log(object2Array({
-    src: 1,
-    dest: 0,
-    data: new Uint8Array([]),
-    command: 254,
-    crcType: 8
-}))
-
-
-console.log(object2Array({
-    src: 1,
-    dest: 2,
-    data: new Uint8Array([]),
-    command: 254,
-    crcType: 8
-}))
-*/

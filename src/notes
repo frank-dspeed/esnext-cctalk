@@ -1,0 +1,35 @@
+First event, coin possition 1, sorter path 2 accepted
+Coin s. respond: [01] [0B] [02] [00] 
+ [01]
+ [01][02]
+ [00][00]
+ [00][00]
+ [00][00]
+ [00][00] 
+ [EE]
+ 
+Second event, coin possition 2, sorter path 1 accepted
+Coin s. respond: [01] [0B] [02] [00] 
+ [02][02][01][ 01][02][00][00][00][00][00][00] [EA]
+ 
+
+ Third event, coin rejected due to master inhibit active 
+ Coin s. respond: [01] [0B] [02] [00] 
+    [03]
+    [00][02]
+    [02][01]
+    [01][02]
+    [00][00]
+    [00][00] 
+    [E7]
+
+
+Forth event, coin possition 4 inhibited and rejected Coin s. respond: [01] [0B] [02] [00] 
+[04]
+[00][83]
+[00][02]
+[02][01]
+[01][02]
+[00][00]
+ [63]
+ 

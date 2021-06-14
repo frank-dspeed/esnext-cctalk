@@ -6,7 +6,7 @@ keywords: CCTalk, Taiko, Pub7, EMP800, serialport, Web Serial Api, Billyone, Nv9
 ## Supported Devices
 - Coin Acceptors
   - WHM: EMP800
-  - Alberici: AL55
+  - Alberici: AL55/ AL06V
   - Comestero: RM5
 - Bill Reader Banknote Reader 
   - Taiko: Pub 7
@@ -15,7 +15,6 @@ keywords: CCTalk, Taiko, Pub7, EMP800, serialport, Web Serial Api, Billyone, Nv9
   - Nv10
 - Stacker exchange and other support units
   - Comming soon.
-
 
 ## Funding
 This is a private Project that i do love to maintain as I use it in many of my own Projects and i try to backport all my Production knowleg to this project for free.
@@ -33,6 +32,8 @@ in CCTalk we work with 0x10 === 256 === val << 8. As the Protocol works with Int
 ## Device Specification
 Bus 001 Device 006: ID 10c4:ea60 Silicon Labs CP210x UART Bridge
 {usbProductId: 60000, usbVendorId: 4292}
+
+if you use a usb adapter you need to use the cctalk/src/device-detection.js to get information.
 
 ```js
 const ExampleDeviceType = () => ({
@@ -170,11 +171,3 @@ await connection.parserWrite(testEvents(0,Uint8Array.from([ 17,
 */
 
 ```
-
-
-
-## Todo
-Change wording to cctalkRequest, ccTalkResponse
-
-## Credits
-This Site helped me a lot https://cctalktutorial.wordpress.com/
