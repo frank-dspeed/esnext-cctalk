@@ -1,5 +1,16 @@
 import { errorUint8 } from '../modules/error-uint8.js';
+import { crc8 } from '../modules/crc/8.js';
+import { crc16xmodemJs } from '../modules/crc/16-xmodemjs.js';
+import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
+//import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
 
+/** @typedef {Uint8Array} unsignedButCompletPayload*/
+
+export const crcMethods = {
+    crc16xmodem,
+    crc16xmodemJs,
+    crc8
+}
 
 /**
  * 
@@ -151,11 +162,27 @@ export const object2Array = messageObj => {
  * call({ src, dest, crcSigningMethod })(header,data)
  * @param {*} dest { src, dest, crcSigningMethod }
  * @param {*} src { src, dest, crcSigningMethod }
+ * @param {string} crcMethodName crc16xmodem, crc16xmodemJs, crc8
+ * @returns 
+ */
+ export const getCreatePayloadUsingCrcMethodName = (dest, src, crcMethodName) =>
+    // @ts-ignore
+    CreatePayload(dest, src, crcMethods[crcMethodName].sign )
+
+/**
+ * call({ src, dest, crcSigningMethod })(header,data)
+ * @param {*} destAdr { src, dest, crcSigningMethod }
+ * @param {*} src { src, dest, crcSigningMethod }
  * @param {*} crcSigningMethod crc16xmodem, crc16xmodemJs, crc8
  * @returns 
  */
- export const CreatePayload = (dest, src, crcSigningMethod) => {
-    
+ export const CreatePayload = (destAdr, src, crcSigningMethod) => {
+    if (typeof destAdr !== 'number') {
+        throw new Error(`TypeError destAdr needs to be number got: ${typeof destAdr}`)
+    }
+    if (typeof src !== 'number') {
+        throw new Error(`TypeError methodName needs to be string got: ${typeof src}`)
+    }
     /**
      * 
      * @param {*} header 
@@ -164,7 +191,7 @@ export const object2Array = messageObj => {
      */
     const createPayload = ( header, data = new Uint8Array(0) ) => {
         const CCTalkPayload = Uint8Array.from(
-            [dest, data.length, src, header, ...data,0]
+            [destAdr, data.length, src, header, ...data,0]
         );
         
         return crcSigningMethod(CCTalkPayload);

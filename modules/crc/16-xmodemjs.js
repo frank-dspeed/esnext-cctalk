@@ -1,7 +1,7 @@
 import './types.js';
 import Debug from '../debug.js';
 import { errorUint8 } from '../error-uint8.js';
-import { getChecksumFromPayloadAsString } from './16-shared-modules.js';
+
 
 /** start https://unpkg.com/browse/crc@3.8.0/crc16xmodem.js */  
 /**
@@ -69,8 +69,8 @@ export const crc16xmodemJs = {
      */
     verify(payloadToVerify) {
         errorUint8(payloadToVerify);
-        const verificationPayloadAsString = crc16xmodemJs.sign(payloadToVerify).join('');
-        const payloadToVerifyAsString = payloadToVerify.join('');
+        const verificationPayloadAsString = crc16xmodemJs.sign(payloadToVerify).toString();
+        const payloadToVerifyAsString = payloadToVerify.toString();
        
         Debug('esnext-cctalk::crc')({ verificationPayloadAsString, payloadToVerifyAsString, methodName: 'crc16xmodemJs' });
         return (payloadToVerifyAsString === verificationPayloadAsString);

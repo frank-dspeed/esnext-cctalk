@@ -31,6 +31,7 @@ await wait200ms();
 await coinAcceptor(228, Uint8Array.from([0xFF]));
 await wait200ms();
 
+// @ts-ignore
 const readBufferedCredit = async () => {
     // 229 readBufferedCredit
     return await coinAcceptor(229).then(async eventResponse=>{

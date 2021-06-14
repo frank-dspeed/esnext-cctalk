@@ -1,8 +1,8 @@
-import { getCreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
+import { CreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
 import Debug from '../modules/debug.js';
 
 // Talk from the BUS to the billAcceptor for example
-const sendCommand = getCreatePayloadUsingCrcMethodName(40,0,'crc16xmodemJs')
+const sendCommand = CreatePayloadUsingCrcMethodName(40,0,'crc16xmodemJs')
 // in general you will configure sendCommand per target to talk to
 
 //Device Logic

@@ -1,5 +1,4 @@
 import { crc16xmodem as crc16xmodemImpl } from 'node-crc';
-import { getChecksumFromPayloadAsString } from './16-shared-modules.js';
 import Debug from '../debug.js';
 import { errorUint8 } from '../error-uint8.js';
 
@@ -24,16 +23,14 @@ export const crc16xmodem = {
         return signedPayload;
     },
     /**
-     * @param {Uint8Array} signedPayload
+     * @param {Uint8Array} payloadToVerify
      */
-    verify(signedPayload) {
-        errorUint8(signedPayload);
-        const verificationPayload = crc16xmodem.sign(signedPayload);
-        
-        const expectedChecksum = getChecksumFromPayloadAsString(verificationPayload);
-        const checksum = getChecksumFromPayloadAsString(signedPayload);
+    verify(payloadToVerify) {
+        errorUint8(payloadToVerify);
+        const verificationPayloadAsString = crc16xmodem.sign(payloadToVerify).toString();
+        const payloadToVerifyAsString = payloadToVerify.toString();
        
-        Debug('esnext-cctalk::crc')({ checksum, expectedChecksum });
-        return (checksum === expectedChecksum);
+        Debug('esnext-cctalk::crc')({ verificationPayloadAsString, payloadToVerifyAsString, methodName: 'crc16xmodemJs' });
+        return (payloadToVerifyAsString === verificationPayloadAsString);
     }
 }

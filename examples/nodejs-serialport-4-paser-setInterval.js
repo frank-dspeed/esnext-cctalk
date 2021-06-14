@@ -78,13 +78,17 @@ setInterval(async () => {
   {
     billReader(pub7.commands.readBufferedBill)
     //.then(readBufferedCreditEvents)
-    .then( coin => {
-      if (coin) {
-        Debug('esnext-cctalk/billreader')({ coin })
-        return
+    
+    .then( 
+      /** @param {number} coin */
+      coin => {
+        if (coin) {
+          Debug('esnext-cctalk/billreader')({ coin })
+          return
+        }
+        // Nothing bad happened no one did throw something in
       }
-      // Nothing bad happened no one did throw something in
-    });
+    );
   }
   
   // Coindetector

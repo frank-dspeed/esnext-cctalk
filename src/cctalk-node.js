@@ -1,10 +1,11 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { OnPayloadComplet } from './on-payload-complet.js';
-import { getCreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
+import { CreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
+import { OnCCTalkCommandPairResponse } from '../modules/parse-command-reply-pairs.js'
+
 import { Transform } from 'stream';
 import Debug from '../modules/debug.js';
-export const timeoutPromise = () => new Promise((resolve, reject)=>setTimeout(()=>reject('timeout'),50))
-import { OnCCTalkCommandPairResponse } from '../modules/parse-command-reply-pairs.js'
+
 /**
  * 
  * Serial communication was derivated from RS232 standard.
@@ -119,7 +120,7 @@ export const getConnection = port => {
             throw new Error(`TypeError methodName needs to be string got: ${typeof methodName}`)
         }
 
-        const createPayload = getCreatePayloadUsingCrcMethodName(destAdr,1,methodName);
+        const createPayload = CreatePayloadUsingCrcMethodName(destAdr,1,methodName);
         Debug('esnext-cctalk/node/getDeviceWriter/info')({ destAdr, src: 1, methodName })
         /** 
          * @param {number} command

@@ -15,56 +15,23 @@ export const crcMethods = {
 
 /**
  * call({ src, dest, crcSigningMethod })(header,data)
- * @param {*} dest { src, dest, crcSigningMethod }
- * @param {*} src { src, dest, crcSigningMethod }
- * @param {string} crcMethodName crc16xmodem, crc16xmodemJs, crc8
- * @returns 
- */
- export const getCreatePayloadUsingCrcMethodName = (dest, src, crcMethodName) => {
-    
-    /**
-     * 
-     * @param {number} header 
-     * @param {Uint8Array} [data]
-     * @returns 
-     */
-    const createPayload = ( header, data = new Uint8Array(0) ) => {
-        const CCTalkPayload = Uint8Array.from(
-            [dest, data.length, src, header, ...data,0]
-        );
-        // @ts-ignore
-        return crcMethods[crcMethodName].sign( CCTalkPayload );
-    }
-    return createPayload;
-}
-
-/**
- * call({ src, dest, crcSigningMethod })(header,data)
  * is aliad for  crcMethods[crcMethodName].sign( Uint8Array[40,....] );
- * @param {*} dest { src, dest, crcSigningMethod }
+ * @param {*} destAdr { src, dest, crcSigningMethod }
  * @param {*} src { src, dest, crcSigningMethod }
  * @param {string} crcMethodName crc16xmodem, crc16xmodemJs, crc8
  * @returns 
  */
- export const CreatePayloadUsingCrcMethodName = (dest, src, crcMethodName) => {
-    
-    /**
-     * 
-     * @param {number} header 
-     * @param {Uint8Array} [data]
-     * @returns 
-     */
-    const createPayload = ( header, data = new Uint8Array(0) ) => {
-        const CCTalkPayload = Uint8Array.from(
-            [dest, data.length, src, header, ...data,0]
-        );
-        // @ts-ignore
-        return crcMethods[crcMethodName].sign( CCTalkPayload );
+ export const CreatePayloadUsingCrcMethodName = (destAdr, src, crcMethodName) => {
+    if (typeof destAdr !== 'number') {
+        throw new Error(`TypeError destAdr needs to be number got: ${typeof destAdr}`)
     }
-    return createPayload;
-}
-
-
+    if (typeof crcMethodName !== 'string') {
+        throw new Error(`TypeError crcMethodName needs to be string got: ${typeof crcMethodName}`)
+    }
+    // @ts-ignore
+    return CreatePayload(dest, src, crcMethods[crcMethodName].sign )
+ }
+    
 /**
  * 
  * @param {*} signedPayload
