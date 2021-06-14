@@ -2,12 +2,12 @@
 // replace ../../ with esnext-cctalk
 // Utils
 import { delayResolvePromise } from '../../modules/promises-delayed.js';
-const wait200ms = () => delayResolvePromise(200);
+const wait200ms = async () => delayResolvePromise(200);
 
 // Essentials
 import { getConnection } from '../../src/cctalk-node.js';
 import SerialPort from 'serialport';
-import { write } from 'fs';
+
 //const SerialPort = require('serialport')
 const port = new SerialPort('/dev/ttyUSB0', {
     baudRate: 9600,
@@ -39,9 +39,9 @@ const readBufferedCredit = async () => {
         // and maybe also send extra commands via
         // await coinAcceptor(header, [data]) // => returns the response if it got a valid one
         console.log({ eventResponse })
-        await wait200ms;
+        await wait200ms();
         return readBufferedCredit();
-    }).catch(e=>wait200ms);
+    }).catch(e=>wait200ms());
 
 }
 

@@ -1,4 +1,4 @@
-import './types.js'; //Do not treeshake tthat if you want a dev build for production also strip comments
+import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { OnPayloadComplet } from './on-payload-complet.js';
 
 /** @param {*} message */

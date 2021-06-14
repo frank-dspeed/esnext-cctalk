@@ -206,3 +206,30 @@ export const CCTalkMessageCompat = (
 
 };
 
+const methods = {
+    // returns the first CCTalkToken in the payload
+    getNextToken() {
+        //isMoreThen2Bytes
+            //isPossibleCCTalkToken payload => 5 + data.length 
+                //hasChecksums
+                    //isVerofyedCCTalkToken
+        //!isMoreThen2Bytes preservedDataBuffer
+            //!isPossibleCCTalkToken slice data out next
+                //!hasChecksums slice data out next
+                    //!isVerifyedCCTalkTOken slice data out next
+
+
+    }
+}
+
+// isHelper
+const isHelper = {
+    isNotOlderThen50ms() {},
+    isWritePromiseReply() {},
+    isSamePayload() {},
+    isMoreThen2Bytes() {},
+    isPossibleCCTalkToken() {}, // is Complet
+    hasChecksums() {},
+    isVerifyedCCTalkToken() {},
+    isEventMessage() {},
+}
