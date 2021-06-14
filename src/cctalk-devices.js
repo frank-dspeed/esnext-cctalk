@@ -641,7 +641,7 @@ export const taikoPub7 = () => {
               acceptanceMask = 0xFFFF;
             }
             // Experiment replaced 255 255 with 255 1 === all?
-            // return sendCommand('modifyInhibitStatus', Uint8Array.from([255,1]))
+            // return sendCommand('modifyInhibitStatus', Uint8Array.from([255, 1]))
           },
           enableAcceptance(){
             //228  001
