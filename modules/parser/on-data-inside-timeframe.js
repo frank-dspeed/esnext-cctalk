@@ -23,6 +23,22 @@ const checkDelayAndResetPreservedDataBufferIfneeded = onDataInsideTimeframeInsta
   }
 }
 
+const IsInsideTimeFrame = ( maxDelayBetweenBytesMs = 50 ) => {
+  
+  let lastTime = 0;
+  
+  return () => {
+    if (maxDelayBetweenBytesMs > 0) {
+      const now = Date.now();
+      const delayBetweenLastTime = now - lastTime;
+      const isInsideTimeFrame = delayBetweenLastTime <= maxDelayBetweenBytesMs
+      Debug('isInsideTimeFrame')({ delayBetweenLastTime, isInsideTimeFrame })
+      return isInsideTimeFrame
+    }
+  }
+}
+
+
 /**
  * This parser makes sure that only valid CCTalkMessages/Payloads
  * get emitted it drops false messages as per CCTalk Specs
