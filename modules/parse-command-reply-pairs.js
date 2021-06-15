@@ -67,7 +67,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
         } 
         // we got no promise but we got data we need to error and exit  
-        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message }) 
+        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message: message.toString() }) 
      }
 
     // @ts-ignore
