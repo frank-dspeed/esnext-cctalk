@@ -29,7 +29,7 @@ export const crcMethods = {
         throw new Error(`TypeError crcMethodName needs to be string got: ${typeof crcMethodName}`)
     }
     // @ts-ignore
-    return CreatePayload(dest, src, crcMethods[crcMethodName].sign )
+    return CreatePayload(destAdr, src, crcMethods[crcMethodName].sign )
  }
     
 /**
