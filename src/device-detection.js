@@ -57,11 +57,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     await delayResolvePromise(200)
     try {
-        
-        const c = await write(254)
-        console.log(c)
-        process.exit()
-        
+        const = await write(254)        
         const result = [
             await write(244).then(readTextMessage),
             await write(245).then(readTextMessage),
@@ -145,11 +141,11 @@ const findDevices2 = async function* () {
 };
 
 const crcMethods = [ 'crc8', 'crc16xmodem' ]
-const findDevices = function* () {    
+const findDevices = function* async () {    
     for (const crcMethodName of crcMethods) {
         for (const [name, destAdr] of Object.entries(deviceTypes)) {
             try {
-                let found = testAdr(destAdr, crcMethodName);
+                let found = await testAdr(destAdr, crcMethodName);
                 
                 yield found
             } catch (e) {
