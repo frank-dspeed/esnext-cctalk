@@ -92,7 +92,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                     process.exit()
                 }
             }
-    
+            return device;
             
         }
 
@@ -114,10 +114,10 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                     process.exit()
                 }
             }
-            
+            return device;    
         }
 
-        return device;
+        
 
     } catch (e) {
         // Nothing found 
