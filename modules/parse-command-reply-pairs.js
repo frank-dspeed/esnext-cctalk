@@ -126,7 +126,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                     const err = 'timeout250ms'
                             
                     // @ts-ignore
-                    //command.reject({ err, input })
+                    defferedcommandPromise.reject({ err, input })
                     Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, defferedcommandPromise })
                     removeAllTasksByInput(input)
                     throw new Error(JSON.stringify({ err, input, defferedcommandPromise }))
