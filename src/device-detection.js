@@ -158,6 +158,10 @@ const findDevices = async function* () {
 // @ts-ignore
 export const detectDevices = async emit => {
     const foundDevices = []
+    const d = await findDevices().next()
+    console.log({ d })
+    process.exit()
+    /*
     for await (let device of findDevices()) {
         // @ts-ignore
         if (device) {
@@ -167,6 +171,7 @@ export const detectDevices = async emit => {
             foundDevices.push(device);
         }
     }
+    */
     await delayResolvePromise(500)
     if (emit) {
         // @ts-ignore
