@@ -22,9 +22,10 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
      * @returns 
      */
      const onCCTalkCommandPairResponse = message => {
+        const messageAsUint8Array = Uint8Array.from(message);
         if(task) {
             //Debug('PROMISE')(task)
-            const messageAsUint8Array = Uint8Array.from(message);  
+
             // Note task stays the same if less then 2 commands got send
             tasks.push({ task, messageAsUint8Array })
             Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
@@ -66,7 +67,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
         } 
         // we got no promise but we got data we need to error and exit  
-        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message: message.toString(16) }) 
+        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array }) 
         // is most time then our own message
      }
 
