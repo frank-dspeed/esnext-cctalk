@@ -16,7 +16,12 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
     /** type {Promise<Uint8Array>[]} */
     /** @type {*} */
     const tasks = [];
-
+    const startTimeout = () => setTimeout(() => {
+        task.reject({ 
+            err: 'timeoutAfter650ms',
+            task
+        })
+    }, 650)
     /**
      * This Parser Tracks state of read and write events
      * and asserts the replys to the writePromises.
@@ -90,12 +95,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 if(err) { task.reject(err) } 
             });
 
-            setTimeout(() => {
-                task.reject({ 
-                    err: 'timeoutAfter650ms',
-                    task
-                })
-            }, 650)
+            
             /*
             // @ts-ignore
             const writePromise = Promise.race([
