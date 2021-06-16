@@ -63,15 +63,60 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             await write(246).then(readTextMessage),
         ];
         const [ productCode, equipmentCategoryId, manufacturerId ] = result;
-
-        return {
+        const device = {
             write,
             productCode, 
             equipmentCategoryId, 
             manufacturerId,
             crcMethodName,
             destAdr,
+            channels: ['rejected']
         }
+
+        console.log('xxxxxC',isCoinAcceptor(device))
+        console.log('xxxxxB',isBillValidator(device))
+        return device
+        if (isCoinAcceptor(device)) {
+            // Read Channels
+            const possibleChannels = Array
+                .from({length: 12}, (_, i) => i + 1)
+            
+            const coindAcceptorChannels = ['rejected'];
+            
+            for (const channel of possibleChannels) {
+                try {
+                    await delayResolvePromise(200)
+                    device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
+                    await delayResolvePromise(200)
+                } catch(e) {
+                    //timeouts if no channel exists
+                }
+            }
+    
+            
+        }
+
+        if (isBillValidator(device)) {
+            // Read Channels
+            const possibleChannels = Array
+                .from({length: 12}, (_, i) => i + 1)
+            
+            const billValidatorChannels = ['rejected'];
+            
+            for (const channel of possibleChannels) {
+                try {
+                    await delayResolvePromise(200)
+                    device.channels..push( await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage) );
+                    await delayResolvePromise(200)
+                } catch(e) {
+                    //timeouts if no channel exists
+                }
+            }
+    
+            device.channels = billValidatorChannels;
+        }
+
+        return device;
 
     } catch (e) {
         // Nothing found 
@@ -115,45 +160,7 @@ export const detectDevices = async emit => {
     for await (let device of findDevices()) {
         // @ts-ignore
         if (device) {
-            if (isCoinAcceptor(device)) {
-                // Read Channels
-                const possibleChannels = Array
-                    .from({length: 12}, (_, i) => i + 1)
-                
-                const coindAcceptorChannels = ['rejected'];
-                
-                for (const channel of possibleChannels) {
-                    try {
-                        await delayResolvePromise(200)
-                        coindAcceptorChannels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
-                        await delayResolvePromise(200)
-                    } catch(e) {
-                        //timeouts if no channel exists
-                    }
-                }
-        
-                device.channels = coindAcceptorChannels;
-            }
-
-            if (isBillValidator(device)) {
-                // Read Channels
-                const possibleChannels = Array
-                    .from({length: 12}, (_, i) => i + 1)
-                
-                const billValidatorChannels = ['rejected'];
-                
-                for (const channel of possibleChannels) {
-                    try {
-                        await delayResolvePromise(200)
-                        billValidatorChannels.push( await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage) );
-                        await delayResolvePromise(200)
-                    } catch(e) {
-                        //timeouts if no channel exists
-                    }
-                }
-        
-                device.channels = billValidatorChannels;
-            }
+            
             // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
             foundDevices.push(device);
