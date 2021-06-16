@@ -71,7 +71,6 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
     } catch (e) {
         // Nothing found 
-
         console.log('we got a timeout nothing special', {e})
     }
     
@@ -123,17 +122,20 @@ const findDevices = async function* () {
 
 // @ts-ignore
 export const detectDevices = async emit => {
+    const foundDevices = []
     for await (let device of findDevices()) {
         // @ts-ignore
         if (device) {
             // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
-            if (emit) {
-                // @ts-ignore
-                emit(device)
-            }
+            foundDevices.push(device);
         }
     }
+    if (emit) {
+        // @ts-ignore
+        emit(foundDevices)
+    }
+    return foundDevices
 } 
 
 export default detectDevices;
