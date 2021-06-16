@@ -10,7 +10,7 @@ export const createDefferedPromise = id => {
     
     defferedPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
-            defferedPromise, {
+            defferedHandlers, {
                 resolve(value) {
                     Debug('resolve:')({ value, id })                    
                     if (defferedPromise.isPending) {
@@ -41,12 +41,12 @@ export const createDefferedPromise = id => {
     //const queryAbleDefferedPromise = createQuerablePromise(
         //defferedPromise
     //);
-    //Object.assign(
+    Object.assign(
         //defferedPromise,
         //queryAbleDefferedPromise, 
-        //defferedHandlers, 
+        defferedHandlers, 
         //{ id, createdAt: Date.now() }
-    //);
+    );
     return defferedPromise;
 }
 
