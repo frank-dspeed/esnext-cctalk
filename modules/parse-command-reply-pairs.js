@@ -17,6 +17,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
     /** @type {*} */
     const tasks = [];
     const startTimeout = () => setTimeout(() => {
+        writeLock = false
         task.reject({ 
             err: 'timeoutAfter650ms',
             task
