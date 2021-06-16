@@ -27,44 +27,27 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             //Debug('PROMISE')(task)
 
             // Note task stays the same if less then 2 commands got send
-            tasks.push({ task, messageAsUint8Array })
+
             Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
-            const completPair = tasks.length === 2;
+
             
             //Debug('tasks')({ tasks, messageAsUint8Array})
-            if (completPair) {
+
+
+            // @ts-ignore
+            const messageObject = getDestHeaderDataFromPayloadAsObject(messageAsUint8Array); 
+            const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
+
+            if(isForMasterOrBus) {       
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
 
                 // @ts-ignore
-                tasks.forEach( p =>{
-                    Debug('onCCTalkCommandPairResponse/completPair')(p.task.input)          
-                })
-                const messageObject = getDestHeaderDataFromPayloadAsObject(messageAsUint8Array); 
-                const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
-
-                if(isForMasterOrBus) {       
-                    task = null;
-                    Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
-                    const processedPromise = tasks.pop();
-                    const currentPromise = tasks.pop();
-                    // @ts-ignore
-                    processedPromise.resolve(messageAsUint8Array);
-                    currentPromise.resolve(messageAsUint8Array);
-                    writeLock = false;
-                    return 
-                }
-                
-                
-                // throw error here is something wrong.
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')('!completPair')
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/error')({ task, messageAsUint8Array })
-                const totalPromises = tasks.length;
-                console.log('XXXXX', { tasks, totalPromises })
-                console.log('XXXXX', { totalPromises })
-                tasks.splice(0,2);
+                task.resolve(messageAsUint8Array)
                 writeLock = false;
-                //task = null;
-                throw new Error('Maybe Something Wrong')
+                return 
             }
+            
+
         } 
         // we got no promise but we got data we need to error and exit  
         Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array }) 
@@ -76,8 +59,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         // cctalkRequest
         /** @param {Uint8Array} input */
         async input => {
-            if (writeLock && task) {
-                console.log({ task })
+            if (writeLock && task && task.isPending) {
+                // Only Apply writeLock if isPending
                 return Promise.reject('writeLock')
             }
             
