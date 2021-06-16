@@ -32,19 +32,21 @@ export const createDefferedPromise = id => {
                 isPending: true,
                 isRejected :false,
                 isFulfilled :false,
+                id, 
+                createdAt: Date.now(),
             }
         ) 
     );
     
-    const queryAbleDefferedPromise = createQuerablePromise(
-        defferedPromise
-    );
-    Object.assign(
-        defferedPromise,
+    //const queryAbleDefferedPromise = createQuerablePromise(
+        //defferedPromise
+    //);
+    //Object.assign(
+        //defferedPromise,
         //queryAbleDefferedPromise, 
-        defferedHandlers, 
-        { id, createdAt: Date.now() }
-    );
+        //defferedHandlers, 
+        //{ id, createdAt: Date.now() }
+    //);
     return defferedPromise;
 }
 
