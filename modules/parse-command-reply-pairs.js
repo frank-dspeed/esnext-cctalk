@@ -15,7 +15,6 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
     /** @type {*} */
     const tasks = [];
 
-    
     /**
      * This Parser Tracks state of read and write events
      * and asserts the replys to the writePromises.
@@ -67,7 +66,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
         } 
         // we got no promise but we got data we need to error and exit  
-        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message: message.toString(16) }) 
+        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message }) 
      }
 
     // @ts-ignore
@@ -75,58 +74,69 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
         // cctalkRequest
         /** @param {Uint8Array} input */
         async input => {
-            
             if (writeLock) {
                 return Promise.reject('writeLock')
             }
+            
+            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({input})
+            // @ts-ignore
+            
+
+
+
+            
+            
             // @ts-ignore
             const command = {}
             const commandPromise = new Promise((resolve, reject) => {
                 Object.assign(command, { resolve, reject, input })
             });
+            
             command.commandPromise = commandPromise;
-            const promise = Promise.race([
-                commandPromise,
-                new Promise((resolve) => 
-                    // @ts-ignore
-                    setTimeout(() => { 
-                        // find the promise in current
-                        // @ts-ignore
-                        tasks.forEach ( (task, idx )=> {
-                            if (task.task.input === input) {
-                                tasks.splice(idx, 1);
-                                writeLock = false;
-                            }
-                        } )                        
-                        // @ts-ignore
-                        resolve(Promise.reject(`timeout: ${command.input}`));
-                    }, 200))
-            ]).catch( err => {
-                Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
-                throw err;
-            });
-            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({input})
-            Promise.resolve()
-                .then(() => {
-                    // @ts-ignore
-                    task = command;
-                    return new Promise((resolve,reject)=> {
-                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
-                            /** @type {Uint8Array} */ 
-                            input
-                        })
-                        // @ts-ignore
-                        portToWrite.write(command.input, err =>{
-                            if(err) { reject(err) } 
-                            resolve(true);    
-                        });
-                    });                
-                });
-
+            
             writeLock = true;
-            return promise;
+            // Try positioning the task assignment inside the writePromise could leed
+            // to a more solid result
+            task = command;
+            // @ts-ignore
+            const removeAllTasksByInput = input => {
+                // @ts-ignore
+                tasks.forEach ( (task, idx )=> {
+                    if (`${task.task.input}` === `${input}`) {
+                        tasks.splice(idx, 1);
+                        writeLock = false;
+                    }
+                } );
+            }
 
-    }
+            const writePromise = new Promise((resolve,reject)=> {
+                Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
+                    /** @type {Uint8Array} */ 
+                    input
+                })
+                // @ts-ignore
+                portToWrite.write(command.input, err =>{
+                    if(err) { reject(err) } 
+                    
+                    return Promise.race([
+                        commandPromise,
+                        new Promise((resolve) => 
+                            // @ts-ignore
+                            setTimeout(() => { 
+                                removeAllTasksByInput(input)
+                                // @ts-ignore
+                                resolve(Promise.reject(`timeout: ${command.input}`));
+                            }, 200))
+                    ]).catch( err => {
+                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
+                        throw err;
+                    });
+                });
+            })
+
+            return writePromise;
+
+        }
     
     return {
         onCCTalkCommandPairResponse,

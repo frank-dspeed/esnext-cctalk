@@ -171,3 +171,24 @@ await connection.parserWrite(testEvents(0,Uint8Array.from([ 17,
 */
 
 ```
+
+
+## Bitshift sheatcheat
+```js
+let my;
+my = 0xFF
+> my = 0xFF // this is the right formart base16
+255
+> my.toString(16)
+'ff'
+
+> my = 0xFFFF
+65535
+> my.toString(16)
+'ffff'
+
+> my >> 8 //Converts to 8bit base16 Clamped everything over 255 turns into how often 255 is in the number
+255
+
+String.fromCharCode( ...[65] ) // => A
+```

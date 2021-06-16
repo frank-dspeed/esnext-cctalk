@@ -27,46 +27,49 @@ const readTextMessage = payload => String.fromCharCode.apply(null, [...getMessag
  * @param {*} writer 
  * @returns 
  */
-const getDeviceInfo = async (writer) => {
-    const result = []
+export const getDeviceInfo = async (writer) => {
     try {
-        result.push( await writer(244).then(readTextMessage).catch(console.error) );
-        result.push( await writer(245).then(readTextMessage).catch(console.error)  );
-        result.push( await writer(246).then(readTextMessage).catch(console.error)  );
-        //console.log('RESULT:', { productCode, equipmentCategoryId, manufacturerId})
+        const result = [
+            await writer(244).then(readTextMessage).catch(console.error),
+            await writer(245).then(readTextMessage).catch(console.error),
+            await writer(246).then(readTextMessage).catch(console.error)
+        ];
+        const [ productCode, equipmentCategoryId, manufacturerId ] = result;
+        return { productCode, equipmentCategoryId, manufacturerId }    
     } catch(e) {
         console.error('SOMETHING WRONG')
     }
-    const [ productCode, equipmentCategoryId, manufacturerId ] = result;
-    return { productCode, equipmentCategoryId, manufacturerId }
+    
 }
 
 /**
  * 
- * @param {number} adr 
+ * @param {number} destAdr 
  * @param {string} crcMethodName
  * @returns 
  */
-const testAdr = async (adr, crcMethodName ) => {
+const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
-    const write = connection.getDeviceWriter(adr,crcMethodName);
+    const write = connection.getDeviceWriter( destAdr, crcMethodName );
     
-    /*
-    return writer(254).then( () => {
-        return getDeviceInfo( writer )
-    } );
-    */
+    return await write(254).then( async () => {
+        const result = [
+            await write(244).then(readTextMessage),
+            await write(245).then(readTextMessage),
+            await write(246).then(readTextMessage),
+        ];
+        const [ productCode, equipmentCategoryId, manufacturerId ] = result;
+
+        return {
+            write,
+            productCode, 
+            equipmentCategoryId, 
+            manufacturerId,
+            crcMethodName,
+            destAdr,
+        }
+    })
     
-    return Promise.allSettled([
-        write(254).then( () => {
-            return getDeviceInfo( write ).then( info =>({
-                write,
-                info,
-                crcMethodName,
-                adr,
-            }))
-        }),
-    ])
     
     
     if (adr === 2) {
@@ -88,8 +91,8 @@ const testAdr = async (adr, crcMethodName ) => {
     // request info with correct crc type
 }
 const deviceTypes = {
-    40: 'billReader',
-    2: 'coinAcceptor'
+    'Bill Validator': 40,
+    'Coin Acceptor': 2, 
 }
 
 const findDevices2 = async function* () {
@@ -100,16 +103,17 @@ const findDevices2 = async function* () {
     }
 };
 
+const crcMethods = [ 'crc8', 'crc16xmodem' ]
 const findDevices = async function* () {    
-    for (const [adr, name] of Object.entries(deviceTypes)) {
-        const adrAsInt = parseInt(adr)
-        let found = await testAdr(adrAsInt, 'crc16xmodem');
-        yield found
-    }
-    for (const [adr, name] of Object.entries(deviceTypes)) {
-        const adrAsInt = parseInt(adr)
-        let found = await testAdr(adrAsInt, 'crc8');
-        yield found
+    for (const crcMethodName of crcMethods) {
+        for (const [name, destAdr] of Object.entries(deviceTypes)) {
+            try {
+                let found = await testAdr(destAdr, crcMethodName);
+                yield found
+            } catch (e) {
+                // Nothing found 
+            }
+        }
     }
 };
 
@@ -117,12 +121,12 @@ const findDevices = async function* () {
 export const detectDevices = async emit => {
     for await (let device of findDevices()) {
         // @ts-ignore
-        if (device[0].value) {
+        if (device) {
             // @ts-ignore
-            Debug('esnext-cctalk/device-detection/foundDevice')(device[0].value);
+            Debug('esnext-cctalk/device-detection/foundDevice')(device);
             if (emit) {
                 // @ts-ignore
-                emit(device[0].value)
+                emit(device)
             }
         }
     }

@@ -478,6 +478,11 @@ export const taikoPub7 = () => {
       'return': 254
     }
     const commands = {
+      simplePoll: 254,
+      addressPoll: 253,
+      addressClash: 252,
+      addressChange: 251,
+      addressRandom: 250,
       requestStatus: 248,
       requestVariableSet: 247,
       requestManufacturerId: 246,
@@ -546,13 +551,9 @@ export const taikoPub7 = () => {
       requestCommsStatusVariables: 2,
       resetDevice: 1,
       return: 0,
-      ...{
-        simplePoll: 254,
-        addressPoll: 253,
-        addressClash: 252,
-        addressChange: 251,
-        addressRandom: 250,
-      }
+      
+      
+      
     }
     
     const methods = {
