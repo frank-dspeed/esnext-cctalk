@@ -161,7 +161,12 @@ export const detectDevices = async emit => {
     const foundDevices = []
     
     console.log('next => ',await findDevices().next())
-    console.log('next => ',await findDevices().next())
+    try {
+        console.log('next => ',await findDevices().next())
+    } catch (e) {
+        console.log(e)
+    }
+    
     //console.log('next => ',await findDevices().next())
     process.exit()
     /*
