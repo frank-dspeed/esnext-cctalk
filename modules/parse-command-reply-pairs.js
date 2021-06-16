@@ -71,21 +71,20 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             // Try positioning the task assignment inside the writePromise could leed
             // to a more solid result
             task = defferedcommandPromise;
-            // @ts-ignore
-            const removeAllTasksByInput = input => {
-                // @ts-ignore
-                tasks.forEach ( (task, idx )=> {
-                    if (`${task.id}` === `${input}`) {
-                        tasks.splice(idx, 1);
-                        writeLock = false;
-                    }
-                } );
-            }
+            
+            portToWrite.write(input, async err => {
+                if(err) { task.reject(err) } 
+            });
 
+            setTimeout(() => {
+                task.reject('timeoutAfter250ms')
+            }, 250)
+            /*
+            // @ts-ignore
             const writePromise = Promise.race([
                 new Promise((resolve,reject)=> {
                     Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
-                        /** @type {Uint8Array} */ 
+                        /** @type {Uint8Array} *
                         input
                     })
                     // @ts-ignore
@@ -111,12 +110,11 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                     // @ts-ignore
                     defferedcommandPromise.reject({ err, input })
                     Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, defferedcommandPromise })
-                    removeAllTasksByInput(input)
                     throw new Error(JSON.stringify({ err, input, defferedcommandPromise }))
                 })
             ])
-
-            return await writePromise;
+            */
+            return await task;
 
         }
     
