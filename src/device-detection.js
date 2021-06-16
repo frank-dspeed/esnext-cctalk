@@ -106,16 +106,17 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
             for (const channel of possibleChannels) {
                 try {
-                    await delayResolvePromise(200)
-                    const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage) 
-                    
+                    //await delayResolvePromise(200)
+                    const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage);       
                     device.channels.push( bc);
-                    await delayResolvePromise(200)
+                    //await delayResolvePromise(200)
                 } catch(e) {
                     //timeouts if no channel exists
+                    console.log(e)
+                    process.exit()
                 }
             }
-            console.log('bchannel',JSON.stringify(device.channels))
+            
         }
 
         return device;
