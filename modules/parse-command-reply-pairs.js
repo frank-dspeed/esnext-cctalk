@@ -111,24 +111,16 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 // @ts-ignore
                 portToWrite.write(command.input, async err =>{
                     if(err) { reject(err) } 
-                    try {
-                        await Promise.race([
-                            commandPromise,
-                            new Promise((resolve) => 
-                                // @ts-ignore
-                                setTimeout(() => {
-                                    resolve(Promise.reject(`timeout: ${command.input}`));
-                                }, 200))
-                        ])
-                    } catch( err ) {
-                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input })
+                    setTimeout(() => {
+                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err: 'timeout200ms', input })
                         // @ts-ignore
                         command.reject({ err, input })
                         removeAllTasksByInput(input)
-                        
-                        
-                        // @ts-ignore
-                    };
+                        reject(`timeout: ${command.input}`);
+                    }, 200)
+
+                    resolve(commandPromise),
+
                 });
             })
 
