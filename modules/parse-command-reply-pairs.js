@@ -77,6 +77,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         /** @param {Uint8Array} input */
         async input => {
             if (writeLock) {
+                console.log({ task })
                 return Promise.reject('writeLock')
             }
             
