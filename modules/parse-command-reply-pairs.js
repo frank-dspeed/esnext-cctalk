@@ -118,7 +118,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                     });
                 }),
                 new Promise(resolve=>{
-                        setTimeout(() => {
+                        setTimeout(async () => {
                             const err = 'timeout250ms'
                             const commandPromiseStatus = await Promise.allSettled([commandPromise])
                             
