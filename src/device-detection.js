@@ -161,7 +161,7 @@ export const detectDevices = async emit => {
                 for (const channel of possibleChannels) {
                     try {
                         await delayResolvePromise(200)
-                        billValidatorChannels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
+                        billValidatorChannels.push( await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage) );
                         await delayResolvePromise(200)
                     } catch(e) {
                         //timeouts if no channel exists
