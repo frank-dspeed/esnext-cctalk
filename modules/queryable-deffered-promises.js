@@ -12,19 +12,23 @@ export const createDefferedPromise = id => {
         ( resolve, reject ) => Object.assign(
             defferedHandlers, {
                 resolve(value) {
-                    Debug('resolve:')({ value, id })
-                    
-                    defferedPromise.isFulfilled = true;
-                    defferedPromise.isPending = false;
-                    defferedPromise.value = value;
-                    resolve(value); 
+                    Debug('resolve:')({ value, id })                    
+                    if (defferedPromise.isPending) {
+
+                        defferedPromise.isFulfilled = true;
+                        defferedPromise.isPending = false;
+                        defferedPromise.value = value;
+                        resolve(value); 
+                    }
                 },
                 reject(reason) {
                     Debug('reject:')({ reason, id })
+                    if (defferedPromise.isPending) {
                     defferedPromise.isRejected = true;
                     defferedPromise.isPending = false;
                     defferedPromise.reason = reason;
                     reject(reason)
+                    }
                 }
             }
         ) 
