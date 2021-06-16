@@ -55,7 +55,7 @@ export const getDeviceInfo = async (writer) => {
 const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
-    await delayResolvePromise(200)
+    //await delayResolvePromise(200)
     try {
         await write(254)
         const result = [
@@ -83,9 +83,9 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             
             for (const channel of possibleChannels) {
                 try {
-                    await delayResolvePromise(200)
+                    //await delayResolvePromise(200)
                     device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
-                    await delayResolvePromise(200)
+                    //await delayResolvePromise(200)
                 } catch(e) {
                     //timeouts if no channel exists
                     console.log(e)
@@ -104,10 +104,10 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
             for (const channel of possibleChannels) {
                 try {
-                    await delayResolvePromise(200)
+                    //await delayResolvePromise(200)
                     const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage);       
                     device.channels.push( bc);
-                    await delayResolvePromise(200)
+                    //await delayResolvePromise(200)
                 } catch(e) {
                     //timeouts if no channel exists
                     console.log(e)
