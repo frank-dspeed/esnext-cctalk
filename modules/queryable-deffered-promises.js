@@ -14,7 +14,6 @@ export const createDefferedPromise = id => {
                 resolve(value) {
                     Debug('resolve:')({ value, id })                    
                     if (defferedPromise.isPending) {
-
                         defferedPromise.isFulfilled = true;
                         defferedPromise.isPending = false;
                         defferedPromise.value = value;

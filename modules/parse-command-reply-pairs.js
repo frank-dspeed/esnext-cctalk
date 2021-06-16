@@ -58,7 +58,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
 
             if(isForMasterOrBus) {       
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, `${messageAsUint8Array}`)
-
+                clearTimeout(startTimeout)
                 // @ts-ignore
                 task.resolve(messageAsUint8Array);
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task)
