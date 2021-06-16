@@ -115,7 +115,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                     //timeouts if no channel exists
                 }
             }
-            console.log('bchannel',device.channels)
+            console.log('bchannel',JSON.stringify(device.channels))
         }
 
         return device;
