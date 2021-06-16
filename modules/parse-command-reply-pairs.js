@@ -79,7 +79,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             await delayResolvePromise(850);
 
             portToWrite.write(input, err => {
-                if(err) { task.reject({err, task }) } 
+                if(err) { task.reject(err) } 
             });
 
             setTimeout(() => {
