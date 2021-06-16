@@ -71,7 +71,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         } 
         if(task && task.id !== `${messageAsUint8Array}`) {
             // we got no promise but we got data we need to error and exit  
-            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array }) 
+            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array, task }) 
             return
         }
         // is most time then our own message
