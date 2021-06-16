@@ -4,16 +4,24 @@ import Debug from "./debug.js";
 let dataId = 0
 
 export const createDefferedPromise = id => {    
+    const returnPromise = {}
     const defferedHandlers = {}
     const deferredPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
             defferedHandlers, {
                 resolve(value) {
                     Debug('resolve:')({ value, id })
-                    resolve(value)
+                    
+                    returnPromise.isFulfilled = true;
+                    returnPromise.isPending = false;
+                    returnPromise.value = value;
+                    resolve(value); 
                 },
                 reject(reason) {
                     Debug('reject:')({ reason, id })
+                    returnPromise.isRejected = true;
+                    returnPromise.isPending = false;
+                    returnPromise.reason = reason;
                     reject(reason)
                 }
             }
@@ -23,7 +31,8 @@ export const createDefferedPromise = id => {
     const queryAbleDefferedPromise = createQuerablePromise(
         deferredPromise
     );
-    const returnPromise = Object.assign(
+    Object.assign(
+        returnPromise,
         queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
