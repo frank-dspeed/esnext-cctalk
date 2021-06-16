@@ -95,12 +95,12 @@ const findDevices2 = async function* () {
 };
 
 const crcMethods = [ 'crc8', 'crc16xmodem' ]
-const findDevices = async function* () {    
+const findDevices = function* () {    
     for (const crcMethodName of crcMethods) {
         for (const [name, destAdr] of Object.entries(deviceTypes)) {
             try {
-                let found = await testAdr(destAdr, crcMethodName);
-                await delayResolvePromise(500)
+                let found = testAdr(destAdr, crcMethodName);
+                
                 yield found
             } catch (e) {
                 // Nothing found 
@@ -115,7 +115,6 @@ export const detectDevices = async emit => {
     for await (let device of findDevices()) {
         // @ts-ignore
         if (device) {
-            
             if (isCoinAcceptor(device)) {
                 // Read Channels
                 const possibleChannels = Array
@@ -155,8 +154,6 @@ export const detectDevices = async emit => {
         
                 device.channels = billValidatorChannels;
             }
-
-
             // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
             foundDevices.push(device);
