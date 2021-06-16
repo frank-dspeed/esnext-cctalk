@@ -102,7 +102,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
         if (isBillValidator(device)) {
             console.log('xxxxxB',isBillValidator(device))
-            return device
+            
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
             
