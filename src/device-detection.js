@@ -59,9 +59,9 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     try {
         await write(254)        
         const result = [
-            await write(244).then(readTextMessage),
-            await write(245).then(readTextMessage),
-            await write(246).then(readTextMessage),
+            //await write(244).then(readTextMessage),
+            //await write(245).then(readTextMessage),
+            //await write(246).then(readTextMessage),
         ];
         const [ productCode, equipmentCategoryId, manufacturerId ] = result;
         const device = {
