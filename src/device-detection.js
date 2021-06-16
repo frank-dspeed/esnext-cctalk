@@ -56,7 +56,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     await delayResolvePromise(200)
-    return Promise.reject('fine')
+    
     await write(254)
 
     const result = [
@@ -163,7 +163,7 @@ export const detectDevices = async emit => {
         }
     }
 
-    
+    console.log({foundDevices})
     //console.log('next => ',await findDevices().next())
     process.exit()
     /*
