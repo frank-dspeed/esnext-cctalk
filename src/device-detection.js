@@ -139,7 +139,6 @@ export const detectDevices = async emit => {
                 const coindAcceptorChannels = ['rejected'];
                 
                 for (const channel of possibleChannels) {
-                    if (channel === 'rejected') { continue; }
                     try {
                         await delayResolvePromise(200)
                         coindAcceptorChannels.push( await device.write(184,Uint8Array.from([ channel ])).then(getTextMessage) );
