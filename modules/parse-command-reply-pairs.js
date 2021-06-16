@@ -81,10 +81,10 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
 
             setTimeout(() => {
                 task.reject({ 
-                    err: 'timeoutAfter350ms',
+                    err: 'timeoutAfter800ms',
                     task
                 })
-            }, 350)
+            }, 800)
             /*
             // @ts-ignore
             const writePromise = Promise.race([
@@ -108,10 +108,10 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                             //resolve(Promise.reject({ err, input, commandPromiseStatus }))
                             resolve(true);
                                                         
-                        }, 350)
+                        }, 800)
                 }).then(()=>{
                     // CleanUp and throw
-                    const err = 'timeout350ms'
+                    const err = 'timeout800ms'
                             
                     // @ts-ignore
                     defferedcommandPromise.reject({ err, input })
