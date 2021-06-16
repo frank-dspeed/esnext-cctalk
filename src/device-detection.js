@@ -55,7 +55,7 @@ export const getDeviceInfo = async (writer) => {
 const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
-    await delayResolvePromise(200)
+    await delayResolvePromise(800)
     
     await write(254)
 
