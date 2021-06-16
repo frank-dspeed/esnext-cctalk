@@ -1,5 +1,6 @@
 import Debug from './debug.js'
 import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
+import { delayResolvePromise } from './promises-delayed.js';
 import { createDefferedPromise } from './queryable-deffered-promises.js';
 /**
  * const SerialPort = require('serialport')
@@ -66,7 +67,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 // Only Apply writeLock if isPending
                 return Promise.reject({ err: 'writeLock', task, input })
             }
-            
+            await delayResolvePromise(2000)
             // @ts-ignore
             const defferedcommandPromise = createDefferedPromise(`${input}`);
             
