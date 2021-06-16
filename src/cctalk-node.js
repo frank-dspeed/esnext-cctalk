@@ -126,8 +126,8 @@ export const getConnection = port => {
          * @param {number} command
          * @param {Uint8Array} data
          */
-        const deviceWriter = (command, data= new Uint8Array(0)) => {
-            const ccTalkRequestPromise = createCCTalkReqestPromise(createPayload(command,data));
+        const deviceWriter = async (command, data= new Uint8Array(0)) => {
+            const ccTalkRequestPromise = await createCCTalkReqestPromise(createPayload(command,data));
             return ccTalkRequestPromise;
         }
         return deviceWriter
