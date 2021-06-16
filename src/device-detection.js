@@ -151,6 +151,27 @@ export const detectDevices = async emit => {
                 device.channels = coindAcceptorChannels;
             }
 
+            if (isBillValidator(device)) {
+                // Read Channels
+                const possibleChannels = Array
+                    .from({length: 12}, (_, i) => i + 1)
+                
+                const billValidatorChannels = ['rejected'];
+                
+                for (const channel of possibleChannels) {
+                    try {
+                        await delayResolvePromise(200)
+                        billValidatorChannels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
+                        await delayResolvePromise(200)
+                    } catch(e) {
+                        //timeouts if no channel exists
+                    }
+                }
+        
+                device.channels = billValidatorChannels;
+            }
+
+
             // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
             foundDevices.push(device);
