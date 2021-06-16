@@ -100,6 +100,7 @@ const findDevices = async function* () {
         for (const [name, destAdr] of Object.entries(deviceTypes)) {
             try {
                 let found = await testAdr(destAdr, crcMethodName);
+                await delayResolvePromise(500)
                 yield found
             } catch (e) {
                 // Nothing found 
