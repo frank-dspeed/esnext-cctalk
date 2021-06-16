@@ -153,12 +153,16 @@ const findDevices = async function* () {
 export const detectDevices = async emit => {
     const foundDevices = []
     
-    console.log('next => ',await findDevices().next())
-    try {
-        console.log('next => ',await findDevices().next())
-    } catch (e) {
-        console.log(e)
+    for (const crcMethodName of crcMethods) {
+        for (const [name, destAdr] of Object.entries(deviceTypes)) {
+            try {               
+                foundDevices.push( await testAdr(destAdr, crcMethodName) );
+            } catch (e) {
+                // Nothing found 
+            }
+        }
     }
+
     
     //console.log('next => ',await findDevices().next())
     process.exit()
