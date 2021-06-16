@@ -44,6 +44,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
 
                 // @ts-ignore
                 task.resolve(messageAsUint8Array)
+                
                 setImmediate(()=>Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task))
                 
                 writeLock = false;

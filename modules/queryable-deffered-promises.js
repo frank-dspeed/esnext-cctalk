@@ -1,13 +1,21 @@
+import Debug from "./debug.js";
+
 // @ts-nocheck
 let dataId = 0
 
-export const createDefferedPromise = id => {
-    
+export const createDefferedPromise = id => {    
     const defferedHandlers = {}
     const deferredPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
-            defferedHandlers, { 
-                resolve, reject 
+            defferedHandlers, {
+                resolve(value) {
+                    Debug('resolve:')({ value, id })
+                    resolve(value)
+                },
+                reject(reason) {
+                    Debug('reject:')({ reason, id })
+                    reject(reason)
+                }
             }
         ) 
     );
@@ -15,7 +23,11 @@ export const createDefferedPromise = id => {
     const queryAbleDefferedPromise = createQuerablePromise(
         deferredPromise
     );
-    const returnPromise = Object.assign(queryAbleDefferedPromise, defferedHandlers, { id, createdAt: Date.now() });
+    const returnPromise = Object.assign(
+        queryAbleDefferedPromise, 
+        defferedHandlers, 
+        { id, createdAt: Date.now() }
+    );
     return returnPromise
 }
 
