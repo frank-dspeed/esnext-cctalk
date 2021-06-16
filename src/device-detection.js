@@ -131,6 +131,7 @@ export const detectDevices = async emit => {
             foundDevices.push(device);
         }
     }
+    await delayResolvePromise(500)
     if (emit) {
         // @ts-ignore
         emit(foundDevices)

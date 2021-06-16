@@ -75,7 +75,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             // to a more solid result
             task = defferedcommandPromise;
             
-            portToWrite.write(input, async err => {
+            portToWrite.write(input, err => {
                 if(err) { task.reject({err, task }) } 
             });
 
