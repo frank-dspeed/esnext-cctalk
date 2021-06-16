@@ -23,7 +23,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
      */
      const onCCTalkCommandPairResponse = message => {
         const messageAsUint8Array = Uint8Array.from(message);
-        if(task) {
+        if(task && task.id !== `${messageAsUint8Array}`) {
             //Debug('PROMISE')(task)
 
             // Note task stays the same if less then 2 commands got send
@@ -49,8 +49,11 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             
 
         } 
-        // we got no promise but we got data we need to error and exit  
-        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array }) 
+        if(task && task.id !== `${messageAsUint8Array}`) {
+            // we got no promise but we got data we need to error and exit  
+            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ messageAsUint8Array }) 
+            return
+        }
         // is most time then our own message
      }
 
