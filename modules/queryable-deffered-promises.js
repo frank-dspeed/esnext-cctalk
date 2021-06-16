@@ -10,7 +10,7 @@ export const createDefferedPromise = id => {
     
     defferedPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
-            defferedHandlers, {
+            defferedPromise, {
                 resolve(value) {
                     Debug('resolve:')({ value, id })                    
                     if (defferedPromise.isPending) {
