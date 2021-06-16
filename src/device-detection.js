@@ -90,6 +90,8 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                     await delayResolvePromise(200)
                 } catch(e) {
                     //timeouts if no channel exists
+                    console.log(e)
+                    process.exit()
                 }
             }
     
