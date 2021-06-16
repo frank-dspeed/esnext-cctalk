@@ -66,7 +66,8 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
         } 
         // we got no promise but we got data we need to error and exit  
-        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message }) 
+        Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/messageWithoutTask/error?')({ message: message.toString(16) }) 
+        // is most time then our own message
      }
 
     // @ts-ignore
@@ -78,8 +79,6 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 return Promise.reject('writeLock')
             }
             
-            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({input})
-
             // @ts-ignore
             const command = {}
             const commandPromise = new Promise((resolve, reject) => {
