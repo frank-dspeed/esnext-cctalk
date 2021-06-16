@@ -108,14 +108,14 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                 try {
                     await delayResolvePromise(200)
                     const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage) 
-                    console.log('bchannel',{bc})
+                    
                     device.channels.push( bc);
                     await delayResolvePromise(200)
                 } catch(e) {
                     //timeouts if no channel exists
                 }
             }
-            
+            console.log('bchannel',device.channels)
         }
 
         return device;
