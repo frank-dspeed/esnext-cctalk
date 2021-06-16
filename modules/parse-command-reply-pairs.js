@@ -37,6 +37,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         }
         if(task && task.id === `${messageAsUint8Array}`) {
             // Start Thicking
+            console.log('got own task in parser start')
         }
 
         if(task && task.id !== `${messageAsUint8Array}`) {

@@ -4,25 +4,26 @@ import Debug from "./debug.js";
 let dataId = 0
 
 export const createDefferedPromise = id => {    
-    let returnPromise;
+    /** @type {Promise<Uint8Array>} */
+    let defferedPromise;
     const defferedHandlers = {}
     
-    const deferredPromise = returnPromise = new Promise( 
+    defferedPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
             defferedHandlers, {
                 resolve(value) {
                     Debug('resolve:')({ value, id })
                     
-                    returnPromise.isFulfilled = true;
-                    returnPromise.isPending = false;
-                    returnPromise.value = value;
+                    defferedPromise.isFulfilled = true;
+                    defferedPromise.isPending = false;
+                    defferedPromise.value = value;
                     resolve(value); 
                 },
                 reject(reason) {
                     Debug('reject:')({ reason, id })
-                    returnPromise.isRejected = true;
-                    returnPromise.isPending = false;
-                    returnPromise.reason = reason;
+                    defferedPromise.isRejected = true;
+                    defferedPromise.isPending = false;
+                    defferedPromise.reason = reason;
                     reject(reason)
                 }
             }
@@ -33,13 +34,12 @@ export const createDefferedPromise = id => {
         deferredPromise
     );
     Object.assign(
-        returnPromise,
-        //deferredPromise,
+        deferredPromise,
         queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
     );
-    return returnPromise
+    return defferedPromise;
 }
 
 /**
