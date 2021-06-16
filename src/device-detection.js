@@ -71,6 +71,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
     } catch (e) {
         // Nothing found 
+        console.log('we got a timeout nothing special')
     }
     
     
