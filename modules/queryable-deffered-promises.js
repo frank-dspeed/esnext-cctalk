@@ -1,9 +1,7 @@
 // @ts-nocheck
 let dataId = 0
-const createPortReplyPromise = () => {
 
-}
-const createDefferedPromise = fn => {
+export const createDefferedPromise = id => {
     
     const defferedHandlers = {}
     const deferredPromise = new Promise( 
@@ -14,13 +12,11 @@ const createDefferedPromise = fn => {
         ) 
     );
     
-    const returnPromise = createQuerablePromise(
+    const queryAbleDefferedPromise = createQuerablePromise(
         deferredPromise
     );
-
-    Object.assign(returnPromise, defferedHandlers, { createdAt: Date.now() });
-    return returnPromise;
-
+    const returnPromise = Object.assign(queryAbleDefferedPromise, defferedHandlers, { id, createdAt: Date.now() });
+    return returnPromise
 }
 
 /**
@@ -28,7 +24,7 @@ const createDefferedPromise = fn => {
  * Based on: http://stackoverflow.com/questions/21485545/is-there-a-way-to-tell-if-an-es6-promise-is-fulfilled-rejected-resolved
  * But modified according to the specs of promises : https://promisesaplus.com/
  */
- function createQuerablePromise(promise) {
+ const createQuerablePromise = promise => {
     
     if (promise.isResolved) { return promise; };
 
@@ -42,11 +38,13 @@ const createDefferedPromise = fn => {
         value => {
             result.isFulfilled = true;
             result.isPending = false;
+            result.value = value;
             return value; 
         }, 
         reason => {
             result.isRejected = true;
             result.isPending = false;
+            result.reason = reason;
             throw reason; 
         }
     ), { 
@@ -61,6 +59,10 @@ const createDefferedPromise = fn => {
     return result;
 }
 
+
+
+
+/*
 const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el === val ? [...acc, i] : acc), []);
 const observAblePromise = fn => Promise.allSettled([fn()]).then(r=>r[0]);
 
@@ -124,7 +126,7 @@ const resolveState = state => {
         if (currentCCTalkTransaction || currentCCTalkTransaction === 0) {
             console.log(currentCCTalkTransaction)
         };
-        */    
+        *    
     })
     
 
@@ -152,5 +154,5 @@ resolveState()
         // if not reject timeout if nothing got resolved
 
 // Case 1.6 If there is no waiting command we emit the data.
-
+*/
 export {}

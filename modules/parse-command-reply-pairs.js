@@ -1,6 +1,6 @@
 import Debug from './debug.js'
 import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
-
+import { createDefferedPromise } from './queryable-deffered-promises.js';
 /**
  * const SerialPort = require('serialport')
  * const port = new SerialPort('/dev/ttyUSB0')
@@ -81,22 +81,17 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
             
             // @ts-ignore
-            const command = {}
-            const commandPromise = new Promise((resolve, reject) => {
-                Object.assign(command, { resolve, reject, input })
-            });
-            
-            command.commandPromise = commandPromise;
+            const defferedcommandPromise = createDefferedPromise(`${input}`);
             
             writeLock = true;
             // Try positioning the task assignment inside the writePromise could leed
             // to a more solid result
-            task = command;
+            task = defferedcommandPromise;
             // @ts-ignore
             const removeAllTasksByInput = input => {
                 // @ts-ignore
                 tasks.forEach ( (task, idx )=> {
-                    if (`${task.task.input}` === `${input}`) {
+                    if (`${task.id}` === `${input}`) {
                         tasks.splice(idx, 1);
                         writeLock = false;
                     }
@@ -110,26 +105,30 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                         input
                     })
                     // @ts-ignore
-                    portToWrite.write(command.input, async err => {
+                    portToWrite.write(input, async err => {
                         if(err) { reject(err) } 
     
-                        resolve(commandPromise)
+                        resolve(defferedcommandPromise)
 
                     });
                 }),
+                // Timeout is expected to get canceled by race
                 new Promise(resolve=>{
-                        setTimeout(async () => {
-                            const err = 'timeout250ms'
-                            const commandPromiseStatus = await Promise.allSettled([commandPromise])
-                            
-                            // @ts-ignore
-                            command.reject({ err, input })
-                            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, commandPromiseStatus })
-                            resolve(commandPromise)
-                            
-                            removeAllTasksByInput(input)
+                        setTimeout(() => {
+
+                            //resolve(Promise.reject({ err, input, commandPromiseStatus }))
+                            resolve(true);
+                                                        
                         }, 250)
-                    
+                }).then(()=>{
+                    // CleanUp and throw
+                    const err = 'timeout250ms'
+                            
+                    // @ts-ignore
+                    //command.reject({ err, input })
+                    Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, defferedcommandPromise })
+                    removeAllTasksByInput(input)
+                    throw new Error(JSON.stringify({ err, input, defferedcommandPromise }))
                 })
             ])
 
