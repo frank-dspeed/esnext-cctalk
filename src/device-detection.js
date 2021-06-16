@@ -78,7 +78,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         
         if (isCoinAcceptor(device)) {
             console.log('xxxxxC',isCoinAcceptor(device))
-            return device
+            
             // Read Channels
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
