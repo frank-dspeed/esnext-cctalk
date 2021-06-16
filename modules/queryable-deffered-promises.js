@@ -2,30 +2,58 @@ import Debug from "./debug.js";
 
 // @ts-nocheck
 let dataId = 0
-
+/**
+ * 
+ * @param {*} id 
+ * @returns 
+ */
 export const createDefferedPromise = id => {    
-    /** @type {Promise<Uint8Array>} */
+    /**
+     * The complete Triforce, or one or more components of the Triforce.
+     * @typedef {Object} defferedPromise
+     * @property {*} resolve - Indicates whether the Courage component is present.
+     * @property {*} reject - Indicates whether the Courage component is present.
+     * @property {boolean} isPending - Indicates whether the Courage component is present.
+     * @property {boolean} isFulfilled - Indicates whether the Power component is present.
+     * @property {boolean} isRejected - Indicates whether the Wisdom component is present.
+     * @property {number} createdAt - epoch resolve reject call 
+     * @property {number} settledAt - epoch resolve reject call
+     * @property {number} settledAfter - epoch resolve reject call
+     * @property {number|string} id - id
+     * @property {*} value - Indicates whether the Wisdom component is present.
+     * @property {*} reason - Indicates whether the Wisdom component is present.
+     */
+    
+    /** @type {defferedPromise} */
     let defferedPromise;
     const defferedHandlers = {}
     
+    //@ts-ignore
     defferedPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
             defferedHandlers, {
+                /** @param {*} value */
                 resolve(value) {
                     Debug('resolve:')({ value, id })                    
                     if (defferedPromise.isPending) {
                         defferedPromise.isFulfilled = true;
                         defferedPromise.isPending = false;
                         defferedPromise.value = value;
+                        defferedPromise.settledAt = Date.now();
+                        defferedPromise.settledAfter = defferedPromise.settledAt - defferedPromise.createdAt;
                         resolve(value); 
                     }
                 },
+                
+                /** @param {*} reason */
                 reject(reason) {
                     Debug('reject:')({ reason, id })
                     if (defferedPromise.isPending) {
                         defferedPromise.isRejected = true;
                         defferedPromise.isPending = false;
                         defferedPromise.reason = reason;
+                        defferedPromise.settledAt = Date.now();
+                        defferedPromise.settledAfter = Date.now();
                         reject(reason)
                     }
                 },
@@ -48,48 +76,6 @@ export const createDefferedPromise = id => {
         //{ id, createdAt: Date.now() }
     );
     return defferedPromise;
-}
-
-/**
- * This function allow you to modify a JS Promise by adding some status properties.
- * Based on: http://stackoverflow.com/questions/21485545/is-there-a-way-to-tell-if-an-es6-promise-is-fulfilled-rejected-resolved
- * But modified according to the specs of promises : https://promisesaplus.com/
- */
- const createQuerablePromise = promise => {
-    
-    if (promise.isResolved) { return promise; };
-
-    // Set initial state
-    // var isPending = true;
-    // var isRejected = false;
-    // var isFulfilled = false;
-
-    // Observe the promise, saving the fulfillment in a closure scope.
-    var result = Object.assign( promise.then(
-        value => {
-            result.isFulfilled = true;
-            result.isPending = false;
-            result.value = value;
-            return value; 
-        }, 
-        reason => {
-            if (result.isPending) {
-                result.isRejected = true;
-                result.isPending = false;
-                result.reason = reason;
-                throw reason; 
-            }
-        }
-    ), { 
-        isPending: true,
-        isRejected :false,
-        isFulfilled :false,
-        // isFulfilled: () => { return isFulfilled; },
-        // isPending: () => { return isPending; },
-        // isRejected: () => { return isRejected; },
-    } );
-
-    return result;
 }
 
 

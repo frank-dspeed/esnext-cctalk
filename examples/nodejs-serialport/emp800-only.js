@@ -6,6 +6,7 @@ const wait200ms = () => delayResolvePromise(200);
 
 // Essentials
 import { getConnection } from '../../src/cctalk-node.js';
+import { headersMap } from '../../modules/cctalk-headers.js'
 import SerialPort from 'serialport';
 
 //const SerialPort = require('serialport')
@@ -22,19 +23,19 @@ const coinAcceptor = getDeviceWriter( 2, 'crc8' );
 
 await wait200ms();
 // 254 simplePoll
-await coinAcceptor(254);
+await coinAcceptor(headersMap.simplePoll);
 await wait200ms();
 // 231 modifyInhibit Accept
-await coinAcceptor(231, Uint8Array.from([255, 1]));
+await coinAcceptor(headersMap.modifyInhibitStatus, Uint8Array.from([255, 1]));
 await wait200ms();
 // 228 modifyMasterInhibit
-await coinAcceptor(228, Uint8Array.from([0xFF]));
+await coinAcceptor(headersMap.modifyMasterInhibit, Uint8Array.from([0xFF]));
 await wait200ms();
 
 // @ts-ignore
 const readBufferedCredit = async () => {
     // 229 readBufferedCredit
-    return await coinAcceptor(229).then(async eventResponse=>{
+    return await coinAcceptor(headersMap.readBufferedCredit).then(async eventResponse=>{
         // Here we get the status of inserted coins
         // You will want to use complex parsing logic here
         // and maybe also send extra commands via

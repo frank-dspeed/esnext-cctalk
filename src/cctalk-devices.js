@@ -460,8 +460,6 @@ const emp800Mappings = {
   }
 }
 
-
-
 export const taikoPub7 = () => {
   const eventCodes =   {
       accepted: 0, // accepted => stacker
@@ -477,6 +475,7 @@ export const taikoPub7 = () => {
       barcode: 20,
       'return': 254
     }
+
     const commands = {
       simplePoll: 254,
       addressPoll: 253,
@@ -551,9 +550,6 @@ export const taikoPub7 = () => {
       requestCommsStatusVariables: 2,
       resetDevice: 1,
       return: 0,
-      
-      
-      
     }
     
     const methods = {

@@ -16,7 +16,9 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
     /** type {Promise<Uint8Array>[]} */
     /** @type {*} */
     const tasks = [];
-    const startTimeout = () => setTimeout(() => {
+    /** @type {NodeJS.Timeout} */
+    let currentTimeout;
+    const startTimeout = () => currentTimeout = setTimeout(() => {
         writeLock = false
         task.reject({ 
             err: 'timeoutAfter650ms',
@@ -58,7 +60,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
 
             if(isForMasterOrBus) {       
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, `${messageAsUint8Array}`)
-                clearTimeout(startTimeout)
+                clearTimeout(currentTimeout)
                 // @ts-ignore
                 task.resolve(messageAsUint8Array);
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task)
@@ -97,8 +99,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             task = defferedcommandPromise;
             
             await delayResolvePromise(850);
-
-            portToWrite.write(input, err => {
+            
+            portToWrite.write(input, (/** @type {any} */ err) => {
                 if(err) { task.reject(err) } 
             });
 
