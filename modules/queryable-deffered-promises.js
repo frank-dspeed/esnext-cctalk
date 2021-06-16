@@ -65,10 +65,12 @@ export const createDefferedPromise = id => {
             return value; 
         }, 
         reason => {
-            result.isRejected = true;
-            result.isPending = false;
-            result.reason = reason;
-            //throw reason; 
+            if (result.isPending) {
+                result.isRejected = true;
+                result.isPending = false;
+                result.reason = reason;
+                throw reason; 
+            }
         }
     ), { 
         isPending: true,
