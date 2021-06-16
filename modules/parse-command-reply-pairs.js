@@ -44,8 +44,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 if(isForMasterOrBus) {       
                     task = null;
                     Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
-                    const { task: processedPromise} = tasks.pop();
-                    const { task: currentPromise } = tasks.pop();
+                    const processedPromise = tasks.pop();
+                    const currentPromise = tasks.pop();
                     // @ts-ignore
                     processedPromise.resolve(messageAsUint8Array);
                     currentPromise.resolve(messageAsUint8Array);
