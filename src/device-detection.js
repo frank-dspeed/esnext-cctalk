@@ -2,6 +2,10 @@ import Debug from '../modules/debug.js'
 import { getConnection } from './cctalk-node.js'
 import { getMessage } from '../modules/payload-helpers.js'
 import { delayResolvePromise } from '../modules/promises-delayed.js';
+// @ts-ignore
+const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator'
+// @ts-ignore
+const isCoinAcceptor = device => device.equipmentCategoryId === 'Coin Acceptor'
 
 import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0', {
@@ -18,7 +22,7 @@ const detectedDevice = {
     245: 'requestEquipmentCategoryId', //Core commands
     244: 'requestProductCode', //Core commands
 }
-
+//  [...payload].slice(4,-1)
 /** @param {Uint8Array} payload*/
 const readTextMessage = payload => String.fromCharCode.apply(null, [...getMessage(payload).data])
 
@@ -126,6 +130,28 @@ export const detectDevices = async emit => {
     for await (let device of findDevices()) {
         // @ts-ignore
         if (device) {
+            
+            if (isCoinAcceptor(device)) {
+                // Read Channels
+                const possibleChannels = Array
+                    .from({length: 12}, (_, i) => i + 1)
+                
+                const coindAcceptorChannels = ['rejected'];
+                
+                for (const channel of possibleChannels) {
+                    if (channel === 'rejected') { continue; }
+                    try {
+                        await delayResolvePromise(200)
+                        coindAcceptorChannels.push( await device.write(184,Uint8Array.from([ channel ])).then(getTextMessage) );
+                        await delayResolvePromise(200)
+                    } catch(e) {
+                        //timeouts if no channel exists
+                    }
+                }
+        
+                device.channels = coindAcceptorChannels;
+            }
+
             // @ts-ignore
             Debug('esnext-cctalk/device-detection/foundDevice')(device);
             foundDevices.push(device);
