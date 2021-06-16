@@ -145,10 +145,8 @@ const crcMethods = [ 'crc8', 'crc16xmodem' ]
 const findDevices = async function* () {    
     for (const crcMethodName of crcMethods) {
         for (const [name, destAdr] of Object.entries(deviceTypes)) {
-            try {
-                let found = await testAdr(destAdr, crcMethodName);
-                
-                yield found
+            try {               
+                yield testAdr(destAdr, crcMethodName);
             } catch (e) {
                 // Nothing found 
             }
