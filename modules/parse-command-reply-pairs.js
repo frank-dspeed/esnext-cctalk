@@ -67,7 +67,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 // Only Apply writeLock if isPending
                 return Promise.reject({ err: 'writeLock', task, input })
             }
-            await delayResolvePromise(2000)
+            
             // @ts-ignore
             const defferedcommandPromise = createDefferedPromise(`${input}`);
             
@@ -76,6 +76,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             // to a more solid result
             task = defferedcommandPromise;
             
+            await delayResolvePromise(300);
+
             portToWrite.write(input, err => {
                 if(err) { task.reject({err, task }) } 
             });
