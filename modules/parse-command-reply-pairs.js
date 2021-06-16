@@ -103,27 +103,32 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 } );
             }
 
-            const writePromise = new Promise((resolve,reject)=> {
-                Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
-                    /** @type {Uint8Array} */ 
-                    input
-                })
-                // @ts-ignore
-                portToWrite.write(command.input, async err => {
-                    if(err) { reject(err) } 
-                    /*
-                    setTimeout(() => {
-                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err: 'timeout200ms', input })
-                        // @ts-ignore
-                        command.reject({ err, input })
-                        removeAllTasksByInput(input)
-                        reject(`timeout: ${command.input}`);
-                    }, 250)
-                    */
-                    resolve(commandPromise)
+            const writePromise = Promise.race([
+                new Promise((resolve,reject)=> {
+                    Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
+                        /** @type {Uint8Array} */ 
+                        input
+                    })
+                    // @ts-ignore
+                    portToWrite.write(command.input, async err => {
+                        if(err) { reject(err) } 
+    
+                        resolve(commandPromise)
 
-                });
-            })
+                    });
+                }),
+                new Promise(resolve=>{
+                        setTimeout(() => {
+                            const err = 'timeout250ms'
+                            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input })
+                            // @ts-ignore
+                            command.reject({ err, input })
+                            resolve(commandPromise)
+                            removeAllTasksByInput(input)
+                        }, 250)
+                    
+                })
+            ])
 
             return await writePromise;
 
