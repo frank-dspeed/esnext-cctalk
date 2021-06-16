@@ -162,7 +162,7 @@ export const detectDevices = async emit => {
         }
     }
     await delayResolvePromise(500)
-    console.log({devices})
+    console.log({foundDevices})
     process.exit(0)
     if (emit) {
         // @ts-ignore
