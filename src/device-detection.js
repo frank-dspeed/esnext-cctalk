@@ -56,75 +56,70 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     await delayResolvePromise(200)
-    try {
-        await write(254)
+    
+    await write(254)
 
-        const result = [
-            await write(244).then(readTextMessage),
-            await write(245).then(readTextMessage),
-            await write(246).then(readTextMessage),
-        ];
-        const [ productCode, equipmentCategoryId, manufacturerId ] = result;
-        const device = {
-            write,
-            productCode, 
-            equipmentCategoryId, 
-            manufacturerId,
-            crcMethodName,
-            destAdr,
-            channels: ['rejected']
-        }
-               
-        if (isCoinAcceptor(device)) {
-            console.log('xxxxxC',isCoinAcceptor(device))
-            
-            // Read Channels
-            const possibleChannels = Array
-                .from({length: 12}, (_, i) => i + 1)
-            
-            for (const channel of possibleChannels) {
-                try {
-                    await delayResolvePromise(200)
-                    device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
-                    //await delayResolvePromise(200)
-                } catch(e) {
-                    //timeouts if no channel exists
-                    console.log(e)
-                    process.exit()
-                }
-            }
-            return device;
-            
-        }
-
-        if (isBillValidator(device)) {
-            console.log('xxxxxB',isBillValidator(device))
-            
-            const possibleChannels = Array
-                .from({length: 12}, (_, i) => i + 1)
-
-            for (const channel of possibleChannels) {
-                try {
-                    //await delayResolvePromise(200)
-                    const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage);       
-                    device.channels.push( bc);
-                    //await delayResolvePromise(200)
-                } catch(e) {
-                    //timeouts if no channel exists
-                    console.log(e)
-                    process.exit()
-                }
-            }
-            return device;    
-        }
-
-        throw new Error(`Device Not Found on: ${destAdr} with ${crcMethodName}`)
-
-    } catch (e) {
-        // Nothing found 
-        console.log('we got a timeout nothing special', {e})
+    const result = [
+        await write(244).then(readTextMessage),
+        await write(245).then(readTextMessage),
+        await write(246).then(readTextMessage),
+    ];
+    const [ productCode, equipmentCategoryId, manufacturerId ] = result;
+    const device = {
+        write,
+        productCode, 
+        equipmentCategoryId, 
+        manufacturerId,
+        crcMethodName,
+        destAdr,
+        channels: ['rejected']
     }
+            
+    if (isCoinAcceptor(device)) {
+        console.log('xxxxxC',isCoinAcceptor(device))
         
+        // Read Channels
+        const possibleChannels = Array
+            .from({length: 12}, (_, i) => i + 1)
+        
+        for (const channel of possibleChannels) {
+            try {
+                await delayResolvePromise(200)
+                device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
+                //await delayResolvePromise(200)
+            } catch(e) {
+                //timeouts if no channel exists
+                console.log(e)
+                process.exit()
+            }
+        }
+        return device;
+        
+    }
+
+    if (isBillValidator(device)) {
+        console.log('xxxxxB',isBillValidator(device))
+        
+        const possibleChannels = Array
+            .from({length: 12}, (_, i) => i + 1)
+
+        for (const channel of possibleChannels) {
+            try {
+                //await delayResolvePromise(200)
+                const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage);       
+                device.channels.push( bc);
+                //await delayResolvePromise(200)
+            } catch(e) {
+                //timeouts if no channel exists
+                console.log(e)
+                process.exit()
+            }
+        }
+        return device;    
+    }
+
+    throw new Error(`Device Not Found on: ${destAdr} with ${crcMethodName}`)
+    
     //await getDeviceWriter(connection,adr,'crc16xmodemJs');
     // request info with correct crc type
 }
