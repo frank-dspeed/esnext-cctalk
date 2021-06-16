@@ -4,9 +4,10 @@ import Debug from "./debug.js";
 let dataId = 0
 
 export const createDefferedPromise = id => {    
-    const returnPromise = {}
+    let returnPromise;
     const defferedHandlers = {}
-    const deferredPromise = new Promise( 
+    
+    const deferredPromise = returnPromise = new Promise( 
         ( resolve, reject ) => Object.assign(
             defferedHandlers, {
                 resolve(value) {
@@ -33,7 +34,7 @@ export const createDefferedPromise = id => {
     );
     Object.assign(
         returnPromise,
-        deferredPromise,
+        //deferredPromise,
         queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
