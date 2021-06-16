@@ -33,6 +33,7 @@ export const createDefferedPromise = id => {
     );
     Object.assign(
         returnPromise,
+        deferredPromise,
         queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
