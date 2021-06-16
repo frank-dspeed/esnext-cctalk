@@ -42,7 +42,7 @@ export const createDefferedPromise = id => {
         //defferedPromise
     //);
     Object.assign(
-        //defferedPromise,
+        defferedPromise,
         //queryAbleDefferedPromise, 
         defferedHandlers, 
         //{ id, createdAt: Date.now() }
