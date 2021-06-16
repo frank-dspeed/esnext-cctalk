@@ -31,10 +31,10 @@ export const createDefferedPromise = id => {
     );
     
     const queryAbleDefferedPromise = createQuerablePromise(
-        deferredPromise
+        defferedPromise
     );
     Object.assign(
-        deferredPromise,
+        defferedPromise,
         queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
