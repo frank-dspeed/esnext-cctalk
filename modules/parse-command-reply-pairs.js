@@ -121,10 +121,12 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                                 }, 200))
                         ])
                     } catch( err ) {
-                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
-                        removeAllTasksByInput(input)
+                        Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input })
                         // @ts-ignore
                         command.reject({ err, input })
+                        removeAllTasksByInput(input)
+                        
+                        
                         // @ts-ignore
                     };
                 });
