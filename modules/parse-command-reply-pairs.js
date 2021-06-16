@@ -40,7 +40,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             const isForMasterOrBus = messageObject.dest === 1 || messageObject.dest === 0
 
             if(isForMasterOrBus) {       
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMasterdebug/debug')('completPair')
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.input,messageAsUint8Array)
 
                 // @ts-ignore
                 task.resolve(messageAsUint8Array)
