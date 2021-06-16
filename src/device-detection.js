@@ -83,8 +83,6 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
             
-            const coindAcceptorChannels = ['rejected'];
-            
             for (const channel of possibleChannels) {
                 try {
                     await delayResolvePromise(200)
@@ -105,9 +103,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
-            
-            const billValidatorChannels = ['rejected'];
-            
+
             for (const channel of possibleChannels) {
                 try {
                     await delayResolvePromise(200)
@@ -117,8 +113,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
                     //timeouts if no channel exists
                 }
             }
-    
-            device.channels = billValidatorChannels;
+            
         }
 
         return device;
