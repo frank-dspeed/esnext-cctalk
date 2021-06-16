@@ -125,7 +125,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                     } catch( err ) {
                         Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
                         command.reject({ err, input })
-                    });
+                    };
                 });
             })
 
