@@ -159,7 +159,7 @@ const findDevices = async function* () {
 // @ts-ignore
 export const detectDevices = async emit => {
     const foundDevices = []
-    const d = 
+    
     console.log('next => ',await findDevices().next())
     console.log('next => ',await findDevices().next())
     //console.log('next => ',await findDevices().next())
