@@ -31,6 +31,10 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
      */
      const onCCTalkCommandPairResponse = message => {
         const messageAsUint8Array = Uint8Array.from(message);
+        if (!task) {
+            console.log('async hell')
+            process.exit()
+        }
         if(task && task.id === `${messageAsUint8Array}`) {
             // Start Thicking
         }
