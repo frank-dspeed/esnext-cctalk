@@ -136,7 +136,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 })
             ])
             */
-            return task;
+            return await task;
 
         }
     
