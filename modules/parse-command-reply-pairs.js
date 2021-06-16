@@ -120,10 +120,13 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                 new Promise(resolve=>{
                         setTimeout(() => {
                             const err = 'timeout250ms'
-                            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input })
+                            const commandPromiseStatus = Promise.allSettled([commandPromise])
+                            
                             // @ts-ignore
                             command.reject({ err, input })
+                            Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, commandPromiseStatus })
                             resolve(commandPromise)
+                            
                             removeAllTasksByInput(input)
                         }, 250)
                     
