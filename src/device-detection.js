@@ -71,23 +71,22 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
     } catch (e) {
         // Nothing found 
-        console.log('we got a timeout nothing special')
+
+        console.log('we got a timeout nothing special', {e})
     }
     
-    
-    
-    
-    if (adr === 2) {
-        const crc8Writer = connection.getDeviceWriter(adr,'crc8');
+    return 
+    if (destAdr === 2) {
+        const crc8Writer = connection.getDeviceWriter(destAdr,'crc8');
         return await crc8Writer(254).then( () => {
             return getDeviceInfo( crc8Writer )
         });
     } 
     
-    if (adr === 40) {
-        const crc16Writer = connection.getDeviceWriter(adr,'crc16xmodem');
+    if (destAdr === 40) {
+        const crc16Writer = connection.getDeviceWriter(destAdr,'crc16xmodem');
         return await crc16Writer(254).then( () => {
-            console.log('found crc16xmodem',adr)
+            console.log('found crc16xmodem',destAdr)
             return getDeviceInfo( crc16Writer );
         });   
     }
