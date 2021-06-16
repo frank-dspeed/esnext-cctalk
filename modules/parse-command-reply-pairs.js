@@ -61,7 +61,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         async input => {
             if (writeLock && task && task.isPending) {
                 // Only Apply writeLock if isPending
-                return Promise.reject('writeLock')
+                return Promise.reject({ err: 'writeLock', task })
             }
             
             // @ts-ignore
