@@ -73,10 +73,12 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             channels: ['rejected']
         }
 
-        //console.log('xxxxxC',isCoinAcceptor(device))
-        //console.log('xxxxxB',isBillValidator(device))
-        //return device
+        
+        
+        
         if (isCoinAcceptor(device)) {
+            console.log('xxxxxC',isCoinAcceptor(device))
+            return device
             // Read Channels
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
@@ -99,7 +101,8 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         }
 
         if (isBillValidator(device)) {
-            // Read Channels
+            console.log('xxxxxB',isBillValidator(device))
+            return device
             const possibleChannels = Array
                 .from({length: 12}, (_, i) => i + 1)
             
