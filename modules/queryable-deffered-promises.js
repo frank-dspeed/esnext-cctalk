@@ -23,12 +23,15 @@ export const createDefferedPromise = id => {
                 reject(reason) {
                     Debug('reject:')({ reason, id })
                     if (defferedPromise.isPending) {
-                    defferedPromise.isRejected = true;
-                    defferedPromise.isPending = false;
-                    defferedPromise.reason = reason;
-                    reject(reason)
+                        defferedPromise.isRejected = true;
+                        defferedPromise.isPending = false;
+                        defferedPromise.reason = reason;
+                        reject(reason)
                     }
-                }
+                },
+                isPending: true,
+                isRejected :false,
+                isFulfilled :false,
             }
         ) 
     );
@@ -38,7 +41,7 @@ export const createDefferedPromise = id => {
     );
     Object.assign(
         defferedPromise,
-        queryAbleDefferedPromise, 
+        //queryAbleDefferedPromise, 
         defferedHandlers, 
         { id, createdAt: Date.now() }
     );
