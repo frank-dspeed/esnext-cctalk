@@ -77,23 +77,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         // Nothing found 
         console.log('we got a timeout nothing special', {e})
     }
-    
-    return 
-    if (destAdr === 2) {
-        const crc8Writer = connection.getDeviceWriter(destAdr,'crc8');
-        return await crc8Writer(254).then( () => {
-            return getDeviceInfo( crc8Writer )
-        });
-    } 
-    
-    if (destAdr === 40) {
-        const crc16Writer = connection.getDeviceWriter(destAdr,'crc16xmodem');
-        return await crc16Writer(254).then( () => {
-            console.log('found crc16xmodem',destAdr)
-            return getDeviceInfo( crc16Writer );
-        });   
-    }
-    
+        
     //await getDeviceWriter(connection,adr,'crc16xmodemJs');
     // request info with correct crc type
 }
@@ -178,6 +162,8 @@ export const detectDevices = async emit => {
         }
     }
     await delayResolvePromise(500)
+    console.log({devices})
+    process.exit(0)
     if (emit) {
         // @ts-ignore
         emit(foundDevices)
