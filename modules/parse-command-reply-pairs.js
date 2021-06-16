@@ -117,7 +117,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                         command.reject({ err, input })
                         removeAllTasksByInput(input)
                         reject(`timeout: ${command.input}`);
-                    }, 200)
+                    }, 250)
 
                     resolve(commandPromise)
 
