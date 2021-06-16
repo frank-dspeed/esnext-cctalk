@@ -1,3 +1,4 @@
+import { truncateSync } from 'fs';
 import Debug from './debug.js'
 import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
 import { delayResolvePromise } from './promises-delayed.js';
@@ -24,6 +25,10 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
      */
      const onCCTalkCommandPairResponse = message => {
         const messageAsUint8Array = Uint8Array.from(message);
+        if(task && task.id === `${messageAsUint8Array}`) {
+            // Start Thicking
+        }
+
         if(task && task.id !== `${messageAsUint8Array}`) {
             //Debug('PROMISE')(task)
 
@@ -43,9 +48,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, `${messageAsUint8Array}`)
 
                 // @ts-ignore
-                task.resolve(messageAsUint8Array)
-                
-                setImmediate(()=>Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task))
+                task.resolve(messageAsUint8Array);
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task)
                 
                 writeLock = false;
                 return 
@@ -127,7 +131,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 })
             ])
             */
-            return await task;
+            return task;
 
         }
     
