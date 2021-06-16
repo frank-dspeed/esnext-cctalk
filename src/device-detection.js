@@ -58,6 +58,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     await delayResolvePromise(200)
     try {
         await write(254)
+        
         const result = [
             await write(244).then(readTextMessage),
             await write(245).then(readTextMessage),
@@ -83,7 +84,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
             
             for (const channel of possibleChannels) {
                 try {
-                    //await delayResolvePromise(200)
+                    await delayResolvePromise(200)
                     device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
                     //await delayResolvePromise(200)
                 } catch(e) {
