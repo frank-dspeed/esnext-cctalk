@@ -51,24 +51,28 @@ export const getDeviceInfo = async (writer) => {
 const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
+    try {
+        return await write(254).then( async () => {
+            const result = [
+                await write(244).then(readTextMessage),
+                await write(245).then(readTextMessage),
+                await write(246).then(readTextMessage),
+            ];
+            const [ productCode, equipmentCategoryId, manufacturerId ] = result;
     
-    return await write(254).then( async () => {
-        const result = [
-            await write(244).then(readTextMessage),
-            await write(245).then(readTextMessage),
-            await write(246).then(readTextMessage),
-        ];
-        const [ productCode, equipmentCategoryId, manufacturerId ] = result;
-
-        return {
-            write,
-            productCode, 
-            equipmentCategoryId, 
-            manufacturerId,
-            crcMethodName,
-            destAdr,
-        }
-    })
+            return {
+                write,
+                productCode, 
+                equipmentCategoryId, 
+                manufacturerId,
+                crcMethodName,
+                destAdr,
+            }
+        })
+    } catch (e) {
+        // Nothing found 
+    }
+    
     
     
     
