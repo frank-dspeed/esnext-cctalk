@@ -79,13 +79,7 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
             }
             
             Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({input})
-            // @ts-ignore
-            
 
-
-
-            
-            
             // @ts-ignore
             const command = {}
             const commandPromise = new Promise((resolve, reject) => {
@@ -115,26 +109,27 @@ import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
                     input
                 })
                 // @ts-ignore
-                portToWrite.write(command.input, err =>{
+                portToWrite.write(command.input, async err =>{
                     if(err) { reject(err) } 
-                    
-                    return Promise.race([
-                        commandPromise,
-                        new Promise((resolve) => 
-                            // @ts-ignore
-                            setTimeout(() => { 
-                                removeAllTasksByInput(input)
+                    try {
+                        await Promise.race([
+                            commandPromise,
+                            new Promise((resolve) => 
                                 // @ts-ignore
-                                resolve(Promise.reject(`timeout: ${command.input}`));
-                            }, 200))
-                    ]).catch( err => {
+                                setTimeout(() => { 
+                                    removeAllTasksByInput(input)
+                                    // @ts-ignore
+                                    resolve(Promise.reject(`timeout: ${command.input}`));
+                                }, 200))
+                        ])
+                    } catch( err ) {
                         Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')(err,{input})
-                        throw err;
+                        command.reject({ err, input })
                     });
                 });
             })
 
-            return writePromise;
+            return await writePromise;
 
         }
     
