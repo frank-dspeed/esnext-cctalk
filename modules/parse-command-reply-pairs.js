@@ -77,7 +77,10 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             });
 
             setTimeout(() => {
-                task.reject('timeoutAfter250ms')
+                task.reject({ 
+                    err: 'timeoutAfter250ms',
+                    task
+                })
             }, 250)
             /*
             // @ts-ignore
