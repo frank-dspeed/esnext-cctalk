@@ -84,13 +84,12 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             const defferedcommandPromise = createDefferedPromise(`${input}`);
             
             writeLock = true;
-            
-                        
+            // Try positioning the task assignment inside the writePromise could leed
+            // to a more solid result
+            task = defferedcommandPromise;        
             portToWrite.write(input, (/** @type {any} */ err) => {
                 if(err) { task.reject(err) } 
-                // Try positioning the task assignment inside the writePromise could leed
-                // to a more solid result
-                task = defferedcommandPromise;
+                
             });
 
             return await task;
