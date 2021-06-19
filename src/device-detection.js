@@ -223,11 +223,15 @@ const main = async () => {
         ()=> testAdr(40, 'crc16xmodem')
     ] 
 	const iter = getSimpleAsyncIterable(arrayAsyncFns)
-	for await (const value of iter) {
-		console.log({value})
+	const devices = []
+    for await (const value of iter) {
+		//console.log({value})
+        devices.push(value)
 	}
     console.log('done')
-	//clearInterval(t)	
+	console.log( {devices })
+    console.log('done')
+    //clearInterval(t)	
 }
 
 main()
