@@ -6,7 +6,7 @@ const wait200ms = () => delayResolvePromise(200);
 
 // Essentials
 import { getConnection } from '../../src/cctalk-node.js';
-import { headersMap } from '../../modules/cctalk-headers.js'
+import { headersByName } from '../../modules/cctalk-headers.js'
 import SerialPort from 'serialport';
 
 //const SerialPort = require('serialport')
@@ -21,21 +21,14 @@ const port = new SerialPort('/dev/ttyUSB0', {
 const { getDeviceWriter } = getConnection(port);
 const coinAcceptor = getDeviceWriter( 2, 'crc8' );
 
-await wait200ms();
-// 254 simplePoll
-await coinAcceptor(headersMap.simplePoll);
-await wait200ms();
-// 231 modifyInhibit Accept
-await coinAcceptor(headersMap.modifyInhibitStatus, Uint8Array.from([255, 1]));
-await wait200ms();
-// 228 modifyMasterInhibit
-await coinAcceptor(headersMap.modifyMasterInhibit, Uint8Array.from([0xFF]));
-await wait200ms();
+await coinAcceptor(headersByName.simplePoll);
+await coinAcceptor(headersByName.modifyInhibitStatus, Uint8Array.from([255, 1]));
+await coinAcceptor(headersByName.modifyMasterInhibit, Uint8Array.from([0xFF]));
 
 // @ts-ignore
 const readBufferedCredit = async () => {
     // 229 readBufferedCredit
-    return await coinAcceptor(headersMap.readBufferedCredit).then(async eventResponse=>{
+    return await coinAcceptor(headersByName.readBufferedCredit).then(async eventResponse=>{
         // Here we get the status of inserted coins
         // You will want to use complex parsing logic here
         // and maybe also send extra commands via
@@ -50,4 +43,3 @@ const readBufferedCredit = async () => {
 await readBufferedCredit().then(()=>readBufferedCredit())
 
 export {}// Only here to indicate that this is a ESM Module
-
