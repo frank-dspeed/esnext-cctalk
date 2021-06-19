@@ -1,4 +1,4 @@
-import { getPort } from '../src/cctalk-node-port-mock.js';
+import { getPort } from './utils/cctalk-node-port-mock.js';
 import { getConnection } from '../src/cctalk-node.js';
 import { Debug } from '../modules/debug.js';
 

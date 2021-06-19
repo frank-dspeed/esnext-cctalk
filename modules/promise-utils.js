@@ -1,7 +1,29 @@
+// @ts-ignore
 import Debug from "./debug.js";
 
-// @ts-nocheck
-let dataId = 0
+//appendChain(Promise.resolve(())
+/**
+ * const chain = getPromiseChain()
+ * const currentPromise = chain(Promise.resolve())
+ * @returns 
+ */
+export const getPromiseChain = () => {
+    let chain = Promise.resolve()
+    // @ts-ignore
+    return p => chain = chain.then(()=>p()).catch(()=>p());
+}
+
+export const delayResolvePromise = (ms=50) => new Promise(resolve => 
+    setTimeout(resolve, ms)
+);
+
+export const delayRejectPromise = (ms = 50) => new Promise( resolve => 
+    setTimeout( ()=> 
+        resolve(Promise.reject(`timeout: ${ms}`)), ms
+    )
+);
+
+//QueryAbleDefferedPromise
 /**
  * 
  * @param {*} id 
@@ -100,100 +122,108 @@ export const createDefferedPromise = id => {
     return defferedPromise;
 }
 
-
-
-
+//cancelableTryRetryPromise
+/**
+ * 
+ * @param {*} fn 
+ * @returns 
+ */
+ const call = fn => fn();
+ /*
+ const { 
+     createCancelAbleTryAndRetryPromise, cancelTryAndRetry 
+ } = CreateCancelAbleTryAndRetryPromise();
+ 
+ //trys it unti it Rejects
+ createCancelAbleTryAndRetryPromise(
+     () => Promise.reject( 
+         call( () => Debug('cancelAbleTryRetryPromise')('reject') ) 
+     )
+ , 100)
+ 
+ setTimeout(()=>{
+     cancelTryAndRetry()
+ 
+ },500)
+ */
+ export const CreateCancelAbleTryAndRetryPromise = () => {
+     let reject = false;
+     let start = 0
+     let start1 = 0
+     let end = 0
+     /**
+      * 
+      * @param {*} fn 
+      * @param {number} ms 
+      * @returns {Promise<Uint8Array>}
+      */
+     const createCancelAbleTryAndRetryPromise = async (fn, ms) => {
+         start = Date.now()
+         return delayResolvePromise(ms)
+             .then(()=> {
+                 if (!start1) {
+                     start1 = Date.now()
+                 }
+                 if (reject) {
+                     Debug('cancelAbleTryRetryPromise')(Date.now(),reject ? 'canceled' : 'try' )        
+                     end = Date.now()
+                     Debug('cancelAbleTryRetryPromise')('ending', { start, start1, end, diff: end - start1 })
+                     return
+                 }
+                 Debug('cancelAbleTryRetryPromise')(Date.now(),'try' )
+                 return fn();
+             })
+             .catch(()=>createCancelAbleTryAndRetryPromise(fn,ms));
+     }
+         
+     
+     const cancelTryAndRetry = () => reject = true
+     
+     return {
+         cancelTryAndRetry, createCancelAbleTryAndRetryPromise
+     }
+ }
+ /**
+  * @type {(arrayOfFnReturnPromis)=>{[Symbol.asyncIterator]}}
+  * @param {*} arrayAsyncFns 
+  * @returns 
+  */
+  export const getAsyncIterableFromArrayOfAsyncFns = (arrayAsyncFns) => {
+    let index = 0;
+    const scope = { arrayAsyncFns }
+    
+    const next = async () => {
+        const done = !(index in scope.arrayAsyncFns);
+        if (done) { return { done }; }
+        
+        const nextFn = scope.arrayAsyncFns[index];
+        const value = await nextFn();
+        index += 1
+        
+        if (value) { return { value, done }; }
+        return next();
+        //every secund resolve with the next value
+        return new Promise(
+            resolve=>setTimeout(()=>resolve({ value, done }), 1000))
+    }
+    class AsyncIterableFromArrayOfAsyncFns {
+        next() { return next(); }
+        [Symbol.asyncIterator]() { return { next }; }	
+    }
+    return new AsyncIterableFromArrayOfAsyncFns()
+}
 /*
-const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el === val ? [...acc, i] : acc), []);
-const observAblePromise = fn => Promise.allSettled([fn()]).then(r=>r[0]);
-
-let currentPromise = Promise.resolve();
-
-let writeLock = true;
-
-const writeState = [
-//    "40,0,0,254,0",
-//     "1,0,0,254,0",
-//    "40,0,0,254,0",
-//     "1,0,0,254,0",
-]
-
-const readState = [
-//     "0,0,0,254,0",
-//     "0,0,0,254,0",
-//     "0,0,0,254,0",
-//    "40,0,0,254,0",
-//     "1,0,0,254,0",
-//    "40,0,0,254,0",
-//     "1,0,0,254,0",
-]
-
-const switchWriteLock = () => {
-    
-    if (!writeLock) {
-        writeLock = true;
-        setTimeout(()=> { 
-            writeLock = false;
-            // Resolve           
-        })
-    }
-    return 
+const detectDevices = async () => {
+    const  arrayAsyncFns = [
+        ()=> testAdr(40, 'crc8'),
+        ()=> testAdr(2, 'crc8'),
+        ()=> testAdr(40, 'crc16xmodem')
+    ] 
+	const iter = getAsyncIterableFromArrayOfAsyncFns(arrayAsyncFns)
+	const devices = []
+    for await (const value of iter) {
+        devices.push(value)
+	}
+    return devices;
 }
-
-const port = {
-    write: () => {
-        // Triggers Read Evaluation for 50ms
-        writeState.push(); // .toString()
-    },
-    on: () => {
-        // Reads What got written
-        readState.push([]) // .toString()
-        dataId++
-    }
-}
-
-const readUntilTimeout = createDefferedPromise();
-// the .toString() makes the state compare able
-const resolveState = state => {
-    // Pair Reduce 
-    
-    writeState.forEach( (cctalkSended, writeStateIdx) => {
-        
-        const all = indexOfAll(readState, cctalkSended)
-        /*
-        const currentCCTalkTransaction = readState
-            .indexOf(cctalkSended);
-        
-        if (currentCCTalkTransaction || currentCCTalkTransaction === 0) {
-            console.log(currentCCTalkTransaction)
-        };
-        *    
-    })
-    
-
-}
-
-await observAblePromise(()=>writeState.push("40,0,0,254,0","1,0,0,254,0"))
-
-writeState.push("40,0,0,254,0","1,0,0,254,0")
-readState.push("40,0,0,254,0","1,0,0,254,0")
-resolveState()
-
-// Case 1 we send a write command and expect proper response in time
-// We do not Accept a secund Write request what can happen?
-// Case 1.1 We get the right response and fullFill
-// Case 1.3 We get no response and timeout
-// The following cases are bad
-// Case 1.2 We get the right response and there comes additional data (so not really valid response eg: 253
-// Case 1.4 We get somehow a command that got send by a device eg master to slave 
-
-// Case 1.5 Not tested but expected we 
-// We write to the port and wait 50ms if something came back 
-    // if yes we wait again 50ms 
-    // if not we resolve 
-        // if there is data we resolve with that data and clean up 
-        // if not reject timeout if nothing got resolved
-
-// Case 1.6 If there is no waiting command we emit the data.
 */
-export {}

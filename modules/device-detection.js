@@ -1,7 +1,7 @@
-import Debug from '../modules/debug.js'
-import { getConnection } from './cctalk-node.js'
-import { getMessage } from '../modules/payload-helpers.js'
-
+import Debug from './debug.js'
+import { getConnection } from '../src/cctalk-node.js'
+import { getMessage } from './payload-helpers.js'
+import { getAsyncIterableFromArrayOfAsyncFns } from './promise-utils.js'
 // @ts-ignore
 const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator';
 // @ts-ignore
@@ -106,38 +106,13 @@ const testAdr = async ( destAdr, crcMethodName ) => {
 
 }
 
-const getSimpleAsyncIterable = (arrayAsyncFns) => {
-    let index = 0;
-    const scope = { arrayAsyncFns }
-    
-    const next = async () => {
-        const done = !(index in scope.arrayAsyncFns);
-        if (done) { return { done }; }
-        
-        const nextFn = scope.arrayAsyncFns[index];
-        const value = await nextFn();
-        index += 1
-        
-        if (value) { return { value, done }; }
-        return next();
-        //every secund resolve with the next value
-        return new Promise(
-            resolve=>setTimeout(()=>resolve({ value, done }), 1000))
-    }
-    class SimpleAsyncIterable {
-        next() { return next(); }
-        [Symbol.asyncIterator]() { return { next }; }	
-    }
-    return new SimpleAsyncIterable()
-}
-
 const detectDevices = async () => {
     const  arrayAsyncFns = [
         ()=> testAdr(40, 'crc8'),
         ()=> testAdr(2, 'crc8'),
         ()=> testAdr(40, 'crc16xmodem')
     ] 
-	const iter = getSimpleAsyncIterable(arrayAsyncFns)
+	const iter = getAsyncIterableFromArrayOfAsyncFns(arrayAsyncFns)
 	const devices = []
     for await (const value of iter) {
         devices.push(value)

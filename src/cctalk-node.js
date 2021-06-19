@@ -19,7 +19,12 @@ export const NodeCCTalkConnection = () =>{
      * 
      */
 }
-export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
+/**
+ * @type {( maxDelayBetweenBytesMs: number ) => Transform }
+ * @param {*} maxDelayBetweenBytesMs 
+ * @returns 
+ */
+export const getNodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
     const parser = OnPayloadComplet(maxDelayBetweenBytesMs);
     /**
     * Parse the CCTalk protocol
@@ -44,7 +49,7 @@ export const NodeStreamParser = (maxDelayBetweenBytesMs = 50 ) => {
            cb();
        }
    }
-   return NodeTransformStream;
+   return new NodeTransformStream();
 }
 
 export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
@@ -97,8 +102,7 @@ export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
  * @returns 
  */
 export const getConnection = port => {
-    const CCTalk = NodeStreamParser();
-    const parser = port.pipe(new CCTalk());
+    const parser = port.pipe(getNodeStreamParser(50));
 
     const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = OnCCTalkCommandPairResponse();
     const createCCTalkReqestPromise = CreateCCTalkRequest(port);

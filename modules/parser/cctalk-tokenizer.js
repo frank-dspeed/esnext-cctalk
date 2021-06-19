@@ -9,3 +9,4 @@ const tokenizer = payload => {
     // check if message contains at last one complet token
     // find first matching token in message
 }
+export {}

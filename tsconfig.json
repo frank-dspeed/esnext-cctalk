@@ -4,7 +4,7 @@
     "moduleResolution": "node",
     "module": "esnext",
     "target": "esnext",
-    "noEmit": false,
+    "noEmit": true,
     "declaration": true,
     "allowJs": true,
     "checkJs": true,
