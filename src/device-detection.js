@@ -55,7 +55,7 @@ export const getDeviceInfo = async (writer) => {
 const testAdr = async ( destAdr, crcMethodName ) => {
     // 254 with all crc types
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
-    await delayResolvePromise(800)
+    //await delayResolvePromise(800)
     
     const simplePollWorks = await write(254).catch(console.log)
     if (!simplePollWorks) {
@@ -87,7 +87,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         
         for (const channel of possibleChannels) {
             try {
-                await delayResolvePromise(200)
+                //await delayResolvePromise(200)
                 device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
                 //await delayResolvePromise(200)
             } catch(e) {
