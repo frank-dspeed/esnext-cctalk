@@ -10,7 +10,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
  * @returns 
  */
  export const OnCCTalkCommandPairResponse = () => {
-    let writeLock = false;
+    //let writeLock = false;
     /** @type {*} */
     let task = null;
 
@@ -20,7 +20,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
     /** @type {NodeJS.Timeout} */
     let currentTimeout;
     const startTimeout = () => currentTimeout = setTimeout(() => {
-        writeLock = false
+        //writeLock = false
         task.reject({ 
             err: 'timeoutAfter650ms',
             task
@@ -54,7 +54,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 task.resolve(messageAsUint8Array);
                 Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair', `${task}`)
                 
-                writeLock = false;
+                //writeLock = false;
                 return 
             }
             
@@ -74,18 +74,18 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         // cctalkRequest
         /** @param {Uint8Array} input */
         async input => {
-            if (writeLock && task && task.isPending) {
+            if (
+                //writeLock && 
+                task && task.isPending) {
                 // Only Apply writeLock if isPending
-                Debug('writeLock')({ err: 'writeLock', task, input })
+                Debug('writeLock')({ err: 'writeLock', `${task}`, input })
                 return Promise.reject('writeLock')
             }
             
             // @ts-ignore
             const defferedcommandPromise = createDefferedPromise(`${input}`);
-            
-            writeLock = true;
-            // Try positioning the task assignment inside the writePromise could leed
-            // to a more solid result
+           
+            //writeLock = true;
             task = defferedcommandPromise;        
             portToWrite.write(input, (/** @type {any} */ err) => {
                 if(err) { task.reject(err) } 
