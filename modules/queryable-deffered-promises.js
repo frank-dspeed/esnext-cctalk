@@ -35,6 +35,14 @@ export const createDefferedPromise = id => {
     defferedPromise = new Promise( 
         ( resolve, reject ) =>
             Object.assign( defferedHandlers, {
+                toString() {
+                    const ref = defferedPromise;
+                    delete ref.setTimeout
+                    delete ref.clearTimeout
+                    delete ref.resolve
+                    delete ref.reject
+                    return JSON.stringify(ref)
+                },
                 setTimeout(ms=50) {
                     defferedPromise.clearTimeout();
                     defferedPromise.timeOut = setTimeout( () => {
