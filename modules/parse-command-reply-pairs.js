@@ -3,6 +3,7 @@ import Debug from './debug.js'
 import { getDestHeaderDataFromPayloadAsObject } from './payload-helpers.js';
 import { delayResolvePromise } from './promises-delayed.js';
 import { createDefferedPromise } from './queryable-deffered-promises.js';
+
 /**
  * const SerialPort = require('serialport')
  * const port = new SerialPort('/dev/ttyUSB0')
@@ -33,10 +34,6 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
      */
      const onCCTalkCommandPairResponse = message => {
         const messageAsUint8Array = Uint8Array.from(message);
-        if (!task) {
-            console.log('async hell')
-            process.exit()
-        }
         if(task && task.id === `${messageAsUint8Array}`) {
             // Start Thicking
             startTimeout();
@@ -45,10 +42,6 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
 
         if(task && task.id !== `${messageAsUint8Array}`) {
             //Debug('PROMISE')(task)
-
-            // Note task stays the same if less then 2 commands got send
-            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
-
 
             // @ts-ignore
             const messageObject = getDestHeaderDataFromPayloadAsObject(messageAsUint8Array); 
@@ -65,7 +58,8 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 return 
             }
             
-
+            // Note task stays the same if less then 2 commands got send
+            Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
         } 
         if(task && task.id !== `${messageAsUint8Array}`) {
             // we got no promise but we got data we need to error and exit  
@@ -90,50 +84,15 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             const defferedcommandPromise = createDefferedPromise(`${input}`);
             
             writeLock = true;
-            // Try positioning the task assignment inside the writePromise could leed
-            // to a more solid result
-            task = defferedcommandPromise;
+            
                         
             portToWrite.write(input, (/** @type {any} */ err) => {
                 if(err) { task.reject(err) } 
+                // Try positioning the task assignment inside the writePromise could leed
+                // to a more solid result
+                task = defferedcommandPromise;
             });
 
-            
-            /*
-            // @ts-ignore
-            const writePromise = Promise.race([
-                new Promise((resolve,reject)=> {
-                    Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/debug')({ 
-                        /** @type {Uint8Array} *
-                        input
-                    })
-                    // @ts-ignore
-                    portToWrite.write(input, async err => {
-                        if(err) { reject(err) } 
-    
-                        resolve(defferedcommandPromise)
-
-                    });
-                }),
-                // Timeout is expected to get canceled by race
-                new Promise(resolve=>{
-                        setTimeout(() => {
-
-                            //resolve(Promise.reject({ err, input, commandPromiseStatus }))
-                            resolve(true);
-                                                        
-                        }, 650)
-                }).then(()=>{
-                    // CleanUp and throw
-                    const err = 'timeout650ms'
-                            
-                    // @ts-ignore
-                    defferedcommandPromise.reject({ err, input })
-                    Debug('esnext-cctalk/node/connection/CreateCCTalkRequest/error')({ err, input, defferedcommandPromise })
-                    throw new Error(JSON.stringify({ err, input, defferedcommandPromise }))
-                })
-            ])
-            */
             return await task;
 
         }
