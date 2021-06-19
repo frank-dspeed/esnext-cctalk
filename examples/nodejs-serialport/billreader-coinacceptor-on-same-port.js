@@ -1,5 +1,5 @@
-import getDevices from '../..//src/device-detection.js';
-import { delayResolvePromise } from '../..//modules/promises-delayed.js';
+import getDevices from '../../modules/device-detection.js';
+import { delayResolvePromise } from '../..//modules/promise-utils.js';
 import { headersByName } from '../../modules/cctalk-headers.js';
 //const tryPoll = write => delayResolvePromise(1200).then(()=>write(254).catch(()=>tryPoll(write)));
 

@@ -1,7 +1,7 @@
 // if you install esnext-cctalk from github
 // replace ../../ with esnext-cctalk
 // Utils
-import { delayResolvePromise } from '../../modules/promises-delayed.js';
+import { delayResolvePromise } from '../../modules/promise-utils.js';
 const wait200ms = () => delayResolvePromise(200);
 
 // Essentials

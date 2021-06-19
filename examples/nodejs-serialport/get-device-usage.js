@@ -1,4 +1,4 @@
-import getDevices from '../../src/device-detection.js';
+import getDevices from '../../modules/device-detection.js';
 import { getEventData,getEventsAsArrays,isValidEventPayload } from '../..//modules/parser/on-valid-event-message.js'
 
 const devices = await getDevices();

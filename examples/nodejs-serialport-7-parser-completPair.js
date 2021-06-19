@@ -24,6 +24,7 @@ import { crc8 } from '../modules/crc/8.js'
 const createBillReaderRequestPromise = (header, data= new Uint8Array(0)) => 
     createCCTalkReqestPromise( crc16xmodemJs.sign( Uint8Array.from([40,data.length,1,header,...data,0]) ) );
 */
+
 import { CreatePayloadUsingCrcMethodName } from '../src/cctalk-crc.js';
 const createBillReaderPayload =  CreatePayloadUsingCrcMethodName( 40, 1,'crc16xmodem' )
 const createBillReaderRequestPromise = (header=254, data= new Uint8Array(0)) => createCCTalkReqestPromise(createBillReaderPayload(header,data));

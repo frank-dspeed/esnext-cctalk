@@ -1,5 +1,5 @@
 import getDevices from 'esnext-cctalk/src/device-detection.js';
-import { delayResolvePromise } from 'esnext-cctalk/modules/promises-delayed.js';
+import { delayResolvePromise } from 'esnext-cctalk/modules/promise-utils.js';
 import { headersByName } from '../../modules/cctalk-headers.js';
 //const tryPoll = write => delayResolvePromise(1200).then(()=>write(254).catch(()=>tryPoll(write)));
 
