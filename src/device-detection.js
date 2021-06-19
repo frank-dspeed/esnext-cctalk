@@ -219,7 +219,7 @@ const getSimpleAsyncIterable = (arrayAsyncFns) => {
 const main = async () => {
 	//const t = timer()
     const  arrayAsyncFns = [
-        ()=> testAdr(40, 'crc8')
+        ()=> testAdr(40, 'crc8'),
         ()=> testAdr(2, 'crc8'),
         ()=> testAdr(40, 'crc16xmodem')
     ] 
