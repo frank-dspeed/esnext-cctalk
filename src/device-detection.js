@@ -57,7 +57,10 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     await delayResolvePromise(800)
     
-    await write(254).catch(console.log)
+    const simplePollWorks = await write(254).catch(console.log)
+    if (!simplePollWorks) {
+        return
+    }
 
     const result = [
         await write(244).then(readTextMessage),
