@@ -41,7 +41,7 @@ export const createDefferedPromise = id => {
                     delete ref.clearTimeout
                     delete ref.resolve
                     delete ref.reject
-                    ref.value = [...ref.value]
+                    ref.value = ref.value.join(',')
                     return JSON.stringify(ref)
                 },
                 setTimeout(ms=50) {
