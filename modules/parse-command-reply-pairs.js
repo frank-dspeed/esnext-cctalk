@@ -59,7 +59,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 clearTimeout(currentTimeout)
                 // @ts-ignore
                 task.resolve(messageAsUint8Array);
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.toSting())
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair', `${task}`)
                 
                 writeLock = false;
                 return 
