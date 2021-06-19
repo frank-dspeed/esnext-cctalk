@@ -224,7 +224,7 @@ const main = async () => {
     ] 
 	const iter = getSimpleAsyncIterable(arrayAsyncFns)
 	for await (const value of iter) {
-		console.log('value = ' + value)
+		console.log({value})
 	}
     console.log('done')
 	//clearInterval(t)	
