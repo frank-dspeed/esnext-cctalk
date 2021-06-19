@@ -57,7 +57,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     await delayResolvePromise(800)
     
-    await write(254)
+    await write(254).catch(console.log)
 
     const result = [
         await write(244).then(readTextMessage),
