@@ -74,9 +74,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
         // cctalkRequest
         /** @param {Uint8Array} input */
         async input => {
-            if (
-                //writeLock && 
-                task && task.isPending) {
+            if (task && task.isPending) {
                 // Only Apply writeLock if isPending
                 Debug('writeLock')({ err: 'writeLock', task: `${task}`, input })
                 return Promise.reject('writeLock')
