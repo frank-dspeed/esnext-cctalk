@@ -1,7 +1,7 @@
 import { sinonSpy } from './utils/sinon-spy.js';
 
-import { NodeStreamParser } from '../src/cctalk-node.js';
-const CCTalkParser = NodeStreamParser(50);
+import { getNodeStreamParser } from '../src/cctalk-node.js';
+
 import assert from 'assert';
 import { crcMethods } from '../src/cctalk-crc.js';
 console.log('emits data for a default length message')
@@ -10,7 +10,7 @@ const test1 = () => {
   const data = Uint8Array.from([2, 0, 1, 254, 255])
   const spy = sinonSpy();
   
-  const parser = new CCTalkParser()
+  const parser = getNodeStreamParser(50);
   parser.on('data', spy.call)
   parser.write(data)
   assert.strictEqual(spy.callCount, 1)
@@ -23,7 +23,7 @@ test1();
 console.log('emits data for a 7 byte length message')
 const test2 = () => {
   
-  const parser = new CCTalkParser()
+  const parser = getNodeStreamParser(50);
   const spy = sinonSpy();
   parser.on('data', spy.call)
   parser.write(Uint8Array.from([2, 2, 1, 254, 1, 1, 251]))
@@ -38,7 +38,7 @@ test2()
 console.log('parses multiple length messages')
 const test3 = () => {
 
-  const parser = new CCTalkParser()
+  const parser = getNodeStreamParser(50);
   const spy = sinonSpy()
   parser.on('data', spy.call)
   parser.write(Uint8Array.from([2, 2, 1]))
@@ -56,7 +56,7 @@ test3()
 console.log('parses a long message')
 const test4 = () => {
   
-  const parser = new CCTalkParser()
+  const parser = getNodeStreamParser(50);
   const spy = sinonSpy()
   parser.on('data', spy.call)
   parser.write(Uint8Array.from([
@@ -81,8 +81,8 @@ const test5 = () => {
   
   const spy = sinonSpy();
   //const clock = sinon.useFakeTimers(Date.now())
-  const CCTalkParser = NodeStreamParser(5);
-  const parser = new CCTalkParser();
+  
+  const parser = getNodeStreamParser(50);;
   parser.on('data', spy.call)
   parser.write(Uint8Array.from([2, 2, 1]))
   //clock.tick(51)
@@ -103,7 +103,7 @@ const test6 = () => {
   const spy = sinonSpy()
   //const clock = sinon.useFakeTimers(Date.now())
   const CCTalkParser = NodeStreamParser(0);
-  const parser = new CCTalkParser()
+  const parser = getNodeStreamParser(50);
   parser.on('data', spy.call)
   parser.write(Uint8Array.from([2, 2, 1]))
   //clock.tick(100)

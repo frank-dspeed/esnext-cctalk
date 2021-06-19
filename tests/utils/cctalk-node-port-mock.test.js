@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {getPort} from '../tests/utils/cctalk-node-port-mock.js';
+import {getPort} from './cctalk-node-port-mock.js';
 
 
 
