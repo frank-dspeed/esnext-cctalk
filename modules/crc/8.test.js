@@ -1,5 +1,5 @@
 import { crc8 } from './8.js';
-import assert from 'assert';
+import { strictEqual, ok } from 'assert';
 /*
 The raw data to transmit is 40 0 1 254 217 which have the meaning :
 
@@ -15,8 +15,8 @@ describe('modules/crc/8.js', function() {
         const data = [2,0,1,254,0];
         const expectedResult = [ 2, 0, 1, 254, 255 ];
         const signedPayload = crc8.sign(Uint8Array.from(data));
-        assert.strictEqual(`${signedPayload}`,`${expectedResult}`,'Signed simplePoll incorect')
-        assert.ok(crc8.verify(signedPayload), 'CRC8 Verify is some how Broken')
+        strictEqual(`${signedPayload}`,`${expectedResult}`,'Signed simplePoll incorect')
+        ok(crc8.verify(signedPayload), 'CRC8 Verify is some how Broken')
     });
   
 });

@@ -22,6 +22,9 @@ export const createDefferedPromise = id => {
      * @property {number|string} id - id
      * @property {*} value - Indicates whether the Wisdom component is present.
      * @property {*} reason - Indicates whether the Wisdom component is present.
+     * @property {*} setTimeout - Indicates whether the Wisdom component is present.
+     * @property {()=>{}} clearTimeout - Indicates whether the Wisdom component is present.
+     * @property {NodeJS.Timeout} timeOut - Indicates whether the Wisdom component is present.
      */
     
     /** @type {defferedPromise} */
@@ -30,12 +33,29 @@ export const createDefferedPromise = id => {
     
     //@ts-ignore
     defferedPromise = new Promise( 
-        ( resolve, reject ) => Object.assign(
-            defferedHandlers, {
+        ( resolve, reject ) =>
+            Object.assign( defferedHandlers, {
+                setTimeout(ms=50) {
+                    defferedPromise.clearTimeout();
+                    defferedPromise.timeOut = setTimeout( () => {
+                            const settledAfter = Date.now() - defferedPromise.createdAt
+                            defferedPromise.reject(new Error(`
+                            Timeout After ${ms} .settledAfter = ${settledAfter}    
+                            `))
+                        }, 
+                        ms
+                    )
+                },
+                clearTimeout() {
+                    if (defferedPromise.timeOut) {
+                        clearTimeout(defferedPromise.timeOut)
+                    }
+                },
                 /** @param {*} value */
                 resolve(value) {
-                    Debug('resolve:')({ value, id })                    
                     if (defferedPromise.isPending) {
+                        defferedPromise.clearTimeout();
+                        //Debug('resolve:')({ value, id })                    
                         defferedPromise.isFulfilled = true;
                         defferedPromise.isPending = false;
                         defferedPromise.value = value;
@@ -47,8 +67,10 @@ export const createDefferedPromise = id => {
                 
                 /** @param {*} reason */
                 reject(reason) {
-                    Debug('reject:')({ reason, id })
                     if (defferedPromise.isPending) {
+                        
+                        defferedPromise.clearTimeout();
+                        //Debug('reject:')({ reason, id })
                         defferedPromise.isRejected = true;
                         defferedPromise.isPending = false;
                         defferedPromise.reason = reason;
@@ -62,19 +84,10 @@ export const createDefferedPromise = id => {
                 isFulfilled :false,
                 id,
                 createdAt: Date.now(),
-            }
-        ) 
+            }) 
     );
     
-    //const queryAbleDefferedPromise = createQuerablePromise(
-        //defferedPromise
-    //);
-    Object.assign(
-        defferedPromise,
-        //queryAbleDefferedPromise, 
-        defferedHandlers, 
-        //{ id, createdAt: Date.now() }
-    );
+    Object.assign( defferedPromise, defferedHandlers );
     return defferedPromise;
 }
 

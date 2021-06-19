@@ -1,11 +1,11 @@
 import Debug from "../debug.js";
-
+export const getEventData = payload => payload.slice(5,-1)
 /**
  * 
  * @param {Uint8Array} eventData 
  * @returns 
  */
- const getEventsAsArrays = eventData => {
+ export const getEventsAsArrays = eventData => {
     /**
      * This produces events[event] definition of event event[channel,type] 
      * @param {Uint8Array[]} result 

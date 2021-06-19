@@ -11,6 +11,10 @@ export const getPort = allowPipe => {
         // @ts-ignore
         mockPort?.data(data);
     }
+    // @ts-ignore When pipe gets used it will override this
+    // for our case that is not importent as we most time aim to 
+    // work with a none piped port.
+    mockPort.on = ( eventName, callback) => mockPort[eventName] = callback;   
     
     /**
      * 
@@ -18,18 +22,18 @@ export const getPort = allowPipe => {
      * @returns 
      */
     mockPort.pipe = ( nodeStream) => {
-        return   {
+        const pipePort = {
             on:
             /**
              * 
              * @param {*} eventName 
              * @param {*} callback 
              */
-            ( eventName, callback ) => {
+            ( eventName = 'data', callback ) => {
                 if (allowPipe) {
-                    nodeStream.on('data',callback)
+                    const readNodeStream = nodeStream.on(eventName, callback)
                     // @ts-ignore
-                    mockPort[eventName] = data => { nodeStream.write(data); } 
+                    const proxyToNodeStream = mockPort[eventName] = data => { nodeStream.write(data); } 
                     return
                 } 
                 // @ts-ignore
@@ -37,9 +41,7 @@ export const getPort = allowPipe => {
             }
             
         }
+        return pipePort;
     }
     return mockPort
 }
-
-
-

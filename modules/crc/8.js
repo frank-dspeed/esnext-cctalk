@@ -1,5 +1,5 @@
 import './types.js';
-import Debug from '../debug.js';
+//import Debug from '../debug.js';
 import { errorUint8 } from '../error-uint8.js';
 
 /**
@@ -36,7 +36,7 @@ export const crc8 = {
         const checksumLessPayload = unsignedButCompletPayload.slice(0, -1);
         const checksum = getCrc8ChecksumFor(checksumLessPayload);
         const signedPayload = Uint8Array.from( [...checksumLessPayload, checksum] );
-        Debug('esnext-cctalk/crc/crcMethods/crc8/debug')({ unsignedButCompletPayload, signedPayload, checksumLessPayload, checksum })
+        //Debug('esnext-cctalk/crc/crcMethods/crc8/debug')({ unsignedButCompletPayload, signedPayload, checksumLessPayload, checksum })
         return signedPayload
     },
     /**

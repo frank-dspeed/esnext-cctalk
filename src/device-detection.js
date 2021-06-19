@@ -3,9 +3,9 @@ import { getConnection } from './cctalk-node.js'
 import { getMessage } from '../modules/payload-helpers.js'
 import { delayResolvePromise } from '../modules/promises-delayed.js';
 // @ts-ignore
-const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator'
+const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator';
 // @ts-ignore
-const isCoinAcceptor = device => device.equipmentCategoryId === 'Coin Acceptor'
+const isCoinAcceptor = device => device.equipmentCategoryId === 'Coin Acceptor';
 
 import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0', {
@@ -18,9 +18,9 @@ const port = new SerialPort('/dev/ttyUSB0', {
 const connection = getConnection(port);
 
 const detectedDevice = {
-    246: 'requestManufacturerId', //Core commands
-    245: 'requestEquipmentCategoryId', //Core commands
-    244: 'requestProductCode', //Core commands
+    '246': 'requestManufacturerId', //Core commands
+    '245': 'requestEquipmentCategoryId', //Core commands
+    '244': 'requestProductCode', //Core commands
 }
 //  [...payload].slice(4,-1)
 /** @param {Uint8Array} payload*/
@@ -137,6 +137,9 @@ const findDevices2 = async function* () {
 };
 
 const crcMethods = [ 'crc8', 'crc16xmodem' ]
+
+
+
 const findDevices = async function* () {    
     for (const crcMethodName of crcMethods) {
         for (const [name, destAdr] of Object.entries(deviceTypes)) {
@@ -184,5 +187,50 @@ export const detectDevices = async emit => {
     }
     return foundDevices
 } 
+
+const getSimpleAsyncIterable = () => {
+    let index = 0;
+    const scope = { 
+            arrayAsyncFns: [
+                ()=> testAdr(2, 'crc8'),
+                ()=> testAdr(40, 'crc16xmodem')
+        ] 
+    }
+        //.filter(x=>x).filter(x => typeof x === 'function') }
+    console.log(scope.arrayAsyncFns)
+    const next = async () => {
+        const done = !(index in scope.arrayAsyncFns);
+        if (done) { return { done }; }
+        
+        const nextFn = scope.arrayAsyncFns[index];
+        const value = await nextFn();
+        index += 1
+        
+        if (value) { return { value, done }; }
+        return next();
+        //every secund resolve with the next value
+        return new Promise(
+            resolve=>setTimeout(()=>resolve({ value, done }), 1000))
+    }
+    class SimpleAsyncIterable {
+        next() { return next(); }
+        [Symbol.asyncIterator]() { return { next }; }	
+    }
+    return new SimpleAsyncIterable()
+}
+
+const main = async () => {
+	//const t = timer()
+
+	const iter = getSimpleAsyncIterable(tests)
+	for await (const value of iter) {
+		console.log('value = ' + value)
+	}
+    console.log('done')
+	//clearInterval(t)	
+}
+
+main()
+
 
 export default detectDevices;

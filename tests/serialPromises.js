@@ -1,3 +1,12 @@
+/**
+ * 
+ * @param {Array<()=>Promise<any>>} arrayOfFnReturnPromis 
+ * @returns {Promise<PromiseSettledResult<*>[]>}
+ */
+const asyncSerialPromises = async arrayOfFnReturnPromis => {
+  return Promise.allSettled(arrayOfFnReturnPromis.map(async (/** @type {() => any} */ fn) => await fn()));
+}
+
 {
   // https://stackoverflow.com/questions/24586110/resolve-arrayOfFnReturnPromis-one-after-another-i-e-in-sequence
   let i = 0;
@@ -14,19 +23,17 @@
         ()=> Promise.resolve(i++),
         ()=> Promise.reject(i++),
         ()=> Promise.resolve(i++),
-  ]
-  /**
-   * 
-   * @param {Array<()=>Promise<any>>} arrayOfFnReturnPromis 
-   * @returns {Promise<PromiseSettledResult<*>[]>}
-   */
-  const serialPromises = async arrayOfFnReturnPromis => {
-      return Promise.allSettled(arrayOfFnReturnPromis.map(async (/** @type {() => any} */ fn) => await fn()));
-  }
-  
-  serialPromises(arrayOfFnReturnPromis).then(console.log)
+  ]  
+  asyncSerialPromises(arrayOfFnReturnPromis).then(console.log)
 
 }
+
+/** @param {arrayOfFnReturnPromis} arrayOfFnReturnPromis */
+// @ts-ignore
+const serialPromises = arrayOfFnReturnPromis => 
+  Promise.allSettled(
+    arrayOfFnReturnPromis.map(async (/** @type {() => any} */ fn) => await fn())
+  );
 
 // Example 2
 {
@@ -37,13 +44,6 @@
     ()=> Promise.reject(i++),
     ()=> Promise.resolve(i++),
   ]
-
-  /** @param {arrayOfFnReturnPromis} arrayOfFnReturnPromis */
-  const serialPromises = arrayOfFnReturnPromis => 
-    Promise.allSettled(
-      arrayOfFnReturnPromis.map(async fn => await fn())
-    );
-
   
   serialPromises(arrayOfFnReturnPromis).then(console.log) // =>
 }
