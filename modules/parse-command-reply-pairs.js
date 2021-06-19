@@ -47,11 +47,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             //Debug('PROMISE')(task)
 
             // Note task stays the same if less then 2 commands got send
-
             Debug('esnext-cctalk/parse-command-reply-pairs/onCCTalkCommandPairResponse/task/debug')({ messageAsUint8Array })
-
-            
-            //Debug('tasks')({ tasks, messageAsUint8Array})
 
 
             // @ts-ignore
@@ -63,7 +59,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 clearTimeout(currentTimeout)
                 // @ts-ignore
                 task.resolve(messageAsUint8Array);
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.id, messageAsUint8Array, task)
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',task.toSting())
                 
                 writeLock = false;
                 return 
