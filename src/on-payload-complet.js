@@ -14,6 +14,7 @@ const checkDelayAndResetPreservedDataBufferIfneeded = onCompletPayloadInstance =
       const now = Date.now();
       const delayBetweenLastByte = now - lastByteFetchTime;
       if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
+        Debug('onCompletPayloadInstance/checkDelayAndResetPreservedDataBufferIfNeeded/discard/debug')(Uint8ArrayView)
         onCompletPayloadInstance.preservedDataBuffer = new Uint8Array(0);
       }
       onCompletPayloadInstance.lastByteFetchTime = now;
@@ -42,11 +43,6 @@ export const OnPayloadComplet = ( maxDelayBetweenBytesMs = 50 ) => {
   onCompletPayloadInstance._transform = ( buffer, destination ) => {
     
     checkDelayAndResetPreservedDataBufferIfneeded(onCompletPayloadInstance)
-    /**
-     * The spread operator ... uses a for const of loop and so converts 
-     * even NodeJS Buffer Objects Into Unit8Arrays without any tools
-     * browser nativ buffer implementations are UInt8 Arrays
-     */
     const Uint8ArrayView = Uint8Array.from([
         ...onCompletPayloadInstance.preservedDataBuffer,
         ...buffer
@@ -63,7 +59,7 @@ export const OnPayloadComplet = ( maxDelayBetweenBytesMs = 50 ) => {
     if (!processPayload) {
         // Keep the Data Buffer Until there is more data or a Timeout
         onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView;
-        Debug('onCompletPayloadInstance/doNot/processPayload')(Uint8ArrayView)
+        //Debug('onCompletPayloadInstance/doNot/processPayload/debug')(Uint8ArrayView)
         return
     }
     
