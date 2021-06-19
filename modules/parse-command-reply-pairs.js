@@ -78,7 +78,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
                 //writeLock && 
                 task && task.isPending) {
                 // Only Apply writeLock if isPending
-                Debug('writeLock')({ err: 'writeLock', `${task}`, input })
+                Debug('writeLock')({ err: 'writeLock', task: `${task}`, input })
                 return Promise.reject('writeLock')
             }
             
