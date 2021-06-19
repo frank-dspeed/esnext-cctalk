@@ -64,7 +64,7 @@ export const OnPayloadComplet = ( maxDelayBetweenBytesMs = 50 ) => {
     }
     
     const completPayload = new Uint8Array(Uint8ArrayView.slice(0, endOfChunk));
-    Debug('onCompletPayloadInstance/processPayload')(Uint8ArrayView)
+    Debug('onCompletPayloadInstance/processPayload')(Uint8ArrayView.join(','))
     onCompletPayloadInstance.preservedDataBuffer = Uint8ArrayView
         .slice(endOfChunk, Uint8ArrayView.length);
     
