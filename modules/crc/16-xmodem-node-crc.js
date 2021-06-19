@@ -14,7 +14,7 @@ export const crc16xmodem = {
         const checksumLessPayload =  Uint8Array.from([ ...destAndDataLengthAsArray, ...headerAndDataAsArray ])
         // @ts-ignore
         const checksumAsArray = crc16xmodemImpl(checksumLessPayload).reverse();
-        console.log({ destAndDataLengthAsArray, headerAndDataAsArray})
+        
         const signedPayload = Uint8Array.from([
             ...destAndDataLengthAsArray, checksumAsArray[0], 
             ...headerAndDataAsArray, checksumAsArray[1]
