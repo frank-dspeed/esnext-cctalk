@@ -1,7 +1,7 @@
 import Debug from '../modules/debug.js'
 import { getConnection } from './cctalk-node.js'
 import { getMessage } from '../modules/payload-helpers.js'
-import { delayResolvePromise } from '../modules/promises-delayed.js';
+
 // @ts-ignore
 const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator';
 // @ts-ignore
@@ -27,27 +27,7 @@ const detectedDevice = {
 const readTextMessage = payload => String.fromCharCode.apply(null, [...getMessage(payload).data])
 
 /**
- * 
- * @param {*} writer 
- * @returns 
- */
-export const getDeviceInfo = async (writer) => {
-    try {
-        const result = [
-            await writer(244).then(readTextMessage).catch(console.error),
-            await writer(245).then(readTextMessage).catch(console.error),
-            await writer(246).then(readTextMessage).catch(console.error)
-        ];
-        const [ productCode, equipmentCategoryId, manufacturerId ] = result;
-        return { productCode, equipmentCategoryId, manufacturerId }    
-    } catch(e) {
-        console.error('SOMETHING WRONG')
-    }
-    
-}
-
-/**
- * 
+ * returns device or void
  * @param {number} destAdr 
  * @param {string} crcMethodName
  * @returns 
@@ -67,6 +47,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         await write(245).then(readTextMessage),
         await write(246).then(readTextMessage),
     ];
+
     const [ productCode, equipmentCategoryId, manufacturerId ] = result;
     const device = {
         write,
@@ -122,82 +103,13 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     }
 
     throw new Error(`Device Not Found on: ${destAdr} with ${crcMethodName}`)
-    
-    //await getDeviceWriter(connection,adr,'crc16xmodemJs');
-    // request info with correct crc type
+
 }
-const deviceTypes = {
-    'Bill Validator': 40,
-    'Coin Acceptor': 2, 
-}
-
-const findDevices2 = async function* () {
-    for (const [adr, name] of Object.entries(deviceTypes)) {
-        const adrAsInt = parseInt(adr)
-        let found = await testAdr(adrAsInt, adrAsInt === 40 ? 'crc16xmodem': 'crc8');
-        yield found
-    }
-};
-
-const crcMethods = [ 'crc8', 'crc16xmodem' ]
-
-
-
-const findDevices = async function* () {    
-    for (const crcMethodName of crcMethods) {
-        for (const [name, destAdr] of Object.entries(deviceTypes)) {
-            try {               
-                yield testAdr(destAdr, crcMethodName);
-            } catch (e) {
-                // Nothing found 
-            }
-        }
-    }
-};
-
-// @ts-ignore
-export const detectDevices = async emit => {
-    const foundDevices = []
-    
-    for (const crcMethodName of crcMethods) {
-        for (const [name, destAdr] of Object.entries(deviceTypes)) {
-            try {               
-                foundDevices.push( await testAdr(destAdr, crcMethodName) );
-            } catch (e) {
-                // Nothing found 
-            }
-        }
-    }
-
-    console.log({foundDevices})
-    //console.log('next => ',await findDevices().next())
-    process.exit()
-    /*
-    for await (let device of findDevices()) {
-        // @ts-ignore
-        if (device) {
-            
-            // @ts-ignore
-            Debug('esnext-cctalk/device-detection/foundDevice')(device);
-            foundDevices.push(device);
-        }
-    }
-    */
-    await delayResolvePromise(500)
-    if (emit) {
-        // @ts-ignore
-        emit(foundDevices)
-    }
-    return foundDevices
-} 
 
 const getSimpleAsyncIterable = (arrayAsyncFns) => {
     let index = 0;
-    const scope = { 
-            arrayAsyncFns
-    }
-        //.filter(x=>x).filter(x => typeof x === 'function') }
-    console.log(scope.arrayAsyncFns)
+    const scope = { arrayAsyncFns }
+    
     const next = async () => {
         const done = !(index in scope.arrayAsyncFns);
         if (done) { return { done }; }
@@ -219,8 +131,7 @@ const getSimpleAsyncIterable = (arrayAsyncFns) => {
     return new SimpleAsyncIterable()
 }
 
-const main = async () => {
-	//const t = timer()
+const detectDevices = async () => {
     const  arrayAsyncFns = [
         ()=> testAdr(40, 'crc8'),
         ()=> testAdr(2, 'crc8'),
@@ -229,16 +140,11 @@ const main = async () => {
 	const iter = getSimpleAsyncIterable(arrayAsyncFns)
 	const devices = []
     for await (const value of iter) {
-		//console.log({value})
         devices.push(value)
 	}
-    console.log('done')
-	console.log( {devices })
-    console.log('done')
-    //clearInterval(t)	
+    return devices;
 }
 
-main()
 
 
 export default detectDevices;

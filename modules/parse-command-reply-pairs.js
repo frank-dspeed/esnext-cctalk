@@ -97,9 +97,7 @@ import { createDefferedPromise } from './queryable-deffered-promises.js';
             // Try positioning the task assignment inside the writePromise could leed
             // to a more solid result
             task = defferedcommandPromise;
-            
-            //await delayResolvePromise(850);
-            
+                        
             portToWrite.write(input, (/** @type {any} */ err) => {
                 if(err) { task.reject(err) } 
             });
