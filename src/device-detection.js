@@ -188,13 +188,10 @@ export const detectDevices = async emit => {
     return foundDevices
 } 
 
-const getSimpleAsyncIterable = () => {
+const getSimpleAsyncIterable = (arrayAsyncFns) => {
     let index = 0;
     const scope = { 
-            arrayAsyncFns: [
-                ()=> testAdr(2, 'crc8'),
-                ()=> testAdr(40, 'crc16xmodem')
-        ] 
+            arrayAsyncFns
     }
         //.filter(x=>x).filter(x => typeof x === 'function') }
     console.log(scope.arrayAsyncFns)
@@ -221,8 +218,11 @@ const getSimpleAsyncIterable = () => {
 
 const main = async () => {
 	//const t = timer()
-
-	const iter = getSimpleAsyncIterable(tests)
+    const  arrayAsyncFns = [
+        ()=> testAdr(2, 'crc8'),
+        ()=> testAdr(40, 'crc16xmodem')
+    ] 
+	const iter = getSimpleAsyncIterable(arrayAsyncFns)
 	for await (const value of iter) {
 		console.log('value = ' + value)
 	}
