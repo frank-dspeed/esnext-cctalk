@@ -235,7 +235,7 @@ export const getCCTalkCommandPromiseHandler = scope => {
      * @param {*} message 
      * @returns 
      */
-    const cctalkCommandPromiseHandler = message => {
+    return message => {
         const messageAsUint8Array = Uint8Array.from(message);
         if(scope.task && scope.task.id === `${messageAsUint8Array}`) {
             // Start Thicking
