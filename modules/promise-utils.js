@@ -308,7 +308,7 @@ export const getInitalCommandPromiseScope = () => {
     
     const cctalkCommandPromiseHandler = getCCTalkCommandPromiseHandler(scope)
     const createCommandPromise = getCreateCommandPromise(scope)
-    const getPortWritMethod = port => input => createCommandPromise(input,port.write)
+    const getPortWritMethod = port => input => createCommandPromise(input,x=>port.write(x))
     return {
         cctalkCommandPromiseHandler,
         createCommandPromise,
