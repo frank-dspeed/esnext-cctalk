@@ -129,9 +129,8 @@ const getCreateDeviceWriter = createCCTalkRequestPromise => {
 export const getConnection = port => {
     const parser = port.pipe(getNodeStreamParser(50));
 
-    const { createCommandPromise, cctalkCommandPromiseHandler } = getCommandPromiseMethods();
-    const createCCTalkReqestPromise = createCommandPromise(port);
-    
+    const { cctalkCommandPromiseHandler, getPortWritMethod } = getCommandPromiseMethods();
+
     parser.on('data', cctalkCommandPromiseHandler); 
 
     /**
@@ -145,8 +144,8 @@ export const getConnection = port => {
 
     return {
         getDeviceWriter,
-        write: createCommandPromise(port),
-        parserWrite: createCommandPromise(parser), //createCommandPromiseParser,
+        write: getPortWritMethod(port),
+        parserWrite: getPortWritMethod(parser), //createCommandPromiseParser,
         port,
         parser,
         on: parser.on
