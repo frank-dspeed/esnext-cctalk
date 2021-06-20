@@ -8,8 +8,8 @@ const port = new SerialPort('/dev/ttyUSB0')
 
 const onCompletePayload = OnPayloadComplet;
 
-const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = getCommandPromiseMethods();
-const createCCTalkReqestPromise = CreateCCTalkRequest(port);
+const { createCommandPromise, onCCTalkCommandPairResponse } = getCommandPromiseMethods();
+const createCCTalkReqestPromise = createCommandPromise(port);
 
 port.on('data',data =>{
     onCompletePayload
