@@ -94,7 +94,7 @@ export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
  * @typedef {null|Promise<Uint8Array>} defferedPromise
 */
 
-const getCreateDeviceWriter = createCCTalkRequestPromise => {
+const getCreateDeviceWriter = portWriteMethod => {
     return ( destAdr, methodName ) => {
         if (typeof destAdr !== 'number') {
             throw new Error(`TypeError destAdr needs to be number got: ${typeof destAdr}`)
@@ -111,7 +111,7 @@ const getCreateDeviceWriter = createCCTalkRequestPromise => {
          * @param {Uint8Array} data
          */
         const deviceWriter = async (command, data= new Uint8Array(0)) => {
-            const ccTalkRequestPromise = await createCCTalkRequestPromise(createPayload(command,data));
+            const ccTalkRequestPromise = await portWriteMethod(createPayload(command,data));
             return ccTalkRequestPromise;
         }
         return deviceWriter
@@ -140,7 +140,7 @@ export const getConnection = port => {
      * @param {string} methodName 
      * @returns 
      */
-     const getDeviceWriter = getCreateDeviceWriter(createCCTalkReqestPromise)
+     const getDeviceWriter = getCreateDeviceWriter(getPortWritMethod(port))
 
     return {
         getDeviceWriter,
