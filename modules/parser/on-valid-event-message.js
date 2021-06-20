@@ -77,16 +77,17 @@ export const getEventHandler = emit => {
         const debounceEvents = lastEventCounter === eventCounter;
         if (debounceEvents) { return; };
         const events = ev.slice(5,-1)
+        const eventsArray = getEventsAsArrays(events).filter(ev=> ev[1] !== 0) 
         const newEventsCount = lastEventCounter 
             ? eventCounter - lastEventCounter 
-            : events.length / 2;
+            : eventsArray.length;
 
         scope.lastEventCounter = eventCounter;
         
-        const newEvents = [...events].slice(0,newEventsCount)
-                .map( ( event, idx ) => 
-                ({ count: lastEventCounter + idx + 1, event }) 
-                );
+        const newEvents = eventsArray
+            .map( ( event, idx ) => 
+                ({ count: eventCounter - idx, event: [...event] }) 
+            );
         
         const emitPayloadMessage = { 
             newEventsCount, lastEventCounter,
