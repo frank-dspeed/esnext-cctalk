@@ -1,6 +1,7 @@
 import Debug from 'esnext-cctalk/modules/debug.js'
-import { getConnection, getDeviceWriter } from 'esnext-cctalk/src/cctalk-node.js'
-import { getSendCommand, getMessage  } from 'esnext-cctalk/src/cctalk-crc.js';
+import { getConnection } from 'esnext-cctalk/src/cctalk-node.js'
+//import { CreatePayloadUsingCrcMethodName  } from 'esnext-cctalk/src/cctalk-crc.js';
+//CreatePayloadUsingCrcMethodName()
 //const { emp800 } = await import('esnext-cctalk/src/cctalk-devices.js');
 //const coinAcceptor = emp800();
 import { al66v } from 'esnext-cctalk/src/device-al06v.js';
@@ -13,8 +14,9 @@ import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0');
 
 const connection = getConnection(port);
-const coindDetector = getDeviceWriter(connection,2,'crc8');
-const billReader = getDeviceWriter(connection,40,'crc16xmodemJs');
+const { getDeviceWriter } = connection;
+const coindDetector = getDeviceWriter(2,'crc8');
+const billReader = getDeviceWriter(40,'crc16xmodemJs');
 
 // Can send raw Commands
 const simplePollCoinDetectorCrc8 = [ 2, 0, 1, 254, 255 ];
@@ -95,7 +97,9 @@ setInterval(async () => {
   
   {
     const { readBufferedCredit, readBufferedCreditEvents } = coindDetectorType.methods;
-    coindDetector(...readBufferedCredit()).then(readBufferedCreditEvents).then( coin => {
+    const currentCredits = readBufferedCredit()
+    // @ts-ignore
+    coindDetector(...currentCredits).then(readBufferedCreditEvents).then( coin => {
       if (coin) {
         Debug('test2')({ coin })
         return

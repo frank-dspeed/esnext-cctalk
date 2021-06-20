@@ -3,8 +3,8 @@ import Debug from '../modules/debug.js';
 import { CreatePayload } from '../modules/payload-helpers.js';
 import { crc8 } from '../modules/crc/8.js';
 import { crc16xmodemJs } from '../modules/crc/16-xmodemjs.js';
-import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
-
+//import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
+const crc16xmodem = crc16xmodemJs;
 /** @typedef {Uint8Array} unsignedButCompletPayload*/
 
 export const crcMethods = {

@@ -25,7 +25,7 @@ const onBusOpen = () => {
 
 /* KEEP This until the new Implementation is verifyed and 100% Complet
 //Gets event data passed 
-const parseEventBuffer = (impl, eventBuffer = new Uint8Array() ) => events => {
+const parseEventBuffer = (impl, eventBuffer = new Uint8Array(0) ) => events => {
     const emit = (...x) => console.log(...x)
     //Debug('cctalk::device::events')(events._data); // Runs always
     if (impl.eventCodes.lenght = 0) {

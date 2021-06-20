@@ -97,7 +97,7 @@ const lbn1 = ( dest=40, sign=crcMethods.crc16xmodem.sign ) => {
   const commands = headers;
 
   const methods = { 
-    toSignedPayload(header=headers.simplePoll,data = new Uint8Array()) {
+    toSignedPayload(header=headers.simplePoll,data = new Uint8Array(0)) {
       const CCTalkPayload = Uint8Array.from(
         [dest, data.length, 1, header, ...data,0]
       );

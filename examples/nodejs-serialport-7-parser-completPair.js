@@ -1,16 +1,14 @@
 import '../src/types.js'; //Do not treeshake that if you want a dev build for production also strip comments
-import Debug from '../modules/debug.js';
 
 import { OnPayloadComplet } from '../src/on-payload-complet.js';
-import { OnCCTalkCommandPairResponse } from '../modules/parse-command-reply-pairs.js'
-
+import { getCommandPromiseMethods } from '../modules/promise-utils.js';
 
 const SerialPort = require('serialport')
 const port = new SerialPort('/dev/ttyUSB0')
 
 const onCompletePayload = OnPayloadComplet;
 
-const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = OnCCTalkCommandPairResponse();
+const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = getCommandPromiseMethods();
 const createCCTalkReqestPromise = CreateCCTalkRequest(port);
 
 port.on('data',data =>{

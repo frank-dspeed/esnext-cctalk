@@ -1,8 +1,8 @@
 import './types.js'; //Do not treeshake that if you want a dev build for production also strip comments
 import { OnPayloadComplet } from './on-payload-complet.js';
 import { CreatePayloadUsingCrcMethodName } from './cctalk-crc.js';
-import { OnCCTalkCommandPairResponse } from '../modules/parse-command-reply-pairs.js'
 
+import { getCommandPromiseMethods } from '../modules/promise-utils.js';
 import { Transform } from 'stream';
 import Debug from '../modules/debug.js';
 
@@ -94,31 +94,8 @@ export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
  * @typedef {null|Promise<Uint8Array>} defferedPromise
 */
 
-
-
-/**
- * const SerialPort = require('serialport')
- * const port = new SerialPort('/dev/ttyUSB0')
- * Creates  a connection between serialport and PairParser
- * @param {*} port 
- * @returns 
- */
-export const getConnection = port => {
-    const parser = port.pipe(getNodeStreamParser(50));
-
-    const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = OnCCTalkCommandPairResponse();
-    const createCCTalkReqestPromise = CreateCCTalkRequest(port);
-    
-    parser.on('data', onCCTalkCommandPairResponse); 
-
-    /**
-     * Combines connection + getCreatePayloadUsingCrcMethodName
-     * /@ param {{ write: any; parserWrite?: (input: any) => Promise<any>; port?: any; parser?: any; }} connection 
-     * @param {number} destAdr 
-     * @param {string} methodName 
-     * @returns 
-     */
-    const getDeviceWriter = ( destAdr, methodName ) => {
+const getCreateDeviceWriter = createCCTalkRequestPromise => {
+    return ( destAdr, methodName ) => {
         if (typeof destAdr !== 'number') {
             throw new Error(`TypeError destAdr needs to be number got: ${typeof destAdr}`)
         }
@@ -134,11 +111,37 @@ export const getConnection = port => {
          * @param {Uint8Array} data
          */
         const deviceWriter = async (command, data= new Uint8Array(0)) => {
-            const ccTalkRequestPromise = await createCCTalkReqestPromise(createPayload(command,data));
+            const ccTalkRequestPromise = await createCCTalkRequestPromise(createPayload(command,data));
             return ccTalkRequestPromise;
         }
         return deviceWriter
     }
+}
+
+
+/**
+ * const SerialPort = require('serialport')
+ * const port = new SerialPort('/dev/ttyUSB0')
+ * Creates  a connection between serialport and PairParser
+ * @param {*} port 
+ * @returns 
+ */
+export const getConnection = port => {
+    const parser = port.pipe(getNodeStreamParser(50));
+
+    const { CreateCCTalkRequest, onCCTalkCommandPairResponse } = getCommandPromiseMethods();
+    const createCCTalkReqestPromise = CreateCCTalkRequest(port);
+    
+    parser.on('data', onCCTalkCommandPairResponse); 
+
+    /**
+     * Combines connection + getCreatePayloadUsingCrcMethodName
+     * /@ param {{ write: any; parserWrite?: (input: any) => Promise<any>; port?: any; parser?: any; }} connection 
+     * @param {number} destAdr 
+     * @param {string} methodName 
+     * @returns 
+     */
+     const getDeviceWriter = getCreateDeviceWriter(createCCTalkReqestPromise)
 
     return {
         getDeviceWriter,

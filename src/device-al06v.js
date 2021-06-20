@@ -134,8 +134,8 @@ export const al66v = ()=> {
         },
         readBufferedCredit() {
             const command = commands.readBufferedCredit;
-            const data = new Uint8Array();
-            return [command,data];
+            const data = new Uint8Array(0);
+            return [command , data];
         },
         poll() {
             return methods.readBufferedCredit();

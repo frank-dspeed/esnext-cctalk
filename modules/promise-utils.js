@@ -227,3 +227,91 @@ const detectDevices = async () => {
     return devices;
 }
 */
+
+export const getCCTalkCommandPromiseHandler = scope => {
+    /**
+     * This Parser Tracks state of read and write events
+     * and asserts the replys to the writePromises.
+     * @param {*} message 
+     * @returns 
+     */
+    const cctalkCommandPromiseHandler = message => {
+        const messageAsUint8Array = Uint8Array.from(message);
+        if(scope.task && scope.task.id === `${messageAsUint8Array}`) {
+            // Start Thicking
+            //startTimeout();
+            scope.task.setTimeout(100);
+            return
+        }
+
+        if(scope.task && scope.task.id !== `${messageAsUint8Array}`) {
+
+            const isForMasterOrBus = messageAsUint8Array[0] === 1 || messageAsUint8Array[0] === 0
+
+            if(isForMasterOrBus) {       
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',scope.task.id, `${messageAsUint8Array}`);
+                scope.task.resolve(messageAsUint8Array);
+                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair', `${scope.task}`)
+                
+                //writeLock = false;
+                return 
+            }
+            
+            // Note scope.task stays the same if less then 2 commands got send
+            Debug('esnext-cctalk/parse-command-reply-pairs/cctalkCommandPromiseHandler/isNotForMaster/debug')({ messageAsUint8Array: `${messageAsUint8Array}` })
+        } 
+
+        if(scope.task && scope.task.id !== `${messageAsUint8Array}`) {
+            // we got no promise but we got data we need to error and exit  
+            Debug('esnext-cctalk/parse-command-reply-pairs/cctalkCommandPromiseHandler/messageWithoutTask/error?')( `${messageAsUint8Array}`, scope.task.id ) 
+            return
+        }
+        // is most time then our own message
+    }
+}
+
+export const getCreateCommandPromise = scope => {
+    
+    /** @param {Uint8Array} input */
+    return async (input, write )=> {
+        if (scope.task && scope.task.isPending) {
+            Debug('writeLock')({ err: 'writeLock', task: `${scope.task}`, input })
+            return Promise.reject('writeLock')
+        }
+                
+        scope.task = createDefferedPromise(`${input}`);
+        scope.task.setTimeout(100);   
+        
+        write(input, (/** @type {any} */ err) => {
+            if(err) { scope.task.reject(err) }          
+        });
+
+        return await scope.task;
+
+    }
+}
+
+export const getInitalCommandPromiseScope = () => {
+    const scope = { task: createDefferedPromise(`inital`) }
+    scope.task.resolve('init')
+    return scope;    
+}
+
+/**
+ * const SerialPort = require('serialport')
+ * const port = new SerialPort('/dev/ttyUSB0')
+ * @returns 
+ */
+ export const getCommandPromiseMethods = () => {
+
+    const scope = getInitalCommandPromiseScope()
+    
+    const cctalkCommandPromiseHandler = getCCTalkCommandPromiseHandler(scope)
+    const createCommandPromise = getCreateCommandPromise(scope)
+    
+    return {
+        cctalkCommandPromiseHandler,
+        createCommandPromise
+    }
+
+}

@@ -36,7 +36,7 @@ const getCompletPayloadAndPreservedDataBuffer = payload => {
   
   const cctalkPayload = isCompletPayload 
     ? payload
-      .slice(0, endOfChunk) : new Uint8Array();
+      .slice(0, endOfChunk) : new Uint8Array(0);
   
   return { cctalkPayload, preservedDataBuffer };
   
