@@ -1,12 +1,10 @@
-// if you install esnext-cctalk from github
-// replace ../../ with esnext-cctalk
 // Utils
-import { delayResolvePromise } from '../../modules/promise-utils.js';
+import { delayResolvePromise } from 'esnext-cctalk/modules/promise-utils.js';
 const wait200ms = () => delayResolvePromise(200);
 
 // Essentials
-import { getConnection } from '../../src/cctalk-node.js';
-import { headersByName } from '../../modules/cctalk-headers.js'
+import { getConnection } from 'esnext-cctalk/src/cctalk-node.js';
+import { headersByName } from 'esnext-cctalk/modules/cctalk-headers.js'
 import SerialPort from 'serialport';
 
 //const SerialPort = require('serialport')

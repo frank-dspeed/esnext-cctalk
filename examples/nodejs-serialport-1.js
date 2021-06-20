@@ -1,12 +1,12 @@
 import SerialPort from 'serialport';
 const port = new SerialPort('/dev/ttyUSB0');
 let i = 0
-const write = ()=> port.write([0])
+const write = x=> port.write(x)
 const read = port.read();
 
 const callWrite = () => {
     setImmediate(()=>{
-        console.log(write([]))
+        console.log(write([12]))
         callWrite()
     }) 
     //console.log(write([]))

@@ -1,10 +1,11 @@
-import getDevices from 'esnext-cctalk/src/device-detection.js';
+import getDevices from 'esnext-cctalk/modules/device-detection.js';
 import { delayResolvePromise } from 'esnext-cctalk/modules/promise-utils.js';
-import { headersByName } from '../../modules/cctalk-headers.js';
+import { headersByName } from 'esnext-cctalk/modules/cctalk-headers.js';
 //const tryPoll = write => delayResolvePromise(1200).then(()=>write(254).catch(()=>tryPoll(write)));
 
-const devices = []
-getDevices(dev=> devices.push(dev));
+const devices = await getDevices();
+
+
 
 setTimeout(()=>{
     

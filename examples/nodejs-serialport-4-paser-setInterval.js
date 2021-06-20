@@ -1,9 +1,9 @@
-import Debug from 'esnext-cctalk/src/debug.js'
+import Debug from 'esnext-cctalk/modules/debug.js'
 import { getConnection, getDeviceWriter } from 'esnext-cctalk/src/cctalk-node.js'
 import { getSendCommand, getMessage  } from 'esnext-cctalk/src/cctalk-crc.js';
 //const { emp800 } = await import('esnext-cctalk/src/cctalk-devices.js');
 //const coinAcceptor = emp800();
-import { al66v } from 'esnext-cctalk/src/device-al66v.js';
+import { al66v } from 'esnext-cctalk/src/device-al06v.js';
 const coindDetectorType = al66v();
 
 const debug = Debug('test')

@@ -94,6 +94,8 @@ export const lazyNodeStreamParser = ( maxDelayBetweenBytesMs = 50 ) => {
  * @typedef {null|Promise<Uint8Array>} defferedPromise
 */
 
+
+
 /**
  * const SerialPort = require('serialport')
  * const port = new SerialPort('/dev/ttyUSB0')
@@ -126,6 +128,7 @@ export const getConnection = port => {
 
         const createPayload = CreatePayloadUsingCrcMethodName(destAdr,1,methodName);
         Debug('esnext-cctalk/node/getDeviceWriter/info')({ destAdr, src: 1, methodName })
+        
         /** 
          * @param {number} command
          * @param {Uint8Array} data
