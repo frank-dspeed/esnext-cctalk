@@ -249,21 +249,21 @@ export const getCCTalkCommandPromiseHandler = scope => {
             const isForMasterOrBus = messageAsUint8Array[0] === 1 || messageAsUint8Array[0] === 0
 
             if(isForMasterOrBus) {       
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair',scope.task.id, `${messageAsUint8Array}`);
+                Debug('esnext-cctalk/cctalkCommandPromiseHandler/isForMaster/debug')('completPair',scope.task.id, `${messageAsUint8Array}`);
                 scope.task.resolve(messageAsUint8Array);
-                Debug('esnext-cctalk/node/connection/parser/onData/completPair/isForMaster/debug')('completPair', `${scope.task}`)
+                Debug('esnext-cctalk/cctalkCommandPromiseHandler/isForMaster/debug')('completPair', `${scope.task}`)
                 
                 //writeLock = false;
                 return 
             }
             
             // Note scope.task stays the same if less then 2 commands got send
-            Debug('esnext-cctalk/parse-command-reply-pairs/cctalkCommandPromiseHandler/isNotForMaster/debug')({ messageAsUint8Array: `${messageAsUint8Array}` })
+            Debug('esnext-cctalk/cctalkCommandPromiseHandler/isNotForMaster/debug')({ messageAsUint8Array: `${messageAsUint8Array}` })
         } 
 
         if(scope.task && scope.task.id !== `${messageAsUint8Array}`) {
             // we got no promise but we got data we need to error and exit  
-            Debug('esnext-cctalk/parse-command-reply-pairs/cctalkCommandPromiseHandler/messageWithoutTask/error?')( `${messageAsUint8Array}`, scope.task.id ) 
+            Debug('esnext-cctalk/cctalkCommandPromiseHandler/messageWithoutTask/error?')( `${messageAsUint8Array}`, scope.task.id ) 
             return
         }
         // is most time then our own message

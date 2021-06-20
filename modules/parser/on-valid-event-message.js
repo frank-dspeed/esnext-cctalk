@@ -56,6 +56,58 @@ export const isValidEventPayload = payload => {
         && payload.length === 16)
     return isEventPayload;
 };
+/**
+ * Emits Messages if it is needed
+ * @param {*} emit a function that takes the response
+ * @returns 
+ */
+export const getEventHandler = emit => {
+    
+    const scope = { 
+        lastEventCounter: 0, 
+        events: new Uint8Array(0),
+    }
+    
+    /**
+     * a function that takes a event payload
+     */
+    return ev => {
+        const eventCounter = ev[4];
+        const lastEventCounter = scope.lastEventCounter;
+        const debounceEvents = lastEventCounter === eventCounter;
+        if (debounceEvents) { return; };
+        const events = ev.slice(5,-1)
+        const newEventsCount = lastEventCounter 
+            ? eventCounter - lastEventCounter 
+            : events.length / 2;
+
+        scope.lastEventCounter = eventCounter;
+        
+        const newEvents = [...events].slice(0,newEventsCount)
+                .map( ( event, idx ) => 
+                ({ count: lastEventCounter + idx + 1, event }) 
+                );
+        
+        const emitPayloadMessage = { 
+            newEventsCount, lastEventCounter,
+            eventCounter , events, newEvents
+        }
+        
+        if(newEventsCount > 5){
+            Debug('onValidEventMessage/newEventCount>5/error')({ 
+                emitPayloadMessage 
+            });
+            // We are in a deSynced State
+            console.error('error', new Error(`
+                Event overflow. ${newEventsCount-5} are lost
+                returning last 5 events
+            `));
+        }
+            
+        emit(emitPayloadMessage)
+    }
+
+}
 
 export const OnValidEventMessage = () =>{
 
