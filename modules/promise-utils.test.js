@@ -1,38 +1,43 @@
 import { getAsyncIterableFromArrayOfAsyncFns, createDefferedPromise, delayResolvePromise } from './promise-utils.js'
-
-let i = 1
-const tests = [
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-    ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 1000)),
-]
-
-const timer = () => setInterval(()=>console.log('tick'), 500)
-const main = async () => {
-	//const t = timer()
-
-	const iter = getAsyncIterableFromArrayOfAsyncFns(tests)
-	for await (const value of iter) {
-		console.log('value = ' + value)
-	}
-    console.log('done')
-	//clearInterval(t)	
-}
-
-main()
-
 import { strictEqual, ok } from 'assert';
 
 import { fail } from 'assert/strict';
+describe('promise-utils.js => getAsyncIterableFromArrayOfAsyncFns', () => {
+    it('should Iterate over 8 async functions and return 7 results', async () => {
+        let i = 1
+        const tests = [
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+            ()=>new Promise(resolve=>setTimeout(()=>resolve(i++), 10)),
+        ]
+        
+        const timer = () => setInterval(()=>console.log('tick'), 5)
+        const values = []
+        const main = async () => {
+            //const t = timer()
+        
+            const iter = getAsyncIterableFromArrayOfAsyncFns(tests)
+            for await (const value of iter) {
+                values.push('value = ' + value)
+            }
+            //console.log('done')
+            //clearInterval(t)	
+        }
+        
+        await main()
+        strictEqual(values.length, 7, 'did not skip')
+    })    
+})
 
-describe('queryable-deffered-promise.js', () => {
+describe('promise-utils.js => createDefferedPromise', () => {
     
-    it('Create a Promise with an id and Resolve it ', async () => {
+    it('Verify that it has needed Propertys and resolves ', async () => {
  
         const p = createDefferedPromise('test-id')
         strictEqual(`${p.id}`,'test-id', 'The .id is not === test-id')

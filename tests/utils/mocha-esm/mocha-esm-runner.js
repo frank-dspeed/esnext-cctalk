@@ -34,7 +34,7 @@ export const getRunner = (mochaInstance, processCwd) => {
   const importModule = async importSpecifier => {
     const moduleId = handleAbsolute(importSpecifier, root);
     mocha.suite.emit('pre-require', globalThis, moduleId, mocha);
-    console.log(importSpecifier)
+    console.log({importSpecifier })
     try {
       await import(moduleId);
     } catch (e) {
@@ -54,9 +54,8 @@ export const getRunner = (mochaInstance, processCwd) => {
   const Runner = {
     /** @param {string[]} files */    
     async importModuleFiles(files) {
-      const modules = await Promise.all(files.map(file=>importModule(file)));
-      console.log({modules})
-      return modules
+      const modulesImported = await Promise.all(files.map(file=>importModule(file)));
+      return modulesImported
     },
   
     async run() {

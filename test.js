@@ -11,6 +11,4 @@ const readDir = dirPath => readdirSync(dirPath)
 const tests = dirs
     .flatMap(readDir);
 
-console.log(tests);
-
 main(tests);
