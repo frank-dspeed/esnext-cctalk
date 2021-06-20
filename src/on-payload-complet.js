@@ -13,7 +13,7 @@ const checkDelayAndResetPreservedDataBufferIfneeded = onCompletPayloadInstance =
   if (maxDelayBetweenBytesMs > 0) {
       const now = Date.now();
       const delayBetweenLastByte = now - lastByteFetchTime;
-      if (delayBetweenLastByte > maxDelayBetweenBytesMs) {
+      if (delayBetweenLastByte > maxDelayBetweenBytesMs && onCompletPayloadInstance.preservedDataBuffer.length) {
         Debug('onCompletPayloadInstance/checkDelayAndResetPreservedDataBufferIfNeeded/discard/debug')(onCompletPayloadInstance.preservedDataBuffer.join(','))
         onCompletPayloadInstance.preservedDataBuffer = new Uint8Array(0);
       }
