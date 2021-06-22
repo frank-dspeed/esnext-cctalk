@@ -86,12 +86,12 @@ export const getEventHandler = emit => {
         
         const newEvents = eventsArray
             .map( ( event, idx ) => 
-                ({ count: eventCounter - idx, event: [...event] }) 
+                emit({ count: eventCounter - idx, event: [...event] }) 
             );
         
         const emitPayloadMessage = { 
             newEventsCount, lastEventCounter,
-            eventCounter , events, newEvents
+            eventCounter , events: [...events], newEvents
         }
         
         if(newEventsCount > 5){
@@ -105,7 +105,7 @@ export const getEventHandler = emit => {
             `));
         }
             
-        emit(emitPayloadMessage)
+        //emit(emitPayloadMessage)
     }
 
 }

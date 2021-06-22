@@ -58,12 +58,20 @@ export const createDefferedPromise = id => {
         ( resolve, reject ) =>
             Object.assign( defferedHandlers, {
                 toString() {
-                    const ref = defferedPromise;
-                    delete ref.setTimeout
-                    delete ref.clearTimeout
-                    delete ref.resolve
-                    delete ref.reject
-                    ref.value = ref.value.join(',')
+                    const ref = {}
+                    const props = [ 
+                        'isPending', 
+                        'isRejected', 'isFulfilled', 
+                        'id', 'createdAt', 'value', 
+                        'reason', 'settledAt', 'settledAfter']
+                    
+                    props.forEach( prop => {
+                        const value = defferedPromise[prop]
+                        ref[prop] = value;
+                    })
+                    if (ref.value instanceof Uint8Array) {
+                        ref.value = [...ref.value]
+                    }
                     return JSON.stringify(ref)
                 },
                 setTimeout(ms=50) {
