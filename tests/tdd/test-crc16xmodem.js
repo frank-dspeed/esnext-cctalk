@@ -1,4 +1,4 @@
-import { crc16xmodem } from '../../modules/crc/16-xmodem-node-crc.js';
+import { crc16xmodem } from '../../packages/esnext-cctalk/modules/crc/16-xmodem-node-crc.js';
 
 /*
 console.log(CCTalkMessageCompat());

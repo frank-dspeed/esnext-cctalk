@@ -35,20 +35,18 @@ import { errorUint8 } from '../error-uint8.js';
     return crc >>> 0;
 }
 /** End https://unpkg.com/browse/crc@3.8.0/crc16xmodem.js */
+/** @param {*} rawChecksums */
+const crc16xmodemJsToArray = rawChecksums => rawChecksums
+    .toString(16).match(/.{1,2}/g)
+    ?.map((/** @type {string} */ val) => parseInt(val, 16));
+
+const crc16xmodemJsImpl = (/** @type {Uint8Array} */ checksumLessPayload) => 
+    crc16xmodemJsToArray(crc16xmodem(checksumLessPayload));
 
 export const crc16xmodemJs = {
     /** @param {Uint8Array} unsignedButCompletPayload */
     sign(unsignedButCompletPayload) {
         errorUint8(unsignedButCompletPayload);
-        //Debug('esnext-cctalk/crc/crcMethods/crc16xmodemJs/debug')({ unsignedButCompletPayload });
-        
-        /** @param {*} rawChecksums */
-        const crc16xmodemJsToArray = rawChecksums => rawChecksums
-            .toString(16).match(/.{1,2}/g)
-            ?.map((/** @type {string} */ val) => parseInt(val, 16));
-
-        const crc16xmodemJsImpl = (/** @type {Uint8Array} */ checksumLessPayload) => crc16xmodemJsToArray(crc16xmodem(checksumLessPayload));
-        
         const payloadWithoutChecksumAtEnd = unsignedButCompletPayload.slice(0,-1);
         const destAndDataLengthAsArray = payloadWithoutChecksumAtEnd.slice(0,2);
         const headerAndDataAsArray = payloadWithoutChecksumAtEnd.slice(3);
@@ -63,9 +61,7 @@ export const crc16xmodemJs = {
         return signedPayload;
     },
     /**
-     *
-     * @param {*} payloadToVerify
-     * @returns
+     * @param {Uint8Array} payloadToVerify
      */
     verify(payloadToVerify) {
         errorUint8(payloadToVerify);

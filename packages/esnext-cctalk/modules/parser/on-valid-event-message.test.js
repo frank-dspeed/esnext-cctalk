@@ -1,5 +1,6 @@
 import { getEventsAsArrays,isValidEventPayload, getEventData, getEventHandler } from './on-valid-event-message.js'
 import { eventCodesByNumber } from '../cctalk-bill-validator-eventcodes.js'
+
 const AL06V = {
     "productCode": "AL06V-c",
     "equipmentCategoryId": "Coin Acceptor",
@@ -26,7 +27,9 @@ const AL06V = {
 const evH = getEventHandler( ev => {
     const { event, count } = ev;
     const [ eventCode, channel ] = event;
-    if (eventCode === 1) { acceptInsertedBill(); };
+    if (eventCode === 1) { 
+      // Event Handling not fully implemented
+    };
     console.log( [ eventCodesByNumber[ eventCode ], AL06V.channels[ channel ] ], count ) 
 
 })
@@ -56,15 +59,17 @@ const devices = [
     }
   ]
 const ev = Uint8Array.from([1,11,2,0, 12, 
-    0,3,
-    1,3,
-    0,0,
+    3,0,
+    3,1,
+    0,1,
     0,0,
     0,0,
     255
 ])
+
 evH(ev)
 process.exit()
+/*
 const testEv = Uint8Array.from([1,11,255,0, 4, 
     3,1, 
     2,1,

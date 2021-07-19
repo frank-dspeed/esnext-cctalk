@@ -20,7 +20,7 @@ export const getEventData = payload => payload.slice(5,-1)
       return result;
     }
     
-    /** @type {Uint8Array[]} */
+    /** @type {number[]} */
     return eventData
       .reduce(reducer, []);
 }
@@ -56,12 +56,13 @@ export const isValidEventPayload = payload => {
         && payload.length === 16)
     return isEventPayload;
 };
+
 /**
- * Emits Messages if it is needed
- * @param {*} emit a function that takes the response
- * @returns 
+ * Parses Event Messages to Array of count, event: [channel,code
+ * Emits Events only once.]
+ 
  */
-export const getEventHandler = emit => {
+ export const getEventParser = () => {
     
     const scope = { 
         lastEventCounter: 0, 
@@ -69,29 +70,34 @@ export const getEventHandler = emit => {
     }
     
     /**
-     * a function that takes a event payload
+     * @param {Uint8Array} ev
+     * @returns {{ count: number, event: number[] }[]}
      */
-    return ev => {
+    const eventParser = ev => {
         const eventCounter = ev[4];
         const lastEventCounter = scope.lastEventCounter;
+        scope.lastEventCounter = eventCounter;
         const debounceEvents = lastEventCounter === eventCounter;
-        if (debounceEvents) { return; };
+        
+        if (debounceEvents) { return []; };
+        
         const events = ev.slice(5,-1)
-        const eventsArray = getEventsAsArrays(events).filter(ev =>  ev[1] + ev[0] !== 0);
-        const newEventsCount = lastEventCounter 
+        
+        const eventsArray = getEventsAsArrays(events)
+            .filter(ev =>  ev[1] + ev[0] !== 0);
+        
+        const newEventsCount = lastEventCounter
             ? eventCounter - lastEventCounter 
             : eventsArray.length;
 
-        scope.lastEventCounter = eventCounter;
-        
-        const newEvents = eventsArray
+        const eventsWithCount = eventsArray
             .map( ( event, idx ) => 
-                emit({ count: eventCounter - idx, event: [...event] }) 
+                ({ count: eventCounter - idx, event: [...event] }) 
             );
         
         const emitPayloadMessage = { 
             newEventsCount, lastEventCounter,
-            eventCounter , events: [...events], newEvents
+            eventCounter , events: [...events], eventsWithCount
         }
         
         if(newEventsCount > 5){
@@ -104,8 +110,33 @@ export const getEventHandler = emit => {
                 returning last 5 events
             `));
         }
-            
-        //emit(emitPayloadMessage)
+        
+        return eventsWithCount
+    }
+    
+    return eventParser;
+}
+
+
+
+
+/**
+ * Emits Messages if it is needed
+ * @param {*} emit a function that takes the response
+ * @returns 
+ */
+export const getEventHandler = emit => {
+    
+    const parser = getEventParser();
+    
+    /**
+     * a function that takes a event payload
+     */
+    return ev => {
+        const newEvents = parser(ev)
+        newEvents.forEach( event => 
+            emit(event) 
+        );
     }
 
 }

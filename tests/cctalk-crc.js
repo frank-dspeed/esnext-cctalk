@@ -1,4 +1,4 @@
-import { CCTalkMessageCompat, object2Array } from '../modules/payload-helpers';
+import { CCTalkMessageCompat, object2Array } from '../packages/esnext-cctalk/modules/payload-helpers';
 console.log(CCTalkMessageCompat());
 console.log(object2Array({
     src: 1,

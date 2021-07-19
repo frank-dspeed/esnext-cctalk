@@ -1,7 +1,7 @@
-import { errorUint8 } from '../modules/error-uint8.js';
-import { crc8 } from '../modules/crc/8.js';
-import { crc16xmodemJs } from '../modules/crc/16-xmodemjs.js';
-import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
+import { errorUint8 } from './error-uint8.js';
+import { crc8 } from './crc/8.js';
+import { crc16xmodemJs } from './crc/16-xmodemjs.js';
+import { crc16xmodem } from './crc/16-xmodem-node-crc.js';
 //import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
 
 /** @typedef {Uint8Array} unsignedButCompletPayload*/
@@ -48,11 +48,10 @@ export { getMessage as getDestHeaderDataFromPayloadAsObject }
     errorUint8(signedPayload);
     const destPosition = 0;
     const dataLengthPosition = 1;
-    const srcPosition = 2;
+    const srcPosition = 2; //CRC16 Cecksum
     const headerPosition = 3;
-    const dataStartPosition = 4;
-    
     const dataLength = signedPayload[dataLengthPosition];
+    const dataStartPosition = 4;
     const dataEndPosition = headerPosition + dataLength;
     const checksumPosition = dataEndPosition + 1; // is Maybe dateEndPosition
     return { 
@@ -88,7 +87,6 @@ const fromUint8Array = signedPayload => {
     
     return cctalkPayloadObject;
 }
-
 
 /**
  * 
@@ -158,10 +156,14 @@ export const object2Array = messageObj => {
     return _buffer
 }
 
+
+export const createCCTalkCommand = arrCommandData => {}
+
+
 /**
  * call({ src, dest, crcSigningMethod })(header,data)
- * @param {*} dest { src, dest, crcSigningMethod }
- * @param {*} src { src, dest, crcSigningMethod }
+ * @param {number} dest { src, dest, crcSigningMethod }
+ * @param {number} src { src, dest, crcSigningMethod }
  * @param {string} crcMethodName crc16xmodem, crc16xmodemJs, crc8
  * @returns 
  */
@@ -171,31 +173,46 @@ export const object2Array = messageObj => {
 
 /**
  * call({ src, dest, crcSigningMethod })(header,data)
- * @param {*} destAdr { src, dest, crcSigningMethod }
- * @param {*} src { src, dest, crcSigningMethod }
- * @param {*} crcSigningMethod crc16xmodem, crc16xmodemJs, crc8
+ * @param {number} destAdr { src, dest, crcSigningMethod }
+ * @param {number} src { src, dest, crcSigningMethod }
  * @returns 
  */
- export const CreatePayload = (destAdr, src, crcSigningMethod) => {
+export const CreateUnsignedPayload = (destAdr, src=1) => {
     if (typeof destAdr !== 'number') {
-        throw new Error(`TypeError destAdr needs to be number got: ${typeof destAdr}`)
+        throw new Error(
+            `TypeError expected number got: ${typeof destAdr}`
+        )
     }
     if (typeof src !== 'number') {
-        throw new Error(`TypeError methodName needs to be string got: ${typeof src}`)
+        throw new Error(
+            `TypeError methodName expected string got: ${typeof src}`
+        )
     }
-    /**
-     * 
-     * @param {*} header 
-     * @param {*} data 
-     * @returns 
-     */
-    const createPayload = ( header, data = new Uint8Array(0) ) => {
-        const CCTalkPayload = Uint8Array.from(
-            [destAdr, data.length, src, header, ...data,0]
-        );
+    /** @param {number} header @param {number[]|Uint8Array} data */
+    const createUnsignedPayload = 
+        ( header, data = new Uint8Array(0) ) => 
+            Uint8Array.from( [
+                destAdr, data.length, src, header, ...data, 0
+            ] );
         
-        return crcSigningMethod(CCTalkPayload);
-    }
+    return createUnsignedPayload;
+}
+
+/**
+ * call({ src, dest, crcSigningMethod })(header,data)
+ * @param {number} destAdr { src, dest, crcSigningMethod }
+ * @param {number} src { src, dest, crcSigningMethod }
+ * @param {( unsignedPayload: Uint8Array ) => Uint8Array} crcSigningMethod crc16xmodem, crc16xmodemJs, crc8
+ * @returns 
+ */
+export const CreatePayload = (destAdr, src, crcSigningMethod) => {
+    const createUnsignedPayload = CreateUnsignedPayload(destAdr, src)
+    
+    /** @param {number} header @param {number[]|Uint8Array} data */
+    const createPayload = 
+        ( header, data = new Uint8Array(0) ) => 
+            crcSigningMethod(createUnsignedPayload( header, data ));
+    
     return createPayload;
 }
 

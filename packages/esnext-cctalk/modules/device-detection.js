@@ -2,12 +2,14 @@ import Debug from './debug.js'
 import { getConnection } from '../src/cctalk-node.js'
 import { getMessage } from './payload-helpers.js'
 import { getAsyncIterableFromArrayOfAsyncFns } from './promise-utils.js'
+
 // @ts-ignore
 const isBillValidator = device => device.equipmentCategoryId === 'Bill Validator';
 // @ts-ignore
 const isCoinAcceptor = device => device.equipmentCategoryId === 'Coin Acceptor';
 
 import SerialPort from 'serialport';
+import { headersByName } from './cctalk-headers.js';
 const port = new SerialPort('/dev/ttyUSB0', {
     baudRate: 9600,
     autoOpen: true,
@@ -37,7 +39,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
     const write = connection.getDeviceWriter( destAdr, crcMethodName );
     //await delayResolvePromise(800)
     
-    const simplePollWorks = await write(254).catch(console.log)
+    const simplePollWorks = await write(headersByName.simplePoll).catch(console.log)
     if (!simplePollWorks) {
         return
     }
@@ -68,7 +70,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         for (const channel of possibleChannels) {
             try {
                 //await delayResolvePromise(200)
-                device.channels.push( await device.write(184,Uint8Array.from([ channel ])).then(readTextMessage) );
+                device.channels.push( await device.write(headersByName.requestCoinId,Uint8Array.from([ channel ])).then(readTextMessage) );
                 //await delayResolvePromise(200)
             } catch(e) {
                 //timeouts if no channel exists
@@ -88,7 +90,7 @@ const testAdr = async ( destAdr, crcMethodName ) => {
         for (const channel of possibleChannels) {
             try {
                 //await delayResolvePromise(200)
-                const bc = await device.write(157,Uint8Array.from([ channel ])).then(readTextMessage);       
+                const bc = await device.write(headersByName.requestBillId,Uint8Array.from([ channel ])).then(readTextMessage);       
                 device.channels.push( bc);
                 //await delayResolvePromise(200)
             } catch(e) {
