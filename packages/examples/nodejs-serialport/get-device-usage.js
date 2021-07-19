@@ -1,5 +1,5 @@
-import getDevices from '../../modules/device-detection.js';
-import { getEventData,getEventsAsArrays,isValidEventPayload } from '../..//modules/parser/on-valid-event-message.js'
+import getDevices from 'esnext-cctalk/modules/device-detection.js';
+import { getEventData,getEventsAsArrays,isValidEventPayload } from 'esnext-cctalk/modules/parser/on-valid-event-message.js'
 
 const devices = await getDevices();
 for (const device of devices) {

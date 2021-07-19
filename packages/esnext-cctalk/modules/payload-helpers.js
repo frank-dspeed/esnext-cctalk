@@ -1,13 +1,14 @@
 import { errorUint8 } from './error-uint8.js';
 import { crc8 } from './crc/8.js';
 import { crc16xmodemJs } from './crc/16-xmodemjs.js';
-import { crc16xmodem } from './crc/16-xmodem-node-crc.js';
+
 //import { crc16xmodem } from '../modules/crc/16-xmodem-node-crc.js';
 
 /** @typedef {Uint8Array} unsignedButCompletPayload*/
 
+//import { crc16xmodem } from '../../../tests/esnext-cctalk/modules/crc/16-xmodem-node-crc.js';
 export const crcMethods = {
-    crc16xmodem,
+    //crc16xmodem,
     crc16xmodemJs,
     crc8
 }

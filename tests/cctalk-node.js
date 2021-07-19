@@ -1,9 +1,9 @@
 import { sinonSpy } from './utils/sinon-spy.js';
 
-import { getNodeStreamParser } from '../src/cctalk-node.js';
+import { getNodeStreamParser } from 'esnext-cctalk/src/cctalk-node.js';
 
 import assert from 'assert';
-import { crcMethods } from '../src/cctalk-crc.js';
+import { crcMethods } from 'esnext-cctalk/src/cctalk-crc.js';
 console.log('emits data for a default length message')
 const test1 = () => {
 

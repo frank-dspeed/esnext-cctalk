@@ -3,33 +3,33 @@
 const p = globalThis.process
 globalThis.process.env.DEBUG = '*'
 //NodeEnv none production DEBUG returns DEBUG
-const returnsNpmDebugIfDebugEnvAndNode = await import('../packages/esnext-cctalk/modules/debug.js#DEBUG').then(m=>m.default)
+const returnsNpmDebugIfDebugEnvAndNode = await import('esnext-cctalk/modules/debug.js#DEBUG').then(m=>m.default)
 console.log(returnsNpmDebugIfDebugEnvAndNode)
 returnsNpmDebugIfDebugEnvAndNode("w")('d')
 
 // NodeEnvProduction
 //NodeEnv production DEBUG returns DEBUG
 globalThis.process.env.NODE_ENV = 'production'
-const returnsNpmDebugIfNodeEnvProductionandDebugEnv = await import('../packages/esnext-cctalk/modules/debug.js#debug-production').then(m=>m.default)
+const returnsNpmDebugIfNodeEnvProductionandDebugEnv = await import('esnext-cctalk/modules/debug.js#debug-production').then(m=>m.default)
 console.log(returnsNpmDebugIfNodeEnvProductionandDebugEnv)
 returnsNpmDebugIfNodeEnvProductionandDebugEnv("w")('d')
 
 //NodeEnv production none DEBUG
 delete globalThis.process.env.DEBUG 
-const returnsNoOpWithoutDebugInProductionNode = await import('../packages/esnext-cctalk/modules/debug.js#production').then(m=>m.default)
+const returnsNoOpWithoutDebugInProductionNode = await import('esnext-cctalk/modules/debug.js#production').then(m=>m.default)
 console.log(returnsNoOpWithoutDebugInProductionNode)
 returnsNoOpWithoutDebugInProductionNode("w")('d')
 
 
 //NodeEnv none production none DEBUG returnss debugLog
 globalThis.process.env.NODE_ENV = ''
-const returnsDebugConsoleLogWhenInNodeAndNotProduction = await import('../packages/esnext-cctalk/modules/debug.js#otherenv').then(m=>m.default)
+const returnsDebugConsoleLogWhenInNodeAndNotProduction = await import('esnext-cctalk/modules/debug.js#otherenv').then(m=>m.default)
 console.log(returnsDebugConsoleLogWhenInNodeAndNotProduction)
 returnsDebugConsoleLogWhenInNodeAndNotProduction("w")('d')
 
 //Test None NodeJs Env
 globalThis.process = undefined
-const returnsNoOpIfNotRunningInNode = await Promise.resolve().then(()=>import('../packages/esnext-cctalk/modules/debug.js#32').then(m=>m.default))
+const returnsNoOpIfNotRunningInNode = await Promise.resolve().then(()=>import('esnext-cctalk/modules/debug.js#32').then(m=>m.default))
 console.log(returnsNoOpIfNotRunningInNode)
 returnsNoOpIfNotRunningInNode("w")('d')
 //Debug()()

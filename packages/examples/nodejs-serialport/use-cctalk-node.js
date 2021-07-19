@@ -1,4 +1,4 @@
-import { getConnection } from '../../src/cctalk-node.js';
+import { getConnection } from 'esnext-cctalk/src/cctalk-node.js';
 import SerialPort from 'serialport';
 //const SerialPort = require('serialport')
 const port = new SerialPort('/dev/ttyUSB0')

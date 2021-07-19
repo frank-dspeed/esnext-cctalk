@@ -23,7 +23,7 @@ crc16kermit,
 crc16modbus,
 crc16_x25,
 crc16xmodem, default as c } from 'node-crc';
-import { crcMethods } from '../../src/cctalk-crc.js'
+import { crcMethods } from 'esnext-cctalk/src/cctalk-crc.js'
 
 
 

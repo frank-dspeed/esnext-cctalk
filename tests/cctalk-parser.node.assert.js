@@ -1,6 +1,6 @@
 import { sinonSpy } from './utils/sinon-spy.js';
 
-import { OnPayloadComplet } from '../src/on-payload-complet.js'
+import { OnPayloadComplet } from 'esnext-cctalk/src/on-payload-complet.js'
 import assert from 'assert';
 
 console.log('emits data for a default length message')

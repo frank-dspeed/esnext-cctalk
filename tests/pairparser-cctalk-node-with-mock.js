@@ -1,6 +1,6 @@
 import { getPort } from './utils/cctalk-node-port-mock.js';
-import { getConnection } from '../packages/esnext-cctalk/src/cctalk-node.js';
-import { Debug } from '../packages/esnext-cctalk/modules/debug.js';
+import { getConnection } from 'esnext-cctalk/src/cctalk-node.js';
+import { Debug } from 'esnext-cctalk/modules/debug.js';
 
 //setInterval(()=>console.log('waiting'),500)
 

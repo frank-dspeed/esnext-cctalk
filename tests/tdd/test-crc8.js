@@ -1,4 +1,4 @@
-import { crc8 } from '../../modules/crc/8.js';
+import { crc8 } from 'esnext-cctalk/modules/crc/8.js';
 /*
 The raw data to transmit is 40 0 1 254 217 which have the meaning :
 

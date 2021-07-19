@@ -1,6 +1,6 @@
 import { crc16xmodem as crc16xmodemImpl } from 'node-crc';
 //import Debug from '../debug.js';
-import { errorUint8 } from '../error-uint8.js';
+import { errorUint8 } from 'esnext-cctalk/modules/error-uint8.js';
 /**This exists for verification reasons only */
 export const crc16xmodem = {
     /** @param {Uint8Array} unsignedButCompletPayload */ 
